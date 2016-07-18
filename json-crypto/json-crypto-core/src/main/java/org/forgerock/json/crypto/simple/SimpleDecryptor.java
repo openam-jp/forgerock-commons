@@ -16,25 +16,33 @@
 
 package org.forgerock.json.crypto.simple;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Key;
+import java.security.MessageDigest;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.forgerock.json.crypto.JsonCryptoException;
-import org.forgerock.json.crypto.JsonDecryptor;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.JsonValueException;
+import org.forgerock.json.crypto.JsonCryptoException;
+import org.forgerock.json.crypto.JsonDecryptor;
 import org.forgerock.util.encode.Base64;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Decrypts a {@code $crypto} JSON object value encrypted with the
  * {@code x-simple-encryption} type.
  */
 public class SimpleDecryptor implements JsonDecryptor {
+    private static final Logger logger = Logger.getLogger(SimpleDecryptor.class.getName());
 
     /** The type of cryptographic representation that this decryptor supports. */
     public static final String TYPE = "x-simple-encryption";
@@ -82,14 +90,35 @@ public class SimpleDecryptor implements JsonDecryptor {
                 byte[] ciphertext = Base64.decode(key.get("data").required().asString());
                 symmetricKey = new SecretKeySpec(asymmetric.doFinal(ciphertext), cipher.split("/", 2)[0]);
             }
+
+            if (value.isDefined("salt")) {
+                final byte[] macTag = Base64.decode(value.get("mac").required().asString());
+                HKDFKeyGenerator.HKDFMasterKey masterKey = HKDFKeyGenerator.extractMasterKey(symmetricKey.getEncoded(),
+                        Base64.decode(value.get("salt").required().asString()));
+
+                Key macKey = HKDFKeyGenerator.expandKey(masterKey, SimpleEncryptor.MAC_ALGORITHM,
+                        SimpleEncryptor.MAC_KEY_SIZE);
+                final Map<String, Object> map = new TreeMap<>(value.asMap());
+                map.remove("mac");
+                final byte[] computedMacTag = SimpleEncryptor.mac(map, macKey);
+                if (!MessageDigest.isEqual(macTag, computedMacTag)) {
+                    throw new GeneralSecurityException("Invalid tag");
+                }
+
+                symmetricKey = HKDFKeyGenerator.expandKey(masterKey, symmetricKey.getAlgorithm(),
+                        SimpleEncryptor.ASYMMETRIC_AES_KEY_SIZE);
+            }
+
             Cipher symmetric = Cipher.getInstance(cipher);
             String iv = value.get("iv").asString();
+
             IvParameterSpec ivps = (iv == null ? null : new IvParameterSpec(Base64.decode(iv)));
             symmetric.init(Cipher.DECRYPT_MODE, symmetricKey, ivps);
             byte[] plaintext = symmetric.doFinal(Base64.decode(value.get("data").required().asString()));
             return new JsonValue(mapper.readValue(plaintext, Object.class));
         } catch (GeneralSecurityException | IOException | JsonValueException e) {
-            throw new JsonCryptoException(e);
+            logger.log(Level.FINE, "SimpleDecryptor: decryption failure", e);
+            throw new JsonCryptoException("Decryption failed");
         }
     }
 

@@ -36,6 +36,7 @@ import org.forgerock.json.crypto.simple.SimpleKeySelector;
 import org.forgerock.json.JsonPointer;
 import org.forgerock.json.JsonTransformer;
 import org.forgerock.json.JsonValue;
+import org.forgerock.util.encode.Base64;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -167,6 +168,17 @@ public class JsonCryptoTest {
         value = new SimpleEncryptor(SYMMETRIC_CIPHER, secretKey, "secretKey").encrypt(value);
         value.put("key", "somethingCompletelyDifferent");
         new SimpleDecryptor(selector).decrypt(value);
+        new SimpleDecryptor(selector).decrypt(value);
+    }
+
+    @Test(expectedExceptions = JsonCryptoException.class)
+    public void testTamperedIV() throws Exception {
+        JsonValue value = new JsonValue(PLAINTEXT);
+        value = new SimpleEncryptor(SYMMETRIC_CIPHER, secretKey, "secretKey").encrypt(value);
+
+        byte[] iv = Base64.decode(value.get("iv").asString());
+        iv[0] ^= 0x01;
+        value.put("iv", Base64.encode(iv));
         new SimpleDecryptor(selector).decrypt(value);
     }
 }

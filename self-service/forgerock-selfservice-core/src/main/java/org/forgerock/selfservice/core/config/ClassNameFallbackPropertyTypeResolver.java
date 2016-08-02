@@ -11,21 +11,23 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 package org.forgerock.selfservice.core.config;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 
 /**
- * A Type-Resolver that can use standard Jackson {@link JsonTypeInfo.As.PROPERTY} @{link JsonTypeInfo}, but failing
+ * A Type-Resolver that can use standard Jackson {@link JsonTypeInfo.As#PROPERTY} {@link JsonTypeInfo}, but failing
  * to find a matching (or registered {@link NamedType} subtype) will look for a "class" attribute that provides
  * the Class name to deserialize into.  Useful in extending polymorphic deserialization from {@link NamedType}s
  * when you can't know the full gamut of possible subclasses at build time.
@@ -52,7 +54,19 @@ class ClassNameFallbackPropertyTypeResolver extends StdTypeResolverBuilder {
         // important to get the normal TypeIdResolver!
         final TypeIdResolver idRes = this.idResolver(config, baseType, subtypes, false, true);
         return new ClassNameFallbackPropertyTypeDeserializer(baseType, idRes, _typeProperty, _typeIdVisible,
-                _defaultImpl);
+                defaultImplAsJavaType(config, baseType));
+    }
+
+    private JavaType defaultImplAsJavaType(final DeserializationConfig config, final JavaType baseType) {
+        // logic from com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder.buildTypeDeserializer()
+        if (_defaultImpl != null) {
+            if (_defaultImpl == Void.class || _defaultImpl == NoClass.class) {
+                return config.getTypeFactory().constructType(_defaultImpl);
+            } else {
+                return config.getTypeFactory().constructSpecializedType(baseType, _defaultImpl);
+            }
+        }
+        return null;
     }
 }
 

@@ -236,6 +236,29 @@
           "port" : 8088
         }
       }
+    },
+    {
+      "class" : "org.forgerock.audit.handlers.json.JsonAuditEventHandler",
+      "config" : {
+        "name" : "json",
+        "enabled" : false,
+        "topics": [ "access", "activity", "config", "authentication" ],
+        "logDirectory" : "/tmp/audit",
+        "fileRotation" : {
+          "rotationFileSuffix" : "-yyyy.MM.dd-HH.mm.ss",
+          "rotationEnabled" : false,
+          "rotationInterval" : "5 seconds",
+          "maxFileSize" : 32768,
+          "rotationFilePrefix" : "prefix-"
+        },
+        "fileRetention" : {
+          "maxNumberOfHistoryFiles": 0
+        },
+        "buffering": {
+          "maxSize" : 100000,
+          "writeInterval" : "1 millis"
+        }
+      }
     }
   ]
 }

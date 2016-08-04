@@ -40,4 +40,5 @@ Option                   | Description
 `-Dforks=2`              | Number of forks to run per benchmark (default 2)
 `-Dthreads=4`            | Number of concurrent threads to use per benchmark (default 4)
 `-DperfReportDir=/myDir` | Directory to output JMH report named `[unitTestClassName].json`. The default output directory is defined in the Maven POM as `${project.build.directory}/reports/performance/`.
+`-DtempDir=/myTempDir`   | Custom JVM temp directory.
 

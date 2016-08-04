@@ -16,15 +16,16 @@
 
 package org.forgerock.audit.benchmark;
 
+import static org.forgerock.audit.AuditServiceProxy.ACTION_PARAM_TARGET_HANDLER;
+import static org.forgerock.audit.handlers.json.JsonAuditEventHandler.FLUSH_FILE_ACTION_NAME;
 import static org.forgerock.json.JsonValue.*;
-import static org.forgerock.json.JsonValue.field;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.forgerock.audit.handlers.csv.CsvAuditEventHandler;
-import org.forgerock.audit.handlers.csv.CsvAuditEventHandlerConfiguration;
+import org.forgerock.audit.handlers.json.JsonAuditEventHandler;
 import org.forgerock.json.JsonValue;
+import org.forgerock.json.resource.ActionRequest;
 import org.forgerock.json.resource.IdentifierQueryResourceHandler;
 import org.forgerock.json.resource.QueryFilters;
 import org.forgerock.json.resource.QueryRequest;
@@ -35,15 +36,15 @@ import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 
 /**
- * Read-throughput benchmarks for {@link CsvAuditEventHandler}.
+ * Read-throughput benchmarks for {@link JsonAuditEventHandler}.
  */
-public class CsvAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
+public class JsonAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
 
     private static final int PRE_POPULATED_EVENT_COUNT = 100_000;
     private static final String ACCESS = "access";
 
     @State(Scope.Benchmark)
-    public static class ReadState extends CsvAuditEventHandlerWriteBenchmarkTest.DefaultState  {
+    public static class ReadState extends JsonAuditEventHandlerWriteBenchmarkTest.DefaultState  {
         private int counter;
         private String[] identifiers;
 
@@ -58,12 +59,6 @@ public class CsvAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
         }
 
         @Override
-        public void updateConfiguration(CsvAuditEventHandlerConfiguration configuration) {
-            configuration.getBuffering().setEnabled(true);
-            configuration.getBuffering().setAutoFlush(true);
-        }
-
-        @Override
         protected void afterStartup() throws Exception {
             // pre-populate with data and store generated IDs
             identifiers = new String[PRE_POPULATED_EVENT_COUNT];
@@ -74,6 +69,11 @@ public class CsvAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
                 identifiers[i] = handler.publishEvent(null, ACCESS, event).get().getId();
             }
 
+            // flush the underlying file buffer, after all test-events have been published
+            final ActionRequest actionRequest = Requests.newActionRequest(ACCESS, FLUSH_FILE_ACTION_NAME)
+                    .setAdditionalParameter(ACTION_PARAM_TARGET_HANDLER, "json");
+            handler.handleAction(null, ACCESS, actionRequest).getOrThrow();
+
             // shuffle ordering of IDs, to simulate random access
             // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
             final Random random = ThreadLocalRandom.current();
@@ -83,6 +83,9 @@ public class CsvAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
                 identifiers[index] = identifiers[i];
                 identifiers[i] = s;
             }
+
+            // sleep to make sure async-publisher-thread finished all work
+            Thread.sleep(1_000);
         }
     }
 

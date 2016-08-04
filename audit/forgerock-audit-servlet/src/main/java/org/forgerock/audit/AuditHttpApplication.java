@@ -56,6 +56,8 @@ public final class AuditHttpApplication implements HttpApplication {
     /** Root path for audit endpoints. */
     public static final String AUDIT_ROOT_PATH = "/audit";
 
+    private AuditService auditService;
+
     @Override
     public Handler start() throws HttpApplicationException {
         final Router router = new Router();
@@ -79,7 +81,7 @@ public final class AuditHttpApplication implements HttpApplication {
             throw new HttpApplicationException(e);
         }
 
-        final AuditService auditService = auditServiceBuilder.build();
+        auditService = auditServiceBuilder.build();
         try {
             auditService.startup();
         } catch (ServiceUnavailableException e) {
@@ -98,7 +100,9 @@ public final class AuditHttpApplication implements HttpApplication {
 
     @Override
     public void stop() {
-
+        if (auditService != null) {
+            auditService.shutdown();
+        }
     }
 
     private DependencyProvider setupDependencies() throws HttpApplicationException {

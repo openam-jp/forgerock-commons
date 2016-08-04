@@ -505,6 +505,12 @@
 
             <dependency>
                 <groupId>org.forgerock.commons</groupId>
+                <artifactId>forgerock-audit-handler-json</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.forgerock.commons</groupId>
                 <artifactId>forgerock-audit-handler-jdbc</artifactId>
                 <version>${project.version}</version>
             </dependency>

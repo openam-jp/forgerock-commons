@@ -28,9 +28,7 @@ import org.forgerock.audit.events.handlers.AuditEventHandler;
 import org.forgerock.audit.handlers.csv.CsvAuditEventHandler;
 import org.forgerock.audit.handlers.csv.CsvAuditEventHandlerConfiguration;
 import org.forgerock.json.JsonValue;
-import org.forgerock.json.resource.ResourceException;
 import org.forgerock.json.resource.ResourceResponse;
-import org.forgerock.util.promise.Promise;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
@@ -40,7 +38,11 @@ import org.openjdk.jmh.annotations.State;
  */
 public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
 
-    private static final long MAX_FILE_SIZE = 100_000_000;
+    /**
+     * Maximum log file size, before file-rotation is triggered.
+     */
+    static final long MAX_FILE_SIZE = 100_000_000;
+
     private static final String KEYSTORE_FILENAME = "target/test-classes/keystore-signature.jks";
     private static final String KEYSTORE_PASSWORD = "password";
     private static final String SIGNATURE_INTERVAL = "10 seconds";
@@ -85,8 +87,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> unbufferedWrite(final UnbufferedWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse unbufferedWrite(final UnbufferedWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -101,8 +103,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> unbufferedSecureWrite(final UnbufferedSecureWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse unbufferedSecureWrite(final UnbufferedSecureWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -115,9 +117,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> unbufferedRotatedWrite(
-            final UnbufferedRotatedWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse unbufferedRotatedWrite(final UnbufferedRotatedWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -129,8 +130,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> bufferedWrite(final BufferedWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse bufferedWrite(final BufferedWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -143,8 +144,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> bufferedFlushedWrite(final BufferedFlushedWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse bufferedFlushedWrite(final BufferedFlushedWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -158,8 +159,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> bufferedRotatedWrite(final BufferedRotatedWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse bufferedRotatedWrite(final BufferedRotatedWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -174,9 +175,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> bufferedFlushedRotatedWrite(
-            final BufferedFlushedRotatedWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse bufferedFlushedRotatedWrite(final BufferedFlushedRotatedWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -192,8 +192,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> bufferedSecureWrite(final BufferedSecureWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse bufferedSecureWrite(final BufferedSecureWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
@@ -210,9 +210,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public Promise<ResourceResponse, ResourceException> bufferedFlushedSecureWrite(
-            final BufferedFlushedSecureWriteState state) {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent());
+    public ResourceResponse bufferedFlushedSecureWrite(final BufferedFlushedSecureWriteState state) throws Exception {
+        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
 }

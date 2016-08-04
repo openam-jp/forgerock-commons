@@ -82,6 +82,9 @@ public abstract class BenchmarkBase {
         final ChainedOptionsBuilder options = new OptionsBuilder()
                 .include(".*" + className + ".*")
                 .jvmArgs(jvmArgs());
+        if (getTempDir() != null) {
+            options.jvmArgsAppend("-Djava.io.tmpdir=" + getTempDir());
+        }
         if (getWarmupIterations() > 0) {
             options.warmupIterations(getWarmupIterations());
         }
@@ -166,6 +169,15 @@ public abstract class BenchmarkBase {
      */
     protected String getReportDir() {
         return System.getProperty("perfReportDir");
+    }
+
+    /**
+     * Gets custom JVM temp directory, from system property argument {@code -DtempDir=/myTempDir}.
+     *
+     * @return JVM temp dir
+     */
+    protected String getTempDir() {
+        return System.getProperty("tempDir");
     }
 
     private int getIntProperty(final String name, final int defaultValue) {

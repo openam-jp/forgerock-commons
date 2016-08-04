@@ -68,6 +68,11 @@
         </dependency>
         <dependency>
             <groupId>org.forgerock.commons</groupId>
+            <artifactId>forgerock-audit-handler-json</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.forgerock.commons</groupId>
             <artifactId>forgerock-audit-handler-jms</artifactId>
             <version>${project.version}</version>
         </dependency>

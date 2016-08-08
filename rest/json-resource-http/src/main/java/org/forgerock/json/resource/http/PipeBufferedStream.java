@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
- * Portions Copyright 2014-2015 ForgeRock AS.
+ * Portions Copyright 2014-2016 ForgeRock AS.
  */
 
 package org.forgerock.json.resource.http;
@@ -76,8 +76,13 @@ final class PipeBufferedStream {
 
     private class PipeOutputStream extends OutputStream {
         @Override
-        public void write(int i) throws IOException {
-            buffer.append(new byte[]{(byte) i}, 0, 1);
+        public void write(final int i) throws IOException {
+            buffer.append((byte) i);
+        }
+
+        @Override
+        public void write(final byte[] b, final int off, final int len) throws IOException {
+            buffer.append(b, off, len);
         }
 
         @Override
@@ -89,13 +94,17 @@ final class PipeBufferedStream {
     private class PipeInputStream extends InputStream {
         @Override
         public int read() throws IOException {
-            if (position >= buffer.length()) {
-                return -1;
-            } else {
-                byte[] b = new byte[1];
-                buffer.read(position++, b, 0, 1);
-                return b[0];
+            return position < buffer.length() ? buffer.read(position++) : -1;
+        }
+
+        @Override
+        public int read(final byte[] b, final int off, final int len) throws IOException {
+            if (position < buffer.length()) {
+                final int readLength = buffer.read(position, b, off, len);
+                position += readLength;
+                return readLength;
             }
+            return -1;
         }
 
         @Override

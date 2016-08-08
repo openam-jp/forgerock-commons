@@ -16,18 +16,27 @@
 
 package org.forgerock.json.jose.jwe.handlers.encryption;
 
+import static java.security.spec.MGF1ParameterSpec.SHA256;
+import static javax.crypto.spec.PSource.PSpecified.DEFAULT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.forgerock.json.JsonValue.*;
+import static org.forgerock.json.jose.jwe.EncryptionMethod.A128CBC_HS256;
+import static org.forgerock.json.jose.jwe.EncryptionMethod.A256GCM;
+import static org.forgerock.json.jose.jwe.JweAlgorithm.*;
 import static org.forgerock.json.jose.jwe.handlers.encryption.JWETestUtils.bytes;
 
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.OAEPParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.forgerock.json.jose.jwe.EncryptionMethod;
-import org.forgerock.json.jose.jwe.JweAlgorithm;
 import org.forgerock.json.jose.jwk.RsaJWK;
 import org.testng.annotations.Test;
 
@@ -75,8 +84,7 @@ public class RSAEncryptionHandlerTest {
         RSAPublicKey publicKey = jwk.toRSAPublicKey();
         RSAPrivateKey privateKey = jwk.toRSAPrivateKey();
 
-        RSAEncryptionHandler encryptionHandler = new RSAEncryptionHandler(EncryptionMethod.A256GCM,
-                JweAlgorithm.RSA_OAEP);
+        RSAEncryptionHandler encryptionHandler = new RSAEncryptionHandler(A256GCM, RSA_OAEP);
 
         // When
         final byte[] result = encryptionHandler.generateJWEEncryptedKey(publicKey, new SecretKeySpec(cek, "AES"));
@@ -132,13 +140,11 @@ public class RSAEncryptionHandlerTest {
 
         RSAPublicKey publicKey = jwk.toRSAPublicKey();
         RSAPrivateKey privateKey = jwk.toRSAPrivateKey();
-        RSAEncryptionHandler encryptionHandler = new RSAEncryptionHandler(EncryptionMethod.A128CBC_HS256,
-                JweAlgorithm.RSAES_PKCS1_V1_5);
+        RSAEncryptionHandler encryptionHandler = new RSAEncryptionHandler(A128CBC_HS256, RSAES_PKCS1_V1_5);
 
         // When
         final byte[] result = encryptionHandler.generateJWEEncryptedKey(publicKey, new SecretKeySpec(cek, "AES"));
 
-        // Then
         // Then
         // RSA OAEP is randomized, so we cannot simply compare this to the example encrypted key value in the RFC.
         // Instead we decrypt as RSA OEAP and ensure that we get the expected CEK back
@@ -149,4 +155,28 @@ public class RSAEncryptionHandlerTest {
         assertThat(decryptedCek).isEqualTo(cek);
     }
 
+    @Test
+    public void shouldUseCorrectRsaOaep256Parameters() throws Exception {
+        // Given
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048, SecureRandom.getInstance("SHA1PRNG"));
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        byte[] keyBytes = new byte[32];
+        Arrays.fill(keyBytes, (byte) 42);
+        Key aesKey = new SecretKeySpec(keyBytes, "AES");
+
+        RSAEncryptionHandler encryptionHandler = new RSAEncryptionHandler(A128CBC_HS256, RSA_OAEP_256);
+
+        // When
+        final byte[] encryptedKey = encryptionHandler.generateJWEEncryptedKey(keyPair.getPublic(), aesKey);
+
+        // Then
+        OAEPParameterSpec params = new OAEPParameterSpec("SHA-256", "MGF1", SHA256, DEFAULT);
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+        cipher.init(Cipher.UNWRAP_MODE, keyPair.getPrivate(), params);
+        final Key key = cipher.unwrap(encryptedKey, "AES", Cipher.SECRET_KEY);
+        assertThat(key).isNotNull();
+        assertThat(key.getEncoded()).isEqualTo(keyBytes);
+    }
 }

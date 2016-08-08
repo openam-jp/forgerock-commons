@@ -24,6 +24,8 @@
 * Fix decompression when decrypting compressed JWEs : [COMMONS-105](
 https://bugster.forgerock.org/jira/browse/COMMONS-105)
 * Support compression for JWS signed JWTs : [COMMONS-106](https://bugster.forgerock.org/jira/browse/COMMONS-106)
+* Fix RSA-OAEP-256 algorithm parameters : [COMMONS-112](https://bugster.forgerock.org/jira/browse/COMMONS-112)
+* Use Jackson for header/claim serialisation : [COMMONS-114](https://bugster.forgerock.org/jira/browse/COMMONS-114)
 
 # 3.0.4
 

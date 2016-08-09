@@ -147,8 +147,7 @@ public abstract class JWObject {
     }
 
     /**
-     * Returns a string representation of the JWObject. The result resembles-but is not guaranteed to conform to-JSON
-     * syntax.
+     * Returns a string representation of the JWObject. The result is guaranteed to be valid JSON object syntax.
      *
      * @return A JSON String representation.
      */

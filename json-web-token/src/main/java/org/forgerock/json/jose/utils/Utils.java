@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2013-2015 ForgeRock AS.
+ * Copyright 2013-2016 ForgeRock AS.
  */
 
 package org.forgerock.json.jose.utils;
@@ -25,7 +25,9 @@ import org.forgerock.json.jose.exceptions.InvalidJwtException;
 import org.forgerock.util.encode.Base64url;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * This class provides utility methods to share common behaviour.
@@ -38,7 +40,8 @@ public final class Utils {
      * Cached JSON object mapper for parsing tokens.
      */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-        .configure(JsonParser.Feature.STRICT_DUPLICATE_DETECTION, true);
+            .configure(JsonParser.Feature.STRICT_DUPLICATE_DETECTION, true)
+            .configure(SerializationFeature.INDENT_OUTPUT, false);
 
     /**
      * UTF-8 Charset.
@@ -104,6 +107,7 @@ public final class Utils {
      *
      * @param json The JSON string to parse.
      * @return A Map of the JSON properties.
+     * @throws InvalidJwtException if the json value is not well formed or contains duplicate keys.
      */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> parseJson(String json) {
@@ -111,6 +115,21 @@ public final class Utils {
             return OBJECT_MAPPER.readValue(json, LinkedHashMap.class);
         } catch (IOException e) {
             throw new InvalidJwtException("Failed to parse json: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Writes the given map as a string in JSON object format.
+     *
+     * @param object the object to write as JSON.
+     * @return the JSON serialisation of the given object.
+     * @throws InvalidJwtException if the object cannot be converted to JSON for any reason.
+     */
+    public static String writeJsonObject(Map<String, Object> object) {
+        try {
+            return OBJECT_MAPPER.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            throw new InvalidJwtException("Failed to write json: " + e, e);
         }
     }
 }

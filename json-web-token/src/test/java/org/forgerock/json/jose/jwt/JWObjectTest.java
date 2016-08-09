@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2013-2015 ForgeRock AS.
+ * Copyright 2013-2016 ForgeRock AS.
  */
 
 package org.forgerock.json.jose.jwt;
@@ -200,6 +200,21 @@ public class JWObjectTest {
         String jwString = jwObject.toString();
 
         //Then
-        assertThat(jwString).contains("\"KEY2\": \"VALUE2\"", "\"KEY1\": \"VALUE1\"");
+        assertThat(jwString).contains("\"KEY2\":\"VALUE2\"", "\"KEY1\":\"VALUE1\"");
+    }
+
+    @Test
+    public void shouldNotAddAdditionalWhitespace() {
+        // Given
+        JWObject jwObject = new JWObject() { };
+        for (int i = 0; i < 100; ++i) {
+            jwObject.put("key" + i, "value" + i);
+        }
+
+        // When
+        String jwString = jwObject.toString();
+
+        // Then
+        assertThat(jwString).doesNotContain(" ").doesNotContain("\t").doesNotContain("\n").doesNotContain("\r");
     }
 }

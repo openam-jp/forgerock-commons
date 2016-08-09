@@ -18,6 +18,7 @@ package org.forgerock.json.jose.utils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,22 +37,17 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  */
 public final class Utils {
 
-    /**
-     * Cached JSON object mapper for parsing tokens.
-     */
+    /** Cached JSON object mapper for parsing tokens. */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .configure(JsonParser.Feature.STRICT_DUPLICATE_DETECTION, true)
             .configure(SerializationFeature.INDENT_OUTPUT, false);
 
-    /**
-     * UTF-8 Charset.
-     */
-    public static final Charset CHARSET = Charset.forName("UTF-8");
+    /** UTF-8 Charset. */
+    public static final Charset CHARSET = StandardCharsets.UTF_8;
 
-    /**
-     * Private constructor.
-     */
+    /** Private constructor. */
     private Utils() {
+        // Utility class
     }
 
     /**

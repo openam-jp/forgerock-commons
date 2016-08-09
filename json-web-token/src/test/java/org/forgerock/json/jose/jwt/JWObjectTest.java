@@ -215,6 +215,9 @@ public class JWObjectTest {
         String jwString = jwObject.toString();
 
         // Then
-        assertThat(jwString).doesNotContain(" ").doesNotContain("\t").doesNotContain("\n").doesNotContain("\r");
+        assertThat(jwString).doesNotContain(" ")
+                            .doesNotContain("\t")
+                            .doesNotContain("\n")
+                            .doesNotContain("\r");
     }
 }

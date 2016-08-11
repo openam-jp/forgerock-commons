@@ -296,10 +296,11 @@ public final class Resources {
         RequestHandler instanceHandler = fromInterface
                 ? new InterfaceCollectionInstance((CollectionResourceProvider) provider)
                 : new AnnotationCollectionInstance(provider);
-        CollectionProvider providerAnnotation = provider.getClass().getAnnotation(CollectionProvider.class);
+        Class<?> providerClass = provider.getClass();
+        CollectionProvider providerAnnotation = providerClass.getAnnotation(CollectionProvider.class);
         Parameter pathParameter;
         if (providerAnnotation != null) {
-            pathParameter = Parameter.fromAnnotation(providerAnnotation.pathParam());
+            pathParameter = Parameter.fromAnnotation(providerClass, providerAnnotation.pathParam());
         } else {
             pathParameter = parameter().name("id").type("string").source(ParameterSource.PATH).required(true).build();
         }

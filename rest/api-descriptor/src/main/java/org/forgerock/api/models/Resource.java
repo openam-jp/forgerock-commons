@@ -388,7 +388,7 @@ public final class Resource {
         }
 
         for (org.forgerock.api.annotations.Parameter parameter : handler.parameters()) {
-            builder.parameter(Parameter.fromAnnotation(parameter));
+            builder.parameter(Parameter.fromAnnotation(type, parameter));
         }
         for (Parameter param : extraParameters) {
             builder.parameter(param);

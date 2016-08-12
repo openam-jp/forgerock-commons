@@ -212,6 +212,30 @@
           "connectionFactoryName": "ConnectionFactory"
         }
       }
+    },
+    {
+      "class": "org.forgerock.audit.handlers.splunk.SplunkAuditEventHandler",
+      "config": {
+        "name": "splunk",
+        "enabled": false,
+        "topics": [
+          "access",
+          "activity",
+          "config",
+          "authentication"
+        ],
+        "authzToken": "00000000-0000-0000-0000-000000000000",
+        "buffering": {
+          "maxSize" : 10000,
+          "writeInterval" : "250 millis",
+          "maxBatchedEvents" : 500
+        },
+        "connection" : {
+          "useSSL" : false,
+          "host" : "localhost",
+          "port" : 8088
+        }
+      }
     }
   ]
 }

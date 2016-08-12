@@ -15,7 +15,6 @@
  */
 package org.forgerock.audit.handlers.elasticsearch;
 
-import static org.forgerock.audit.handlers.elasticsearch.ElasticsearchAuditEventHandlerConfiguration.ConnectionConfiguration;
 import static org.forgerock.audit.handlers.elasticsearch.ElasticsearchUtil.OBJECT_MAPPER;
 import static org.forgerock.http.handler.HttpClientHandler.OPTION_LOADER;
 import static org.forgerock.json.JsonValue.field;
@@ -37,7 +36,12 @@ import org.forgerock.audit.Audit;
 import org.forgerock.audit.events.EventTopicsMetaData;
 import org.forgerock.audit.events.handlers.AuditEventHandler;
 import org.forgerock.audit.events.handlers.AuditEventHandlerBase;
+import org.forgerock.audit.events.handlers.buffering.BufferedBatchPublisher;
+import org.forgerock.audit.handlers.elasticsearch.ElasticsearchAuditEventHandlerConfiguration.ConnectionConfiguration;
 import org.forgerock.audit.handlers.elasticsearch.ElasticsearchAuditEventHandlerConfiguration.EventBufferingConfiguration;
+import org.forgerock.audit.events.handlers.buffering.BatchConsumer;
+import org.forgerock.audit.events.handlers.buffering.BatchPublisher;
+import org.forgerock.audit.events.handlers.buffering.BatchException;
 import org.forgerock.http.Client;
 import org.forgerock.http.HttpApplicationException;
 import org.forgerock.http.apache.async.AsyncHttpClientProvider;
@@ -71,7 +75,7 @@ import org.slf4j.LoggerFactory;
  * {@link AuditEventHandler} for Elasticsearch.
  */
 public class ElasticsearchAuditEventHandler extends AuditEventHandlerBase implements
-        ElasticsearchBatchAuditEventHandler {
+        BatchConsumer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchAuditEventHandler.class);
     private static final ElasticsearchQueryFilterVisitor ELASTICSEARCH_QUERY_FILTER_VISITOR =
@@ -108,7 +112,7 @@ public class ElasticsearchAuditEventHandler extends AuditEventHandlerBase implem
     private final String bulkUri;
     private final ElasticsearchAuditEventHandlerConfiguration configuration;
     private final Client client;
-    private final ElasticsearchBatchIndexer batchIndexer;
+    private final BatchPublisher batchIndexer;
     private final HttpClientHandler defaultHttpClientHandler;
 
     /**
@@ -142,9 +146,13 @@ public class ElasticsearchAuditEventHandler extends AuditEventHandlerBase implem
                     bufferConfig.getWriteInterval() == null || bufferConfig.getWriteInterval().isEmpty()
                             ? null
                             : Duration.duration(bufferConfig.getWriteInterval());
-            batchIndexer = new ElasticsearchBatchIndexer(bufferConfig.getMaxSize(),
-                    writeInterval, bufferConfig.getMaxBatchedEvents(),
-                    BATCH_INDEX_AVERAGE_PER_EVENT_PAYLOAD_SIZE, ALWAYS_FLUSH_BATCH_QUEUE, this);
+            batchIndexer = BufferedBatchPublisher.newBuilder(this)
+                    .capacity(bufferConfig.getMaxSize())
+                    .writeInterval(writeInterval)
+                    .maxBatchEvents(bufferConfig.getMaxBatchedEvents())
+                    .averagePerEventPayloadSize(BATCH_INDEX_AVERAGE_PER_EVENT_PAYLOAD_SIZE)
+                    .autoFlush(ALWAYS_FLUSH_BATCH_QUEUE)
+                    .build();
         } else {
             batchIndexer = null;
         }

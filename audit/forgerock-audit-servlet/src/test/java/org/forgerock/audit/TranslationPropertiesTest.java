@@ -29,6 +29,7 @@ import org.forgerock.audit.handlers.csv.CsvAuditEventHandlerConfiguration;
 import org.forgerock.audit.handlers.elasticsearch.ElasticsearchAuditEventHandlerConfiguration;
 import org.forgerock.audit.handlers.jdbc.JdbcAuditEventHandlerConfiguration;
 import org.forgerock.audit.handlers.jms.JmsAuditEventHandlerConfiguration;
+import org.forgerock.audit.handlers.splunk.SplunkAuditEventHandlerConfiguration;
 import org.forgerock.audit.handlers.syslog.SyslogAuditEventHandlerConfiguration;
 import org.forgerock.json.JsonValue;
 import org.testng.annotations.BeforeMethod;
@@ -67,7 +68,8 @@ public class TranslationPropertiesTest {
             { JdbcAuditEventHandlerConfiguration.class },
             { SyslogAuditEventHandlerConfiguration.class },
             { ElasticsearchAuditEventHandlerConfiguration.class },
-            { JmsAuditEventHandlerConfiguration.class }
+            { JmsAuditEventHandlerConfiguration.class },
+            { SplunkAuditEventHandlerConfiguration.class }
         };
     }
 

@@ -24,10 +24,14 @@ import static org.forgerock.http.routing.RouteMatchers.requestUriMatcher;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.forgerock.audit.events.handlers.buffering.BatchPublisherFactory;
+import org.forgerock.audit.events.handlers.buffering.BatchPublisherFactoryImpl;
 import org.forgerock.audit.json.AuditJsonConfig;
+import org.forgerock.http.Client;
 import org.forgerock.http.Handler;
 import org.forgerock.http.HttpApplication;
 import org.forgerock.http.HttpApplicationException;
+import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.http.io.Buffer;
 import org.forgerock.http.routing.Router;
 import org.forgerock.http.routing.RoutingMode;
@@ -58,6 +62,7 @@ public final class AuditHttpApplication implements HttpApplication {
         final AuditServiceConfiguration auditServiceConfiguration = loadAuditServiceConfiguration();
 
         AuditServiceBuilder auditServiceBuilder = newAuditService();
+        auditServiceBuilder.withDependencyProvider(setupDependencies());
         auditServiceBuilder.withConfiguration(auditServiceConfiguration);
 
         try (final InputStream eventHandlersConfig = this.getClass().getResourceAsStream(AUDIT_EVENT_HANDLERS_CONFIG)) {
@@ -94,6 +99,13 @@ public final class AuditHttpApplication implements HttpApplication {
     @Override
     public void stop() {
 
+    }
+
+    private DependencyProvider setupDependencies() throws HttpApplicationException {
+        DependencyProviderBase dependencyProvider = new DependencyProviderBase();
+        dependencyProvider.register(Client.class, new Client(new HttpClientHandler()));
+        dependencyProvider.register(BatchPublisherFactory.class, new BatchPublisherFactoryImpl());
+        return dependencyProvider;
     }
 
     /** Loads the audit service configuration from JSON. */

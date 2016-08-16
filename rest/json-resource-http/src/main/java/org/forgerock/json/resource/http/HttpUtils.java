@@ -567,7 +567,10 @@ public final class HttpUtils {
 
         final JsonGenerator writer =
                 JSON_MAPPER.getFactory().createGenerator(pipeStream.getIn());
-        writer.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, false);
+
+        // Need to have the JsonGenerator close the stream so that it is
+        // properly released.
+        writer.configure(JsonGenerator.Feature.AUTO_CLOSE_TARGET, true);
 
         // Enable pretty printer if requested.
         final List<String> values = getParameter(req, PARAM_PRETTY_PRINT);

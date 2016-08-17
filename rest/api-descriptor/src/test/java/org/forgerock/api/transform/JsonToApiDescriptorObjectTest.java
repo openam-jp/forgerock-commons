@@ -13,10 +13,10 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.api.transform;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.forgerock.api.enums.PatchOperation.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,10 +24,12 @@ import java.nio.file.Paths;
 
 import org.forgerock.api.enums.CountPolicy;
 import org.forgerock.api.enums.CreateMode;
-import org.forgerock.api.enums.PatchOperation;
 import org.forgerock.api.enums.QueryType;
 import org.forgerock.api.models.ApiDescription;
+import org.forgerock.api.models.Resource;
+import org.forgerock.api.models.Schema;
 import org.forgerock.http.util.Json;
+import org.forgerock.json.JsonValue;
 import org.forgerock.util.i18n.LocalizableString;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.testng.annotations.DataProvider;
@@ -36,9 +38,7 @@ import org.testng.annotations.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-/**
- * Json to {@link ApiDescription} deserializer test
- */
+/** Json to {@link ApiDescription} deserializer test */
 public class JsonToApiDescriptorObjectTest {
 
     private static final LocalizableString DESCRIPTION = new LocalizableString(
@@ -51,7 +51,6 @@ public class JsonToApiDescriptorObjectTest {
 
     @Test
     public void subResourcesJsonToApiDescriptorPropertiesTest() throws IOException {
-
         File file = Paths.get("docs/examples/sub-resources.json").toFile();
 
         ApiDescription apiDescription = OBJECT_MAPPER.readValue(file, ApiDescription.class);
@@ -61,263 +60,200 @@ public class JsonToApiDescriptorObjectTest {
         assertThat(apiDescription.getDefinitions().getNames()).hasSize(2);
 
         //schema assertions
-        assertThat(apiDescription.getDefinitions().get("user").getReference()).isNull();
-        assertThat(apiDescription.getDefinitions().get("user").getSchema()).hasSize(5);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("description")
+        final Schema userDef = apiDescription.getDefinitions().get("user");
+        assertThat(userDef.getReference()).isNull();
+        assertThat(userDef.getSchema()).hasSize(5);
+        assertThat(userDef.getSchema().get("description")
                 .asString()).isEqualTo("User with device sub-resources");
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties")).hasSize(6);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("_id")).hasSize(4);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("_id")
-                .get("title").asString()).isEqualTo("Unique Identifier");
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("_rev")).hasSize(3);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("_rev")
-                .get("title").asString()).isEqualTo("Revision Identifier");
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("uid")).hasSize(3);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("uid")
-                .get("title").asString()).isEqualTo("User unique identifier");
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("name")).hasSize(3);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("name")
-                .get("title").asString()).isEqualTo("User name");
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("password"))
-                .hasSize(3);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("password")
-                .get("description").asString()).isEqualTo("Password of the user");
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("devices")).hasSize(6);
-        assertThat(apiDescription.getDefinitions().get("user").getSchema().get("properties").get("devices")
-                .get("items").get("$ref").asString()).isEqualTo("#/definitions/device");
-        assertThat(apiDescription.getDefinitions().get("device").getReference()).isNull();
-        assertThat(apiDescription.getDefinitions().get("device").getSchema()).hasSize(5);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("description").asString())
-                .isEqualTo("Device");
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties")).hasSize(7);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("_id")).hasSize(4);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("_id")
-                .get("title").asString()).isEqualTo("Unique Identifier");
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("_rev")).hasSize(3);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("_rev")
-                .get("title").asString()).isEqualTo("Revision Identifier");
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("did")).hasSize(2);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("did")
-                .get("title").asString()).isEqualTo("Unique Identifier of the device");
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("name")).hasSize(2);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("name")
-                .get("title").asString()).isEqualTo("Device name");
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("type")).hasSize(2);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("type")
-                .get("title").asString()).isEqualTo("Device type");
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("stolen"))
-                .hasSize(3);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("stolen")
-                .get("title").asString()).isEqualTo("Stolen flag");
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("rollOutDate"))
-                .hasSize(3);
-        assertThat(apiDescription.getDefinitions().get("device").getSchema().get("properties").get("rollOutDate")
-                .get("title").asString()).isEqualTo("Roll-out date");
+        final JsonValue userProps = userDef.getSchema().get("properties");
+        assertThat(userProps).hasSize(6);
+        assertThat(userProps.get("_id")).hasSize(4);
+        assertThat(userProps.get("_id").get("title").asString()).isEqualTo("Unique Identifier");
+        assertThat(userProps.get("_rev")).hasSize(3);
+        assertThat(userProps.get("_rev").get("title").asString()).isEqualTo("Revision Identifier");
+        assertThat(userProps.get("uid")).hasSize(3);
+        assertThat(userProps.get("uid").get("title").asString()).isEqualTo("User unique identifier");
+        assertThat(userProps.get("name")).hasSize(3);
+        assertThat(userProps.get("name").get("title").asString()).isEqualTo("User name");
+        assertThat(userProps.get("password")).hasSize(3);
+        assertThat(userProps.get("password").get("description").asString()).isEqualTo("Password of the user");
+        assertThat(userProps.get("devices")).hasSize(6);
+        assertThat(userProps.get("devices").get("items").get("$ref").asString()).isEqualTo("#/definitions/device");
+
+        final Schema deviceDef = apiDescription.getDefinitions().get("device");
+        assertThat(deviceDef.getReference()).isNull();
+        assertThat(deviceDef.getSchema()).hasSize(5);
+        assertThat(deviceDef.getSchema().get("description").asString()).isEqualTo("Device");
+        final JsonValue deviceProps = deviceDef.getSchema().get("properties");
+        assertThat(deviceProps).hasSize(7);
+        assertThat(deviceProps.get("_id")).hasSize(4);
+        assertThat(deviceProps.get("_id").get("title").asString()).isEqualTo("Unique Identifier");
+        assertThat(deviceProps.get("_rev")).hasSize(3);
+        assertThat(deviceProps.get("_rev").get("title").asString()).isEqualTo("Revision Identifier");
+        assertThat(deviceProps.get("did")).hasSize(2);
+        assertThat(deviceProps.get("did").get("title").asString()).isEqualTo("Unique Identifier of the device");
+        assertThat(deviceProps.get("name")).hasSize(2);
+        assertThat(deviceProps.get("name").get("title").asString()).isEqualTo("Device name");
+        assertThat(deviceProps.get("type")).hasSize(2);
+        assertThat(deviceProps.get("type").get("title").asString()).isEqualTo("Device type");
+        assertThat(deviceProps.get("stolen")).hasSize(3);
+        assertThat(deviceProps.get("stolen").get("title").asString()).isEqualTo("Stolen flag");
+        assertThat(deviceProps.get("rollOutDate")).hasSize(3);
+        assertThat(deviceProps.get("rollOutDate").get("title").asString()).isEqualTo("Roll-out date");
+
         //services
         assertThat(apiDescription.getServices().getNames()).hasSize(4);
-        assertThat(apiDescription.getServices().get("devices:1.0").getResourceSchema().getReference()
-                .getValue()).isEqualTo("#/definitions/device");
-        assertThat(apiDescription.getServices().get("devices:1.0").getDescription()).isNotNull();
-        assertThat(apiDescription.getServices().get("devices:1.0").getCreate().getMode())
-                .isEqualTo(CreateMode.ID_FROM_SERVER);
-        assertThat(apiDescription.getServices().get("devices:1.0").getCreate().getSupportedLocales()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getCreate().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getRead()).isNull();
-        assertThat(apiDescription.getServices().get("devices:1.0").getUpdate()).isNull();
-        assertThat(apiDescription.getServices().get("devices:1.0").getDelete()).isNull();
-        assertThat(apiDescription.getServices().get("devices:1.0").getPatch()).isNull();
-        assertThat(apiDescription.getServices().get("devices:1.0").getActions()).hasSize(0);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()).hasSize(1);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getType())
-                .isEqualTo(QueryType.FILTER);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getPagingModes()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getCountPolicies()).hasSize(1);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getCountPolicies()[0])
-                .isEqualTo(CountPolicy.NONE);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getQueryableFields()).hasSize(5);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getSupportedLocales()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getParameters()).isNull();
-        assertThat(apiDescription.getServices().get("devices:1.0").getQueries()[0].getStability()).isNull();
 
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getCreate().getMode())
-                .isEqualTo(CreateMode.ID_FROM_CLIENT);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getCreate().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getCreate().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getRead().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getRead().getApiErrors()).hasSize(3);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getUpdate().getDescription()
+        final Resource devices10Service = apiDescription.getServices().get("devices:1.0");
+        assertThat(devices10Service.getResourceSchema().getReference().getValue()).isEqualTo("#/definitions/device");
+        assertThat(devices10Service.getDescription()).isNotNull();
+        assertThat(devices10Service.getCreate().getMode()).isEqualTo(CreateMode.ID_FROM_SERVER);
+        assertThat(devices10Service.getCreate().getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getCreate().getApiErrors()).hasSize(2);
+        assertThat(devices10Service.getRead()).isNull();
+        assertThat(devices10Service.getUpdate()).isNull();
+        assertThat(devices10Service.getDelete()).isNull();
+        assertThat(devices10Service.getPatch()).isNull();
+        assertThat(devices10Service.getActions()).hasSize(0);
+        assertThat(devices10Service.getQueries()).hasSize(1);
+        assertThat(devices10Service.getQueries()[0].getType()).isEqualTo(QueryType.FILTER);
+        assertThat(devices10Service.getQueries()[0].getPagingModes()).hasSize(2);
+        assertThat(devices10Service.getQueries()[0].getCountPolicies()).hasSize(1);
+        assertThat(devices10Service.getQueries()[0].getCountPolicies()).containsOnly(CountPolicy.NONE);
+        assertThat(devices10Service.getQueries()[0].getQueryableFields()).hasSize(5);
+        assertThat(devices10Service.getQueries()[0].getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getQueries()[0].getApiErrors()).hasSize(2);
+        assertThat(devices10Service.getQueries()[0].getParameters()).isNull();
+        assertThat(devices10Service.getQueries()[0].getStability()).isNull();
+
+        assertThat(devices10Service.getItems().getCreate().getMode()).isEqualTo(CreateMode.ID_FROM_CLIENT);
+        assertThat(devices10Service.getItems().getCreate().getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getItems().getCreate().getApiErrors()).hasSize(2);
+        assertThat(devices10Service.getItems().getRead().getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getItems().getRead().getApiErrors()).hasSize(3);
+        assertThat(devices10Service.getItems().getUpdate().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("Update a device");
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getUpdate().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getUpdate().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getDelete().getDescription()
+        assertThat(devices10Service.getItems().getUpdate().getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getItems().getUpdate().getApiErrors()).hasSize(2);
+        assertThat(devices10Service.getItems().getDelete().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("Delete a device");
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getDelete().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getDelete().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getPatch().getDescription()
+        assertThat(devices10Service.getItems().getDelete().getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getItems().getDelete().getApiErrors()).hasSize(2);
+        assertThat(devices10Service.getItems().getPatch().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("Patch a device");
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getPatch().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getPatch().getApiErrors())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getPatch().getOperations()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getPatch().getOperations()[0])
-                .isEqualTo(PatchOperation.ADD);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getPatch().getOperations()[1])
-                .isEqualTo(PatchOperation.REMOVE);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getActions()).hasSize(1);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getActions()[0].getName())
-                .isEqualTo("markAsStolen");
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getActions()[0].getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:1.0").getItems().getActions()[0].getApiErrors())
-                .hasSize(3);
+        assertThat(devices10Service.getItems().getPatch().getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getItems().getPatch().getApiErrors()).hasSize(2);
+        assertThat(devices10Service.getItems().getPatch().getOperations()).hasSize(2);
+        assertThat(devices10Service.getItems().getPatch().getOperations()).containsOnly(ADD, REMOVE);
+        assertThat(devices10Service.getItems().getActions()).hasSize(1);
+        assertThat(devices10Service.getItems().getActions()[0].getName()).isEqualTo("markAsStolen");
+        assertThat(devices10Service.getItems().getActions()[0].getSupportedLocales()).hasSize(2);
+        assertThat(devices10Service.getItems().getActions()[0].getApiErrors()).hasSize(3);
 
         assertThat(apiDescription.getServices().getNames()).hasSize(4);
-        assertThat(apiDescription.getServices().get("devices:2.0").getResourceSchema().getReference().getValue())
-                .isEqualTo("#/definitions/device");
-        assertThat(apiDescription.getServices().get("devices:2.0").getDescription()).isNotNull();
-        assertThat(apiDescription.getServices().get("devices:2.0").getCreate().getMode())
-                .isEqualTo(CreateMode.ID_FROM_SERVER);
-        assertThat(apiDescription.getServices().get("devices:2.0").getCreate().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getCreate().getApiErrors())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getRead()).isNull();
-        assertThat(apiDescription.getServices().get("devices:2.0").getUpdate()).isNull();
-        assertThat(apiDescription.getServices().get("devices:2.0").getDelete()).isNull();
-        assertThat(apiDescription.getServices().get("devices:2.0").getPatch()).isNull();
-        assertThat(apiDescription.getServices().get("devices:2.0").getActions()).hasSize(0);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()).hasSize(1);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getType())
-                .isEqualTo(QueryType.FILTER);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getPagingModes()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getCountPolicies()).hasSize(1);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getCountPolicies()[0])
-                .isEqualTo(CountPolicy.NONE);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getQueryableFields()).hasSize(5);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getSupportedLocales()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getParameters()).isNull();
-        assertThat(apiDescription.getServices().get("devices:2.0").getQueries()[0].getStability()).isNull();
+        final Resource device20Service = apiDescription.getServices().get("devices:2.0");
+        assertThat(device20Service.getResourceSchema().getReference().getValue()).isEqualTo("#/definitions/device");
+        assertThat(device20Service.getDescription()).isNotNull();
+        assertThat(device20Service.getCreate().getMode()).isEqualTo(CreateMode.ID_FROM_SERVER);
+        assertThat(device20Service.getCreate().getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getCreate().getApiErrors()).hasSize(2);
+        assertThat(device20Service.getRead()).isNull();
+        assertThat(device20Service.getUpdate()).isNull();
+        assertThat(device20Service.getDelete()).isNull();
+        assertThat(device20Service.getPatch()).isNull();
+        assertThat(device20Service.getActions()).hasSize(0);
+        assertThat(device20Service.getQueries()).hasSize(1);
+        assertThat(device20Service.getQueries()[0].getType()).isEqualTo(QueryType.FILTER);
+        assertThat(device20Service.getQueries()[0].getPagingModes()).hasSize(2);
+        assertThat(device20Service.getQueries()[0].getCountPolicies()).hasSize(1);
+        assertThat(device20Service.getQueries()[0].getCountPolicies()).containsOnly(CountPolicy.NONE);
+        assertThat(device20Service.getQueries()[0].getQueryableFields()).hasSize(5);
+        assertThat(device20Service.getQueries()[0].getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getQueries()[0].getApiErrors()).hasSize(2);
+        assertThat(device20Service.getQueries()[0].getParameters()).isNull();
+        assertThat(device20Service.getQueries()[0].getStability()).isNull();
 
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getCreate().getMode())
-                .isEqualTo(CreateMode.ID_FROM_CLIENT);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getCreate().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getCreate().getApiErrors())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getRead().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getRead().getApiErrors()).hasSize(3);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getUpdate().getDescription()
+        assertThat(device20Service.getItems().getCreate().getMode()).isEqualTo(CreateMode.ID_FROM_CLIENT);
+        assertThat(device20Service.getItems().getCreate().getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getItems().getCreate().getApiErrors()).hasSize(2);
+        assertThat(device20Service.getItems().getRead().getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getItems().getRead().getApiErrors()).hasSize(3);
+        assertThat(device20Service.getItems().getUpdate().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("Update a device");
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getUpdate().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getUpdate().getApiErrors())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getDelete().getDescription()
+        assertThat(device20Service.getItems().getUpdate().getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getItems().getUpdate().getApiErrors()).hasSize(2);
+        assertThat(device20Service.getItems().getDelete().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("Delete a device");
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getDelete().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getDelete().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getPatch().getDescription()
+        assertThat(device20Service.getItems().getDelete().getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getItems().getDelete().getApiErrors()).hasSize(2);
+        assertThat(device20Service.getItems().getPatch().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("Patch a device");
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getPatch().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getPatch().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getPatch().getOperations()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getPatch().getOperations()[0])
-                .isEqualTo(PatchOperation.ADD);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getPatch().getOperations()[1])
-                .isEqualTo(PatchOperation.REMOVE);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getActions()).hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getActions()[0].getName())
-                .isEqualTo("markAsStolen");
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getActions()[0].getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getActions()[0].getApiErrors())
-                .hasSize(3);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getActions()[1].getName())
-                .isEqualTo("rollOut");
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getActions()[1].getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("devices:2.0").getItems().getActions()[1].getApiErrors())
-                .hasSize(3);
+        assertThat(device20Service.getItems().getPatch().getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getItems().getPatch().getApiErrors()).hasSize(2);
+        assertThat(device20Service.getItems().getPatch().getOperations()).hasSize(2);
+        assertThat(device20Service.getItems().getPatch().getOperations()).containsOnly(ADD, REMOVE);
+        assertThat(device20Service.getItems().getActions()).hasSize(2);
+        assertThat(device20Service.getItems().getActions()[0].getName()).isEqualTo("markAsStolen");
+        assertThat(device20Service.getItems().getActions()[0].getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getItems().getActions()[0].getApiErrors()).hasSize(3);
+        assertThat(device20Service.getItems().getActions()[1].getName()).isEqualTo("rollOut");
+        assertThat(device20Service.getItems().getActions()[1].getSupportedLocales()).hasSize(2);
+        assertThat(device20Service.getItems().getActions()[1].getApiErrors()).hasSize(3);
 
-        assertThat(apiDescription.getServices().get("users:1.0").getResourceSchema().getReference().getValue())
-                .isEqualTo("#/definitions/user");
-        assertThat(apiDescription.getServices().get("users:1.0").getDescription()).isNotNull();
-        assertThat(apiDescription.getServices().get("users:1.0").getCreate().getMode())
-                .isEqualTo(CreateMode.ID_FROM_SERVER);
-        assertThat(apiDescription.getServices().get("users:1.0").getCreate().getSupportedLocales()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getCreate().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getRead()).isNull();
-        assertThat(apiDescription.getServices().get("users:1.0").getUpdate()).isNull();
-        assertThat(apiDescription.getServices().get("users:1.0").getDelete()).isNull();
-        assertThat(apiDescription.getServices().get("users:1.0").getPatch()).isNull();
-        assertThat(apiDescription.getServices().get("users:1.0").getActions()).hasSize(0);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()).hasSize(1);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getType())
-                .isEqualTo(QueryType.FILTER);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getPagingModes()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getCountPolicies()).hasSize(1);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getCountPolicies()[0])
-                .isEqualTo(CountPolicy.NONE);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getQueryableFields()).hasSize(3);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getSupportedLocales()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getParameters()).isNull();
-        assertThat(apiDescription.getServices().get("users:1.0").getQueries()[0].getStability()).isNull();
+        final Resource users10Service = apiDescription.getServices().get("users:1.0");
+        assertThat(users10Service.getResourceSchema().getReference().getValue()).isEqualTo("#/definitions/user");
+        assertThat(users10Service.getDescription()).isNotNull();
+        assertThat(users10Service.getCreate().getMode()).isEqualTo(CreateMode.ID_FROM_SERVER);
+        assertThat(users10Service.getCreate().getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getCreate().getApiErrors()).hasSize(2);
+        assertThat(users10Service.getRead()).isNull();
+        assertThat(users10Service.getUpdate()).isNull();
+        assertThat(users10Service.getDelete()).isNull();
+        assertThat(users10Service.getPatch()).isNull();
+        assertThat(users10Service.getActions()).hasSize(0);
+        assertThat(users10Service.getQueries()).hasSize(1);
+        assertThat(users10Service.getQueries()[0].getType()).isEqualTo(QueryType.FILTER);
+        assertThat(users10Service.getQueries()[0].getPagingModes()).hasSize(2);
+        assertThat(users10Service.getQueries()[0].getCountPolicies()).hasSize(1);
+        assertThat(users10Service.getQueries()[0].getCountPolicies()).containsOnly(CountPolicy.NONE);
+        assertThat(users10Service.getQueries()[0].getQueryableFields()).hasSize(3);
+        assertThat(users10Service.getQueries()[0].getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getQueries()[0].getApiErrors()).hasSize(2);
+        assertThat(users10Service.getQueries()[0].getParameters()).isNull();
+        assertThat(users10Service.getQueries()[0].getStability()).isNull();
 
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getCreate().getMode())
-                .isEqualTo(CreateMode.ID_FROM_CLIENT);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getCreate().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getCreate().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getRead().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getRead().getApiErrors()).hasSize(3);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getUpdate().getDescription()
+        assertThat(users10Service.getItems().getCreate().getMode()).isEqualTo(CreateMode.ID_FROM_CLIENT);
+        assertThat(users10Service.getItems().getCreate().getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getItems().getCreate().getApiErrors()).hasSize(2);
+        assertThat(users10Service.getItems().getRead().getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getItems().getRead().getApiErrors()).hasSize(3);
+        assertThat(users10Service.getItems().getUpdate().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("User update operation");
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getUpdate().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getUpdate().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getDelete().getDescription()
+        assertThat(users10Service.getItems().getUpdate().getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getItems().getUpdate().getApiErrors()).hasSize(2);
+        assertThat(users10Service.getItems().getDelete().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("User delete operation");
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getDelete().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getDelete().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getPatch().getDescription()
+        assertThat(users10Service.getItems().getDelete().getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getItems().getDelete().getApiErrors()).hasSize(2);
+        assertThat(users10Service.getItems().getPatch().getDescription()
                 .toTranslatedString(new PreferredLocales()))
                 .isEqualTo("User patch operation");
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getPatch().getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getPatch().getApiErrors()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getPatch().getOperations()).hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getPatch().getOperations()[0])
-                .isEqualTo(PatchOperation.ADD);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getPatch().getOperations()[1])
-                .isEqualTo(PatchOperation.REMOVE);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getActions()).hasSize(1);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getActions()[0].getName())
-                .isEqualTo("resetPassword");
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getActions()[0].getSupportedLocales())
-                .hasSize(2);
-        assertThat(apiDescription.getServices().get("users:1.0").getItems().getActions()[0].getApiErrors())
-                .hasSize(3);
+        assertThat(users10Service.getItems().getPatch().getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getItems().getPatch().getApiErrors()).hasSize(2);
+        assertThat(users10Service.getItems().getPatch().getOperations()).hasSize(2);
+        assertThat(users10Service.getItems().getPatch().getOperations()).containsOnly(ADD, REMOVE);
+        assertThat(users10Service.getItems().getActions()).hasSize(1);
+        assertThat(users10Service.getItems().getActions()[0].getName()).isEqualTo("resetPassword");
+        assertThat(users10Service.getItems().getActions()[0].getSupportedLocales()).hasSize(2);
+        assertThat(users10Service.getItems().getActions()[0].getApiErrors()).hasSize(3);
 
         //errors
         assertThat(apiDescription.getErrors().getNames()).hasSize(2);
@@ -358,6 +294,4 @@ public class JsonToApiDescriptorObjectTest {
         ObjectWriter ow = OBJECT_MAPPER.writer().withDefaultPrettyPrinter();
         return ow.writeValueAsString(apiDescription);
     }
-
 }
-

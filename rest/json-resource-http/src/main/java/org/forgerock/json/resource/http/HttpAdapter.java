@@ -664,6 +664,15 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
 
             ObjectWriter writer = API_OBJECT_MAPPER.writer()
                     .withAttribute(Json.PREFERRED_LOCALES_ATTRIBUTE, request.getPreferredLocales());
+
+            // Enable pretty printer if requested.
+            final List<String> values = getParameter(req, PARAM_PRETTY_PRINT);
+            if (values != null) {
+                if (asBooleanValue(PARAM_PRETTY_PRINT, values)) {
+                    writer = writer.withDefaultPrettyPrinter();
+                }
+            }
+
             return newResultPromise(new Response().setStatus(Status.OK).setEntity(writer.writeValueAsBytes(api)));
         } catch (Exception e) {
             return fail(req, e);

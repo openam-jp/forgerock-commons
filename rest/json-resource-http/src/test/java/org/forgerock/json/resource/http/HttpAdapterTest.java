@@ -13,18 +13,18 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.json.resource.http;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.forgerock.api.models.ApiDescription.*;
 import static org.forgerock.json.resource.Applications.simpleCrestApplication;
+import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
 import static org.forgerock.util.promise.Promises.*;
 import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
-import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.any;
 
 import org.forgerock.api.models.ApiDescription;
+import org.forgerock.http.protocol.Entity;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
@@ -82,8 +82,27 @@ public class HttpAdapterTest {
 
         // Then
         assertThat(result).succeeded();
-        Object json = result.get().getEntity().getJson();
-        assertThat(JsonValue.json(json)).isObject().stringAt("id").isEqualTo("test:descriptor");
+        Entity entity = result.get().getEntity();
+        assertThat(JsonValue.json(entity.getJson())).isObject().stringAt("id").isEqualTo("test:descriptor");
+        assertThat(entity.getString()).contains("{\"id\":\"test:descriptor\",\"version\":\"1.0\"}");
+    }
+
+    @Test
+    public void testHandleApiRequestWithPrettyPrinting() throws Exception {
+        // Given
+        given(connection.handleApiRequest(any(Context.class), any(org.forgerock.json.resource.Request.class)))
+                .willReturn(apiDescription().id("test:descriptor").version("1.0").build());
+        Request request = new Request().setMethod("GET").setUri("/test?_crestapi&_prettyPrint=true");
+        AttributesContext context = new AttributesContext(new RootContext());
+
+        // When
+        Promise<Response, NeverThrowsException> result = adapter.handle(context, request);
+
+        // Then
+        assertThat(result).succeeded();
+        Entity entity = result.get().getEntity();
+        assertThat(JsonValue.json(entity.getJson())).isObject().stringAt("id").isEqualTo("test:descriptor");
+        assertThat(entity.getString()).contains("{\n  \"id\" : \"test:descriptor\",\n  \"version\" : \"1.0\"\n}");
     }
 
     private interface DescribableConnection extends Connection,

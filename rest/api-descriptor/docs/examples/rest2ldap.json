@@ -1,6 +1,6 @@
 {
   "id": "frapi:opendj:rest2ldap",
-  "version": "3.0.0",
+  "version": "3.5.0",
   "description": "RESTful access to directory data",
   "definitions": {
     "meta": {
@@ -173,57 +173,6 @@
           "readOnly": true
         }
       }
-    },
-    "passwordModifyRequest": {
-      "title": "Password modification request payload",
-      "oneOf": [
-        {
-          "description": "To modify a password, supply the old password and new password.",
-          "type": "object",
-          "required": [
-            "oldPassword",
-            "newPassword"
-          ],
-          "properties": {
-            "oldPassword": {
-              "name": "Old Password",
-              "type": "string",
-              "description": "Current password as a UTF-8 string.",
-              "format": "password"
-            },
-            "newPassword": {
-              "name": "New Password",
-              "type": "string",
-              "description": "New password as a UTF-8 string.",
-              "format": "password"
-            }
-          }
-        },
-        {
-          "description": "Users can reset their own passwords. Administrators with the OpenDJ `pwd-reset` privilege can reset others' passwords. To reset a password, supply an empty request payload.",
-          "type": "object",
-          "properties": {}
-        }
-      ]
-    },
-    "passwordModifyResponse": {
-      "title": "Password modification response resource",
-      "oneOf": [
-        {
-          "type": "object",
-          "properties": {
-            "generatedPassword": {
-              "type": "string",
-              "description": "If the new password was not provided in the request, this value is set in the response."
-            }
-          }
-        },
-        {
-          "type": "object",
-          "description": "If the new password was provided in the request, the response is empty.",
-          "properties": {}
-        }
-      ]
     }
   },
   "errors": {
@@ -813,17 +762,85 @@
         },
         "actions": [
           {
-            "name" : "missingAction:resetPassword"
+            "stability": "EVOLVING",
+            "name": "modifyPassword",
+            "description": "Modify a user password. This action requires HTTPS.",
+            "request": {
+              "description": "Supply the old password and new password.",
+              "type": "object",
+              "required": [
+                "oldPassword",
+                "newPassword"
+              ],
+              "properties": {
+                "oldPassword": {
+                  "name": "Old Password",
+                  "type": "string",
+                  "description": "Current password as a UTF-8 string.",
+                  "format": "password"
+                },
+                "newPassword": {
+                  "name": "New Password",
+                  "type": "string",
+                  "description": "New password as a UTF-8 string.",
+                  "format": "password"
+                }
+              }
+            },
+            "errors": [
+              {
+                "$ref": "frapi:common#/errors/badRequest"
+              },
+              {
+                "$ref": "frapi:common#/errors/unauthorized"
+              },
+              {
+                "$ref": "#/errors/passwordModifyRequiresHttps"
+              },
+              {
+                "$ref": "#/errors/passwordModifyRequiresAuthn"
+              },
+              {
+                "$ref": "frapi:common#/errors/forbidden"
+              },
+              {
+                "$ref": "frapi:common#/errors/notFound"
+              },
+              {
+                "$ref": "frapi:common#/errors/requestTimeout"
+              },
+              {
+                "$ref": "frapi:common#/errors/versionMismatch"
+              },
+              {
+                "$ref": "frapi:common#/errors/requestEntityTooLarge"
+              },
+              {
+                "$ref": "#/errors/readFoundMultipleEntries"
+              },
+              {
+                "$ref": "#/errors/adminLimitExceeded"
+              },
+              {
+                "$ref": "frapi:common#/errors/internalServerError"
+              },
+              {
+                "$ref": "frapi:common#/errors/unavailable"
+              }
+            ]
           },
           {
             "stability": "EVOLVING",
-            "name": "modifyPassword",
-            "description": "Modify or generate a user password. This action requires HTTPS.",
-            "request": {
-              "$ref": "#/definitions/passwordModifyRequest"
-            },
+            "name": "resetPassword",
+            "description": "Reset a user password to a generated value. This action requires HTTPS.",
             "response": {
-              "$ref": "#/definitions/passwordModifyResponse"
+              "type": "object",
+              "properties": {
+                "generatedPassword": {
+                  "type": "string",
+                  "description": "Generated password to communicate to the user."
+                }
+              }
             },
             "errors": [
               {

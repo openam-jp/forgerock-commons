@@ -139,7 +139,8 @@ final class AuditServiceImpl implements AuditService {
         this.auditEventHandlersByTopic = getAuditEventHandlersByTopic(auditEventHandlers, eventTopicsMetaData);
 
         String queryHandlerName = configuration.getHandlerForQueries();
-        if (queryHandlerName != null && this.auditEventHandlersByName.containsKey(queryHandlerName)) {
+        if (queryHandlerName != null && this.auditEventHandlersByName.containsKey(queryHandlerName)
+                && this.auditEventHandlersByName.get(queryHandlerName).isEnabled()) {
             queryHandler = this.auditEventHandlersByName.get(queryHandlerName);
         } else {
             queryHandler = new NullQueryHandler(config.getHandlerForQueries());
@@ -460,7 +461,7 @@ final class AuditServiceImpl implements AuditService {
                 this.errorMessage = "No handler defined for queries.";
             } else {
                 this.errorMessage = "The handler defined for queries, '" + handlerForQueries
-                        + "', has not been registered to the audit service.";
+                        + "', has not been registered to the audit service, or it is disabled.";
             }
         }
 

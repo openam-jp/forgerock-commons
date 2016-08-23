@@ -18,6 +18,7 @@ package org.forgerock.api.transform;
 
 import static java.lang.Boolean.TRUE;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static org.forgerock.api.markup.asciidoc.AsciiDoc.normalizeName;
 import static org.forgerock.api.util.PathUtil.buildPath;
@@ -69,6 +70,7 @@ import org.forgerock.api.models.VersionedPath;
 import org.forgerock.api.util.PathUtil;
 import org.forgerock.api.util.ReferenceResolver;
 import org.forgerock.api.util.ValidationUtil;
+import org.forgerock.http.header.AcceptApiVersionHeader;
 import org.forgerock.http.routing.Version;
 import org.forgerock.http.swagger.SwaggerExtended;
 import org.forgerock.json.JsonValue;
@@ -85,6 +87,7 @@ import io.swagger.models.RefModel;
 import io.swagger.models.Response;
 import io.swagger.models.Scheme;
 import io.swagger.models.Swagger;
+import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.RefParameter;
 import io.swagger.models.properties.AbstractNumericProperty;
 import io.swagger.models.properties.Property;
@@ -834,6 +837,11 @@ public class OpenApiTransformer {
         if (!isEmpty(resourceVersion)) {
             showPathFragment = true;
             operation.setVendorExtension("x-resourceVersion", resourceVersion);
+            operation.addParameter(new HeaderParameter()
+                    .name(AcceptApiVersionHeader.NAME)
+                    .type("string")
+                    .required(true)
+                    ._enum(singletonList(AcceptApiVersionHeader.RESOURCE + "=" + resourceVersion)));
         }
         if (!isEmpty(tag.toString())) {
             operation.addTag(tag);

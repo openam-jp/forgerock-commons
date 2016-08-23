@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.assertj.core.api.Condition;
 import org.forgerock.api.ApiTestUtil;
 import org.forgerock.api.enums.PatchOperation;
 import org.forgerock.api.enums.ReadPolicy;
@@ -53,6 +54,7 @@ import io.swagger.models.ModelImpl;
 import io.swagger.models.Operation;
 import io.swagger.models.Swagger;
 import io.swagger.models.parameters.HeaderParameter;
+import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.Property;
 
 public class OpenApiTransformerTest {
@@ -143,22 +145,25 @@ public class OpenApiTransformerTest {
                     @Override
                     public void visit(final Operation operation) {
                         // add header "Accept-API-Version: resource=XXX, protocol=1.0"
-                        final String resourceVersion =
-                                (String) operation.getVendorExtensions().get("x-resourceVersion");
-                        if (resourceVersion != null) {
-                            final HeaderParameter header = new HeaderParameter();
-                            header.setName("Accept-API-Version");
-                            header.setEnum(Arrays.asList("resource=" + resourceVersion + ", protocol=1.0"));
-                            header.setType("string");
-                            header.required(true);
-                            operation.addParameter(header);
-                        }
+                        final String version = (String) operation.getVendorExtensions().get("x-resourceVersion");
+                        assertThat(version).isIn("1.0", "2.0");
+                        assertThat(operation.getParameters()).areAtLeastOne(new Condition<Parameter>() {
+                            @Override
+                            public boolean matches(Parameter parameter) {
+                                if (!(parameter instanceof HeaderParameter)) {
+                                    return false;
+                                }
+                                assertThat(((HeaderParameter) parameter).getEnum()).containsOnly("resource=" + version);
+                                return true;
+                            }
+                        });
                     }
                 }, swagger);
 
         assertThat(swagger.getTags()).hasSize(2);
         assertTag(swagger, 0, "Resource title v1.0");
         assertTag(swagger, 1, "Resource title v2.0");
+
         assertThat(swagger.getPaths()).containsOnlyKeys(
                 "/testPath#1.0_create_post",
                 "/testPath#1.0_read",

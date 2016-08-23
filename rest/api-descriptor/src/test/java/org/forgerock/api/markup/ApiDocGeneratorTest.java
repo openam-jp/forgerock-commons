@@ -21,17 +21,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.forgerock.api.markup.asciidoc.AsciiDoc.normalizeName;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
 
 import org.forgerock.api.ApiTestUtil;
 import org.forgerock.api.markup.asciidoc.AsciiDoc;
 import org.forgerock.api.models.ApiDescription;
 import org.forgerock.util.i18n.PreferredLocales;
+import org.forgerock.util.test.FileUtils;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -52,22 +49,7 @@ public class ApiDocGeneratorTest {
 
     @AfterClass
     public void afterClass() throws IOException {
-        // delete temp dirs
-        for (final Path path : Arrays.asList(inputDirPath, outputDirPath)) {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Files.delete(file);
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    Files.delete(dir);
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-        }
+        FileUtils.deleteRecursively(inputDirPath, outputDirPath);
     }
 
     @Test

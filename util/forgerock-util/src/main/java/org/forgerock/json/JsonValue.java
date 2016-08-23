@@ -50,7 +50,6 @@ import java.util.regex.Pattern;
 
 import org.forgerock.util.Function;
 import org.forgerock.util.RangeSet;
-import org.forgerock.util.annotations.VisibleForTesting;
 
 /**
  * Represents a value in a JSON object model structure. JSON values are
@@ -205,8 +204,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      *            the key to be converted into an list index value.
      * @return the converted index value, or {@code -1} if invalid.
      */
-    @VisibleForTesting
-    static int toIndex(final String key) {
+    public static int toIndex(final String key) {
         if (key == null || key.isEmpty()) {
             return -1;
         }

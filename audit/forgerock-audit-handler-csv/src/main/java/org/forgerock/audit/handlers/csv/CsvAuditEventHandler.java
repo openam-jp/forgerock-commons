@@ -448,11 +448,9 @@ public class CsvAuditEventHandler extends AuditEventHandlerBase {
     private void writeEntry(final String topic, final CsvWriter csvWriter, final JsonValue obj) throws IOException {
         Set<String> fieldOrder = fieldOrderByTopic.get(topic);
         Map<String, String> cells = new HashMap<>(fieldOrder.size());
-        for (String key : fieldOrder) {
-            final String value = JsonValueUtils.extractValueAsString(obj, key);
-            if (value != null && !value.isEmpty()) {
-                cells.put(fieldDotNotationByField.get(key), value);
-            }
+        for (Map.Entry<String, JsonPointer> columnKey : jsonPointerByField.entrySet()) {
+            cells.put(fieldDotNotationByField.get(columnKey.getKey()),
+                    JsonValueUtils.extractValueAsString(obj, columnKey.getValue()));
         }
         csvWriter.writeEvent(cells);
     }

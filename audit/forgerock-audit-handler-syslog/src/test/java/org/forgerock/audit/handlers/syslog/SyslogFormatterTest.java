@@ -534,7 +534,7 @@ public class SyslogFormatterTest {
         public final TestTopicBuilder field1(String field2, String field3) {
             jsonValue.put("field1", json(object(
                     field("field2", field2),
-                    field("field3", field3))));
+                    field("field3", field3))).getObject());
             return this;
         }
 

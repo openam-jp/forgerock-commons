@@ -18,6 +18,7 @@ package org.forgerock.util.i18n;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.MissingResourceException;
+import java.util.Objects;
 
 /**
  * Represents a String which could be localizable. If it is localizable it needs to be in the following format,
@@ -31,6 +32,10 @@ import java.util.MissingResourceException;
  * the key in the resource bundle to use, and the {@code ClassLoader} in which the resource bundle can be found, in the
  * assumption that when it comes to serializing this object, the calling code (e.g. HttpFrameworkServlet and the
  * Grizzly HandlerAdapter) is in a different classloader and so will not have direct access to the resource bundle.
+ * <p>
+ *     A default value {@code LocalizableString} can be provided so that if the key is not found in the bundle, another
+ *     value can be specified, which could be either another bundle reference, or a plain value.
+ * </p>
  */
 public class LocalizableString {
 
@@ -42,6 +47,7 @@ public class LocalizableString {
     private final ClassLoader loader;
     private final String value;
     private final URI resource;
+    private final LocalizableString defaultValue;
 
     /**
      * String only constructor for non-localizable {@code String} values.
@@ -57,8 +63,20 @@ public class LocalizableString {
      * @param loader the {@code ClassLoader} where the string definition should be obtained
      */
     public LocalizableString(String value, ClassLoader loader) {
+        this(value, loader, null);
+    }
+
+    /**
+     * Constructor for potentially localizable {@code String}. If a default value is not specified, if the {@code key}
+     * is a valid URI, its fragment will be used, and otherwise the whole {@code key} value will be used.
+     * @param key the localizable key
+     * @param loader the {@code ClassLoader} where the string definition should be obtained
+     * @param defaultValue the default value to use if not localizable.
+     */
+    public LocalizableString(String key, ClassLoader loader, LocalizableString defaultValue) {
         this.loader = loader;
-        this.value = value;
+        this.value = key;
+        this.defaultValue = defaultValue;
 
         URI resource = null;
         if (value != null && value.startsWith(TRANSLATION_KEY_PREFIX) && loader != null) {
@@ -84,8 +102,8 @@ public class LocalizableString {
                 return locales.getBundleInPreferredLocale(resource.getSchemeSpecificPart(), loader)
                         .getString(resource.getFragment());
             } catch (MissingResourceException e) {
-                // the bundle wasn't found, so we return the fragment
-                return resource.getFragment();
+                // the bundle wasn't found, so we use the default value, or return the fragment
+                return defaultValue == null ? resource.getFragment() : defaultValue.toTranslatedString(locales);
             }
         }
     }
@@ -95,7 +113,7 @@ public class LocalizableString {
      * @return the untranslated string value
      */
     public String toString() {
-        return this.value;
+        return defaultValue == null ? value : "[" + value + "], default [" + defaultValue + "]";
     }
 
     /**
@@ -114,7 +132,7 @@ public class LocalizableString {
 
         LocalizableString that = (LocalizableString) o;
 
-        return value.equals(that.value);
+        return value.equals(that.value) && Objects.equals(defaultValue, that.defaultValue);
 
     }
 
@@ -124,6 +142,6 @@ public class LocalizableString {
      */
     @Override
     public int hashCode() {
-        return value.hashCode();
+        return Objects.hash(value, defaultValue);
     }
 }

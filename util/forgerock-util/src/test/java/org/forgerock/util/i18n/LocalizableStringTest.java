@@ -24,17 +24,19 @@ import org.testng.annotations.Test;
 
 public class LocalizableStringTest {
 
+    private final ClassLoader classLoader = getClass().getClassLoader();
+
     @Test
     public void testNormalStringIsNotTranslated() {
         PreferredLocales locales = new PreferredLocales();
-        LocalizableString name = new LocalizableString("locale", getClass().getClassLoader());
+        LocalizableString name = new LocalizableString("locale", classLoader);
         assertThat(name.toTranslatedString(locales)).isEqualTo("locale");
     }
 
     @Test
     public void testLocalizableStringIsTranslated() {
         PreferredLocales locales = new PreferredLocales();
-        LocalizableString name = new LocalizableString("i18n:locales/bundle#locale", getClass().getClassLoader());
+        LocalizableString name = new LocalizableString("i18n:locales/bundle#locale", classLoader);
         assertThat(name.toTranslatedString(locales)).isEqualTo("ROOT");
     }
 
@@ -48,14 +50,14 @@ public class LocalizableStringTest {
     @Test
     public void testLocalizableStringIsNotTranslatedIfUriIsInvalid() {
         PreferredLocales locales = new PreferredLocales();
-        LocalizableString name = new LocalizableString("i18n:nosuch$%^", getClass().getClassLoader());
+        LocalizableString name = new LocalizableString("i18n:nosuch$%^", classLoader);
         assertThat(name.toTranslatedString(locales)).isEqualTo("i18n:nosuch$%^");
     }
 
     @Test
     public void testLocalizableStringThrowsIfBundleIsInvalid() {
         PreferredLocales locales = new PreferredLocales();
-        LocalizableString name = new LocalizableString("i18n:foo#locale", getClass().getClassLoader());
+        LocalizableString name = new LocalizableString("i18n:foo#locale", classLoader);
         assertThat(name.toTranslatedString(locales)).isEqualTo("locale");
     }
 
@@ -63,7 +65,15 @@ public class LocalizableStringTest {
     public void testLocalizableStringIsTranslatedSpecifiedLocales() {
         PreferredLocales locales = new PreferredLocales(Arrays.asList(new Locale("fr")));
 
-        LocalizableString name = new LocalizableString("i18n:locales/bundle#locale", getClass().getClassLoader());
+        LocalizableString name = new LocalizableString("i18n:locales/bundle#locale", classLoader);
         assertThat(name.toTranslatedString(locales)).isEqualTo("French");
+    }
+
+    @Test
+    public void testLocalizableStringIsDefaultedWhenNoValue() {
+        PreferredLocales locales = new PreferredLocales(Arrays.asList(new Locale("fr")));
+        LocalizableString name = new LocalizableString("i18n:locales/bundle#novalue", classLoader,
+                new LocalizableString("Default"));
+        assertThat(name.toTranslatedString(locales)).isEqualTo("Default");
     }
 }

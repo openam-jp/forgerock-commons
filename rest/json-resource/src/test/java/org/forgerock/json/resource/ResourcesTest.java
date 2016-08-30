@@ -18,6 +18,12 @@ package org.forgerock.json.resource;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.forgerock.api.models.ApiDescription.apiDescription;
+import static org.forgerock.api.models.Paths.paths;
+import static org.forgerock.api.models.Read.read;
+import static org.forgerock.api.models.Resource.resource;
+import static org.forgerock.api.models.Schema.schema;
+import static org.forgerock.api.models.VersionedPath.versionedPath;
 import static org.forgerock.json.resource.Resources.HandlerVariant.*;
 import static org.forgerock.api.models.VersionedPath.UNVERSIONED;
 import static org.forgerock.json.JsonValue.*;
@@ -56,10 +62,14 @@ import org.forgerock.api.annotations.Update;
 import org.forgerock.api.enums.QueryType;
 import org.forgerock.api.models.ApiDescription;
 import org.forgerock.api.models.Resource;
+import org.forgerock.api.models.VersionedPath;
+import org.forgerock.http.ApiProducer;
 import org.forgerock.json.JsonPointer;
 import org.forgerock.json.JsonValue;
 import org.forgerock.services.context.Context;
 import org.forgerock.services.context.RootContext;
+import org.forgerock.services.descriptor.Describable;
+import org.forgerock.util.i18n.LocalizableString;
 import org.forgerock.util.promise.Promise;
 import org.forgerock.util.test.assertj.AssertJPromiseAssert;
 import org.mockito.ArgumentCaptor;
@@ -546,6 +556,25 @@ public final class ResourcesTest {
         Assertions.assertThat(result).isEqualTo(singletonMap("age", 20));
     }
 
+    @Test
+    public void testSingletonImplementsDescribable() throws Exception {
+        RequestHandler handler = Resources.newHandler(new DescribedSingleton());
+        assertThat(handler).isInstanceOf(Describable.class);
+        CrestApiProducer producer = new CrestApiProducer("id", "version");
+        ApiDescription description = ((Describable<ApiDescription, Request>) handler).api(producer);
+        assertThat(description.getPaths().get("/resourcePath").get(UNVERSIONED).getTitle().toString())
+                .isEqualTo("from the interface implementation");
+    }
+
+    @Test
+    public void testCollectionImplementingDescribableDescriptorShouldNotContainItemsPath() throws Exception {
+        RequestHandler handler = Resources.newHandler(new DescribedCollection());
+        assertThat(handler).isInstanceOf(Describable.class);
+        CrestApiProducer producer = new CrestApiProducer("id", "version");
+        ApiDescription description = ((Describable<ApiDescription, Request>) handler).api(producer);
+        assertThat(description.getPaths().getNames()).containsOnly("/resourcePath");
+    }
+
     private Connection getConnectionWithAlice() throws Exception {
         final MemoryBackend users = new MemoryBackend();
         final Router router = new Router();
@@ -798,6 +827,77 @@ public final class ResourcesTest {
         public Promise<ResourceResponse, ResourceException> get() {
             getCalls++;
             return null;
+        }
+    }
+
+    private static final ApiDescription DESCRIPTION = apiDescription()
+            .id("fake")
+            .version("1.0")
+            .paths(paths()
+                    .put("resourcePath", versionedPath().put(VersionedPath.UNVERSIONED, resource()
+                            .mvccSupported(true)
+                            .title(new LocalizableString("from the interface implementation"))
+                            .read(read().build())
+                            .resourceSchema(schema().schema(json(object())).build())
+                            .build()).build())
+                    .build())
+            .build();
+
+    @SingletonProvider(@Handler(mvccSupported = true))
+    private static final class DescribedSingleton implements Describable<ApiDescription, Request> {
+
+        @Read(operationDescription = @Operation)
+        public Promise<ResourceResponse, ResourceException> get() {
+            return null;
+        }
+
+        @Override
+        public ApiDescription api(ApiProducer<ApiDescription> producer) {
+            return DESCRIPTION;
+        }
+
+        @Override
+        public ApiDescription handleApiRequest(Context context, Request request) {
+            return DESCRIPTION;
+        }
+
+        @Override
+        public void addDescriptorListener(Listener listener) {
+
+        }
+
+        @Override
+        public void removeDescriptorListener(Listener listener) {
+
+        }
+    }
+
+    @CollectionProvider(details = @Handler(mvccSupported = true))
+    private static final class DescribedCollection implements Describable<ApiDescription, Request> {
+
+        @Read(operationDescription = @Operation)
+        public Promise<ResourceResponse, ResourceException> get() {
+            return null;
+        }
+
+        @Override
+        public ApiDescription api(ApiProducer<ApiDescription> producer) {
+            return DESCRIPTION;
+        }
+
+        @Override
+        public ApiDescription handleApiRequest(Context context, Request request) {
+            return DESCRIPTION;
+        }
+
+        @Override
+        public void addDescriptorListener(Listener listener) {
+
+        }
+
+        @Override
+        public void removeDescriptorListener(Listener listener) {
+
         }
     }
 

@@ -16,6 +16,7 @@
 
 package org.forgerock.http.swagger;
 
+import static org.forgerock.http.HttpApplication.LOGGER;
 import static org.forgerock.http.protocol.Entity.APPLICATION_JSON_CHARSET_UTF_8;
 import static org.forgerock.http.protocol.Responses.newInternalServerError;
 
@@ -101,6 +102,7 @@ public final class SwaggerUtils {
                 return new Response(Status.NOT_IMPLEMENTED);
             }
         } catch (RuntimeException | JsonProcessingException | MalformedHeaderException e) {
+            LOGGER.error("Exception caught while generating OpenAPI descriptor", e);
             return newInternalServerError(e);
         }
     }

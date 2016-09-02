@@ -16,7 +16,10 @@
 
 package org.forgerock.audit.benchmark;
 
+import static org.forgerock.audit.events.AuditEventBuilder.TIMESTAMP;
+import static org.forgerock.audit.events.AuditEventBuilder.TRANSACTION_ID;
 import static org.forgerock.json.JsonValue.*;
+import static org.forgerock.json.resource.ResourceResponse.FIELD_CONTENT_ID;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,7 +80,8 @@ public class CsvAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
          */
         protected JsonValue buildUniqueEvent() {
             final String simpleId = Long.toString(counter.getAndIncrement());
-            return json(object(field("_id", simpleId), field("timestamp", simpleId), field("transactionId", simpleId)));
+            return json(object(field(FIELD_CONTENT_ID, simpleId), field(TIMESTAMP, simpleId),
+                    field(TRANSACTION_ID, simpleId)));
         }
     }
 

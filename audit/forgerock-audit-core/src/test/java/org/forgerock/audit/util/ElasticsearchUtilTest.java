@@ -13,15 +13,19 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-package org.forgerock.audit.handlers.elasticsearch;
+
+package org.forgerock.audit.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.data.MapEntry;
 import org.forgerock.json.JsonValue;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.forgerock.audit.handlers.elasticsearch.ElasticsearchUtil.*;
+import static org.forgerock.audit.util.ElasticsearchUtil.*;
+import static org.forgerock.http.util.Json.readJson;
+import static org.forgerock.json.JsonValue.*;
 
 import java.io.InputStream;
 import java.util.Collections;
@@ -30,7 +34,7 @@ import java.util.Map;
 
 public class ElasticsearchUtilTest {
 
-    private static final String RESOURCE_PATH = "/org/forgerock/audit/handlers/elasticsearch/";
+    private static final String RESOURCE_PATH = "/org/forgerock/audit/util/";
 
     private static final MapEntry<String, String> FIELD_NAME_PAIR =
             MapEntry.entry("org_forgerock_authentication_principal", "org.forgerock.authentication.principal");
@@ -45,18 +49,25 @@ public class ElasticsearchUtilTest {
         // given
         final JsonValue beforeNormalization = resourceAsJsonValue(RESOURCE_PATH + "authEventBeforeNormalization.json");
         final JsonValue afterNormalization = resourceAsJsonValue(RESOURCE_PATH + "authEventAfterNormalization.json");
-        assertThat(beforeNormalization).isNotEqualTo(afterNormalization);
+
+        final String beforeNormalizationString = OBJECT_MAPPER.writeValueAsString(beforeNormalization.getObject());
+        final String afterNormalizationString = OBJECT_MAPPER.writeValueAsString(afterNormalization.getObject());
+        assertThat(beforeNormalizationString).isNotEqualTo(afterNormalizationString);
 
         // when
-        final Map<String, Object> normalized = new LinkedHashMap<>(1);
-        final JsonValue result = replaceKeyPeriodsWithUnderscores(beforeNormalization, normalized);
+        final String resultString = replaceKeyPeriodsWithUnderscores(beforeNormalizationString);
 
         // then
-        assertThat(OBJECT_MAPPER.writeValueAsString(result.getObject()))
-                .isEqualTo(OBJECT_MAPPER.writeValueAsString(afterNormalization.getObject()));
-        assertThat(normalized).containsKey(ElasticsearchUtil.FIELD_NAMES_FIELD);
-        assertThat((Map<String, Object>) normalized.get(ElasticsearchUtil.FIELD_NAMES_FIELD))
-                .containsExactly(FIELD_NAME_PAIR);
+        final JsonValue result = json(readJson(resultString));
+        final JsonValue normalizedField = result.get(NORMALIZED_FIELD);
+        result.remove(NORMALIZED_FIELD);
+
+        assertThat(OBJECT_MAPPER.writeValueAsString(result.getObject())).isEqualTo(afterNormalizationString);
+        assertThat(normalizedField.isNotNull()).isTrue();
+
+        final JsonValue fieldNames = normalizedField.get(FIELD_NAMES_FIELD);
+        assertThat(fieldNames.isNotNull()).isTrue();
+        assertThat(fieldNames.asMap()).containsExactly(FIELD_NAME_PAIR);
     }
 
     @Test
@@ -76,6 +87,40 @@ public class ElasticsearchUtilTest {
         // then
         assertThat(OBJECT_MAPPER.writeValueAsString(result.getObject()))
                 .isEqualTo(OBJECT_MAPPER.writeValueAsString(beforeNormalization.getObject()));
+    }
+
+    @Test
+    public void renameFieldTest() throws Exception {
+        // given
+        final JsonValue value = json(object(field("oldName", "value")));
+
+        // when
+        renameField(value, "oldName", "newName");
+
+        // then
+        assertThat(value.get("oldName").isNull()).isTrue();
+        assertThat(value.get("newName").isNotNull()).isTrue();
+    }
+
+    @Test
+    public void renameFieldToExistingFieldTest() throws Exception {
+        // given
+        final JsonValue value = json(object(field("oldName", "value"), field("existingName", "value")));
+
+
+        try {
+            // when
+            renameField(value, "oldName", "existingName");
+
+            // then
+            Assert.fail("Expected IllegalStateException, but none occured");
+        } catch (Exception e) {
+            if (!(e instanceof IllegalStateException)) {
+                Assert.fail("Expected IllegalStateException", e);
+            }
+            assertThat(value.get("existingName").isNull()).isTrue();
+            assertThat(value.get("oldName").isNotNull()).isTrue();
+        }
     }
 
     private JsonValue resourceAsJsonValue(final String resourcePath) throws Exception {

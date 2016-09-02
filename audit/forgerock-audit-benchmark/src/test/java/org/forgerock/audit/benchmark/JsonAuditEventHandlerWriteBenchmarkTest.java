@@ -17,7 +17,10 @@
 package org.forgerock.audit.benchmark;
 
 import static org.forgerock.audit.benchmark.CsvAuditEventHandlerWriteBenchmarkTest.MAX_FILE_SIZE;
+import static org.forgerock.audit.events.AuditEventBuilder.TIMESTAMP;
+import static org.forgerock.audit.events.AuditEventBuilder.TRANSACTION_ID;
 import static org.forgerock.json.JsonValue.*;
+import static org.forgerock.json.resource.ResourceResponse.FIELD_CONTENT_ID;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +32,6 @@ import org.forgerock.audit.events.handlers.AuditEventHandler;
 import org.forgerock.audit.handlers.json.JsonAuditEventHandler;
 import org.forgerock.audit.handlers.json.JsonAuditEventHandlerConfiguration;
 import org.forgerock.json.JsonValue;
-import org.forgerock.json.resource.ResourceException;
 import org.forgerock.json.resource.ResourceResponse;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
@@ -40,13 +42,14 @@ import org.openjdk.jmh.annotations.State;
  */
 public class JsonAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
 
+    static final String FIELD_HAS_A_PERIOD = "has.a.period";
     private static final String ACCESS = "access";
     private static final String ACTIVITY = "activity";
     private static final Set<String> TOPICS_SET = Collections.unmodifiableSet(
             new HashSet<>(Arrays.asList(new String[]{ACCESS, ACTIVITY})));
 
     static class DefaultState extends AuditEventHandlerBenchmarkState<JsonAuditEventHandlerConfiguration> {
-        private final AtomicInteger counter = new AtomicInteger();
+        final AtomicInteger counter = new AtomicInteger();
 
         @Override
         public JsonAuditEventHandlerConfiguration buildBaseConfiguration() {
@@ -73,7 +76,8 @@ public class JsonAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
          */
         protected JsonValue buildUniqueEvent() {
             final String simpleId = Long.toString(counter.getAndIncrement());
-            return json(object(field("_id", simpleId), field("timestamp", simpleId), field("transactionId", simpleId)));
+            return json(object(field(FIELD_CONTENT_ID, simpleId), field(TIMESTAMP, simpleId),
+                    field(TRANSACTION_ID, simpleId)));
         }
     }
 
@@ -83,24 +87,64 @@ public class JsonAuditEventHandlerWriteBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public ResourceResponse write(final WriteState state)
-            throws ResourceException, InterruptedException {
+    public final ResourceResponse write(final WriteState state) throws Exception {
         return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
     }
 
     @State(Scope.Benchmark)
-    public static class RotatedWriteState extends DefaultState {
+    public static class RotatedWriteState extends WriteState {
         @Override
-        protected void updateConfiguration(JsonAuditEventHandlerConfiguration configuration) {
+        protected void updateConfiguration(final JsonAuditEventHandlerConfiguration configuration) {
             configuration.getFileRotation().setRotationEnabled(true);
             configuration.getFileRotation().setMaxFileSize(MAX_FILE_SIZE);
         }
     }
 
     @Benchmark
-    public ResourceResponse rotatedWrite(final RotatedWriteState state)
-            throws ResourceException, InterruptedException {
-        return state.handler.publishEvent(null, ACCESS, state.buildUniqueEvent()).getOrThrow();
+    public ResourceResponse rotatedWrite(final RotatedWriteState state) throws Exception {
+        return write(state);
     }
 
+    @State(Scope.Benchmark)
+    public static class ElasticsearchCompatibleBestCaseWriteState extends WriteState {
+        @Override
+        protected void updateConfiguration(final JsonAuditEventHandlerConfiguration configuration) {
+            configuration.setElasticsearchCompatible(true);
+        }
+    }
+
+    @Benchmark
+    public ResourceResponse elasticsearchCompatibleBestCaseWrite(final ElasticsearchCompatibleBestCaseWriteState state)
+            throws Exception {
+        return write(state);
+    }
+
+    @State(Scope.Benchmark)
+    public static class ElasticsearchCompatibleWorstCaseWriteState extends WriteState {
+        @Override
+        protected void updateConfiguration(final JsonAuditEventHandlerConfiguration configuration) {
+            configuration.setElasticsearchCompatible(true);
+        }
+
+        /**
+         * Builds a simple, unique event instance, that contains periods in one of the field-names, which will be
+         * normalized for ElasticSearch compatibility.
+         * <p>
+         * This is a worst-case scenario, because every single event will need to be normalized-on-write.
+         *
+         * @return Event instance
+         */
+        @Override
+        protected JsonValue buildUniqueEvent() {
+            final String simpleId = Long.toString(counter.getAndIncrement());
+            return json(object(field(FIELD_CONTENT_ID, simpleId), field(TIMESTAMP, simpleId),
+                    field(FIELD_HAS_A_PERIOD, simpleId)));
+        }
+    }
+
+    @Benchmark
+    public ResourceResponse elasticsearchCompatibleWorstCaseWrite(
+            final ElasticsearchCompatibleWorstCaseWriteState state) throws Exception {
+        return write(state);
+    }
 }

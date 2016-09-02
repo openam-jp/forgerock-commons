@@ -16,8 +16,11 @@
 
 package org.forgerock.audit.benchmark;
 
+import static org.forgerock.audit.events.AuditEventBuilder.TIMESTAMP;
+import static org.forgerock.audit.events.AuditEventBuilder.TRANSACTION_ID;
 import static org.forgerock.json.JsonValue.*;
 import static org.forgerock.json.JsonValue.field;
+import static org.forgerock.json.resource.ResourceResponse.FIELD_CONTENT_ID;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -70,7 +73,7 @@ public class CsvAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
             for (int i = 0; i < PRE_POPULATED_EVENT_COUNT; ++i) {
                 final String id = String.format("%010d", i);
                 final JsonValue event = json(object(
-                        field("_id", id), field("timestamp", id), field("transactionId", id)));
+                        field(FIELD_CONTENT_ID, id), field(TIMESTAMP, id), field(TRANSACTION_ID, id)));
                 identifiers[i] = handler.publishEvent(null, ACCESS, event).get().getId();
             }
 

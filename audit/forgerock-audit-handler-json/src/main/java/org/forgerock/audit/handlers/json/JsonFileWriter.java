@@ -20,6 +20,10 @@ import static java.lang.Math.max;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.forgerock.audit.batch.CommonAuditBatchConfiguration.POLLING_INTERVAL;
 import static org.forgerock.audit.handlers.json.JsonAuditEventHandler.OBJECT_MAPPER;
+import static org.forgerock.audit.handlers.json.JsonAuditEventHandler.EVENT_ID_FIELD;
+import static org.forgerock.audit.util.ElasticsearchUtil.normalizeJson;
+import static org.forgerock.audit.util.ElasticsearchUtil.renameField;
+import static org.forgerock.json.resource.ResourceResponse.FIELD_CONTENT_ID;
 import static org.forgerock.util.Reject.checkNotNull;
 import static org.forgerock.util.Utils.closeSilently;
 
@@ -45,7 +49,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.forgerock.audit.retention.FileNamingPolicy;
 import org.forgerock.audit.retention.RetentionPolicy;
 import org.forgerock.audit.rotation.RotatableObject;
@@ -70,6 +73,7 @@ class JsonFileWriter {
 
     static final String LOG_FILE_NAME_SUFFIX = "audit.json";
 
+    private final boolean elasticsearchCompatible;
     private final BlockingQueue<QueueEntry> queue;
     private final ScheduledExecutorService scheduler;
     private final QueueConsumer queueConsumer;
@@ -86,6 +90,7 @@ class JsonFileWriter {
      */
     JsonFileWriter(final Set<String> topics, final JsonAuditEventHandlerConfiguration configuration,
             final boolean autoFlush) {
+        elasticsearchCompatible = configuration.isElasticsearchCompatible();
         queue = new ArrayBlockingQueue<>(max(configuration.getBuffering().getMaxSize(), MIN_QUEUE_SIZE));
         scheduler = Executors.newScheduledThreadPool(1, Utils.newThreadFactory(null, "audit-json-%d", false));
         queueConsumer = new QueueConsumer(LOG_FILE_NAME_SUFFIX, topics, configuration, autoFlush, queue, scheduler);
@@ -130,10 +135,23 @@ class JsonFileWriter {
      * @param topic Event topic
      * @param event Event payload to index, where {@code _id} field is the identifier
      * @throws InterruptedException thread interrupted while blocking on a full queue
-     * @throws JsonProcessingException failed to serialize JSON
+     * @throws IOException failed to serialize JSON
      */
-    void put(final String topic, final JsonValue event) throws InterruptedException, JsonProcessingException {
-        queue.put(new QueueEntry(topic, OBJECT_MAPPER.writeValueAsBytes(event.getObject())));
+    void put(final String topic, final JsonValue event) throws InterruptedException, IOException {
+        if (elasticsearchCompatible) {
+            // rename _id field to be _eventId, because _id is reserved by ElasticSearch
+            renameField(event, FIELD_CONTENT_ID, EVENT_ID_FIELD);
+            try {
+                // apply ElasticSearch JSON normalization, if necessary
+                final byte[] bytes = normalizeJson(event).getBytes(UTF_8);
+                queue.put(new QueueEntry(topic, bytes));
+            } finally {
+                // restore _id field, because original event is same instance as normalizedEvent
+                renameField(event, EVENT_ID_FIELD, FIELD_CONTENT_ID);
+            }
+        } else {
+            queue.put(new QueueEntry(topic, OBJECT_MAPPER.writeValueAsBytes(event.getObject())));
+        }
     }
 
     /**

@@ -29,6 +29,9 @@ public class JsonAuditEventHandlerConfiguration extends FileBasedEventHandlerCon
     @JsonPropertyDescription("audit.handlers.json.logDirectory")
     private String logDirectory;
 
+    @JsonPropertyDescription("audit.handlers.json.elasticsearchCompatible")
+    private boolean elasticsearchCompatible;
+
     @JsonPropertyDescription("audit.handlers.json.buffering")
     private EventBufferingConfiguration buffering = new EventBufferingConfiguration();
 
@@ -48,6 +51,25 @@ public class JsonAuditEventHandlerConfiguration extends FileBasedEventHandlerCon
      */
     public void setLogDirectory(final String directory) {
         logDirectory = directory;
+    }
+
+    /**
+     * Determines if JSON format should be transformed to be compatible with ElasticSearch format restrictions.
+     *
+     * @return {@code true} for ElasticSearch JSON format compatibility enforcement and {@code false} otherwise
+     */
+    public boolean isElasticsearchCompatible() {
+        return elasticsearchCompatible;
+    }
+
+    /**
+     * Specifies if JSON format should be transformed to be compatible with ElasticSearch format restrictions.
+     *
+     * @param elasticsearchCompatible {@code true} for ElasticSearch JSON format compatibility enforcements and
+     * {@code false} otherwise
+     */
+    public void setElasticsearchCompatible(boolean elasticsearchCompatible) {
+        this.elasticsearchCompatible = elasticsearchCompatible;
     }
 
     /**

@@ -15,7 +15,7 @@
  */
 package org.forgerock.audit.handlers.elasticsearch;
 
-import static org.forgerock.audit.handlers.elasticsearch.ElasticsearchUtil.OBJECT_MAPPER;
+import static org.forgerock.audit.util.ElasticsearchUtil.OBJECT_MAPPER;
 import static org.forgerock.http.handler.HttpClientHandler.OPTION_LOADER;
 import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.json;
@@ -42,6 +42,7 @@ import org.forgerock.audit.handlers.elasticsearch.ElasticsearchAuditEventHandler
 import org.forgerock.audit.events.handlers.buffering.BatchConsumer;
 import org.forgerock.audit.events.handlers.buffering.BatchPublisher;
 import org.forgerock.audit.events.handlers.buffering.BatchException;
+import org.forgerock.audit.util.ElasticsearchUtil;
 import org.forgerock.http.Client;
 import org.forgerock.http.HttpApplicationException;
 import org.forgerock.http.apache.async.AsyncHttpClientProvider;
@@ -300,8 +301,7 @@ public class ElasticsearchAuditEventHandler extends AuditEventHandlerBase implem
         event.remove(FIELD_CONTENT_ID);
 
         try {
-            final JsonValue normalizedEvent = ElasticsearchUtil.normalizeJson(event);
-            final String jsonPayload = OBJECT_MAPPER.writeValueAsString(normalizedEvent.getObject());
+            final String jsonPayload = ElasticsearchUtil.normalizeJson(event);
             event.put(FIELD_CONTENT_ID, resourceId);
 
             final Request request = createRequest(PUT, buildEventUri(topic, resourceId), jsonPayload);
@@ -339,8 +339,8 @@ public class ElasticsearchAuditEventHandler extends AuditEventHandlerBase implem
             // _id is a protected Elasticsearch field
             final String resourceId = event.get(FIELD_CONTENT_ID).asString();
             event.remove(FIELD_CONTENT_ID);
-            final JsonValue normalizedEvent = ElasticsearchUtil.normalizeJson(event);
-            final String jsonPayload = OBJECT_MAPPER.writeValueAsString(normalizedEvent.getObject());
+            final String jsonPayload = ElasticsearchUtil.normalizeJson(event);
+            event.put(FIELD_CONTENT_ID, resourceId);
 
             // newlines have special significance in the Bulk API
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html

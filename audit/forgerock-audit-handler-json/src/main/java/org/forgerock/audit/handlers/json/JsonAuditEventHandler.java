@@ -23,6 +23,7 @@ import static org.forgerock.json.resource.ResourceResponse.FIELD_CONTENT_ID;
 import static org.forgerock.json.resource.Responses.*;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -35,6 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.forgerock.audit.events.EventTopicsMetaData;
 import org.forgerock.audit.events.handlers.AuditEventHandler;
 import org.forgerock.audit.events.handlers.AuditEventHandlerBase;
+import org.forgerock.audit.util.ElasticsearchUtil;
 import org.forgerock.json.JsonPointer;
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.resource.ActionRequest;
@@ -59,6 +61,15 @@ public class JsonAuditEventHandler extends AuditEventHandlerBase {
     static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     /**
+     * Name of the {@code _eventId} JSON field.
+     * <p>
+     * When {@link #elasticsearchCompatible} is enabled, this handler renames the {@code _id} field to {@code _eventId},
+     * because {@code _id} is reserved by ElasticSearch. The operation is reversed after JSON serialization, so that
+     * other handlers will see the original field name.
+     */
+    static final String EVENT_ID_FIELD = "_eventId";
+
+    /**
      * Name of action to force file rotation.
      */
     public static final String ROTATE_FILE_ACTION_NAME = "rotate";
@@ -69,7 +80,12 @@ public class JsonAuditEventHandler extends AuditEventHandlerBase {
      */
     public static final String FLUSH_FILE_ACTION_NAME = "flush";
 
+    private static final String ID_FIELD_PATTERN_PREFIX = "\"" + FIELD_CONTENT_ID + "\"\\s*:\\s*\"";
+    private static final String EVENT_ID_FIELD_PATTERN_PREFIX = "\"" + EVENT_ID_FIELD + "\"\\s*:\\s*\"";
+    private static final String FIELD_PATTERN_SUFFIX = "\"";
+
     private final JsonFileWriter jsonFileWriter;
+    private final boolean elasticsearchCompatible;
 
     /**
      * Creates a {@code JsonAuditEventHandler} instances.
@@ -82,6 +98,7 @@ public class JsonAuditEventHandler extends AuditEventHandlerBase {
             final EventTopicsMetaData eventTopicsMetaData) {
         super(configuration.getName(), eventTopicsMetaData, configuration.getTopics(), configuration.isEnabled());
         jsonFileWriter = new JsonFileWriter(configuration.getTopics(), configuration, true);
+        elasticsearchCompatible = configuration.isElasticsearchCompatible();
     }
 
     @Override
@@ -112,14 +129,17 @@ public class JsonAuditEventHandler extends AuditEventHandlerBase {
         if (jsonFilePath == null) {
             return newResourceException(NOT_FOUND, "Topic not found: " + topic).asPromise();
         }
-        final Matcher idMatcher = Pattern.compile("\"_id\"\\s*:\\s*\"" + resourceId + "\"").matcher("");
+        final String fieldPatternPrefix = elasticsearchCompatible
+                ? EVENT_ID_FIELD_PATTERN_PREFIX : ID_FIELD_PATTERN_PREFIX;
+        final Matcher idMatcher = Pattern.compile(fieldPatternPrefix + resourceId + FIELD_PATTERN_SUFFIX).matcher("");
         String line;
         try (final BufferedReader reader = new BufferedReader(new InputStreamReader(
                 Files.newInputStream(jsonFilePath), StandardCharsets.UTF_8))) {
             line = reader.readLine();
             while (line != null) {
                 if (idMatcher.reset(line).find()) {
-                    final JsonValue event = new JsonValue(OBJECT_MAPPER.readValue(line, Map.class));
+                    final JsonValue event = denormalizeJsonEvent(new JsonValue(
+                            OBJECT_MAPPER.readValue(line, Map.class)));
                     return newResourceResponse(resourceId, null, event).asPromise();
                 }
                 line = reader.readLine();
@@ -144,7 +164,7 @@ public class JsonAuditEventHandler extends AuditEventHandlerBase {
                 Files.newInputStream(jsonFilePath), StandardCharsets.UTF_8))) {
             line = reader.readLine();
             while (line != null) {
-                final JsonValue event = new JsonValue(OBJECT_MAPPER.readValue(line, Map.class));
+                final JsonValue event = denormalizeJsonEvent(new JsonValue(OBJECT_MAPPER.readValue(line, Map.class)));
                 if (queryFilter.accept(JSONVALUE_FILTER_VISITOR, event)) {
                     ++results;
                     final ResourceResponse resourceResponse =
@@ -185,5 +205,22 @@ public class JsonAuditEventHandler extends AuditEventHandlerBase {
         } catch (Exception e) {
             return newResourceException(INTERNAL_ERROR, "Failed to invoke action", e).asPromise();
         }
+    }
+
+    /**
+     * Reverses all ElasticSearch JSON normalization, if {@link #elasticsearchCompatible} is enabled.
+     *
+     * @param event Audit event
+     * @return Audit event
+     * @throws IOException Failure while processing JSON
+     * @see JsonFileWriter#put(String, JsonValue)
+     */
+    private JsonValue denormalizeJsonEvent(JsonValue event) throws IOException {
+        if (elasticsearchCompatible) {
+            // reverse all ElasticSearch JSON normalization
+            event = ElasticsearchUtil.denormalizeJson(event);
+            ElasticsearchUtil.renameField(event, EVENT_ID_FIELD, FIELD_CONTENT_ID);
+        }
+        return event;
     }
 }

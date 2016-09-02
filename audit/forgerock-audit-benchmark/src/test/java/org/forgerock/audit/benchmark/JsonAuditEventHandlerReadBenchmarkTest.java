@@ -17,13 +17,18 @@
 package org.forgerock.audit.benchmark;
 
 import static org.forgerock.audit.AuditServiceProxy.ACTION_PARAM_TARGET_HANDLER;
+import static org.forgerock.audit.benchmark.JsonAuditEventHandlerWriteBenchmarkTest.FIELD_HAS_A_PERIOD;
+import static org.forgerock.audit.events.AuditEventBuilder.TIMESTAMP;
+import static org.forgerock.audit.events.AuditEventBuilder.TRANSACTION_ID;
 import static org.forgerock.audit.handlers.json.JsonAuditEventHandler.FLUSH_FILE_ACTION_NAME;
 import static org.forgerock.json.JsonValue.*;
+import static org.forgerock.json.resource.ResourceResponse.FIELD_CONTENT_ID;
 
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.forgerock.audit.handlers.json.JsonAuditEventHandler;
+import org.forgerock.audit.handlers.json.JsonAuditEventHandlerConfiguration;
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.resource.ActionRequest;
 import org.forgerock.json.resource.IdentifierQueryResourceHandler;
@@ -58,14 +63,23 @@ public class JsonAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
             return identifiers[++counter % PRE_POPULATED_EVENT_COUNT];
         }
 
+        /**
+         * Builds a simple, unique event instance.
+         *
+         * @param id Unique identifier
+         * @return Event instance
+         */
+        JsonValue buildUniqueEvent(final String id) {
+            return json(object(field(FIELD_CONTENT_ID, id), field(TIMESTAMP, id), field(TRANSACTION_ID, id)));
+        }
+
         @Override
         protected void afterStartup() throws Exception {
             // pre-populate with data and store generated IDs
             identifiers = new String[PRE_POPULATED_EVENT_COUNT];
             for (int i = 0; i < PRE_POPULATED_EVENT_COUNT; ++i) {
                 final String id = String.format("%010d", i);
-                final JsonValue event = json(object(
-                        field("_id", id), field("timestamp", id), field("transactionId", id)));
+                final JsonValue event = buildUniqueEvent(id);
                 identifiers[i] = handler.publishEvent(null, ACCESS, event).get().getId();
             }
 
@@ -90,16 +104,70 @@ public class JsonAuditEventHandlerReadBenchmarkTest extends BenchmarkBase {
     }
 
     @Benchmark
-    public String readById(final ReadState state) throws Exception {
+    public final String readById(final ReadState state) throws Exception {
         return state.handler.readEvent(null, ACCESS, state.getRandomIdentifier()).getOrThrow().getId();
     }
 
     @Benchmark
-    public QueryResponse queryForId(final ReadState state) throws Exception {
+    public final QueryResponse queryForId(final ReadState state) throws Exception {
         final IdentifierQueryResourceHandler queryHandler = new IdentifierQueryResourceHandler(
                 state.getRandomIdentifier());
         final QueryRequest queryRequest = Requests.newQueryRequest(ACCESS)
                 .setQueryFilter(QueryFilters.parse("/_id eq \"" + queryHandler.getId() + "\""));
         return state.handler.queryEvents(null, ACCESS, queryRequest, queryHandler).getOrThrow();
+    }
+
+    @State(Scope.Benchmark)
+    public static class ElasticsearchCompatibleBestCaseReadState extends ReadState {
+        @Override
+        protected void updateConfiguration(final JsonAuditEventHandlerConfiguration configuration) {
+            configuration.setElasticsearchCompatible(true);
+        }
+    }
+
+    @Benchmark
+    public String elasticsearchCompatibleBestCaseReadById(final ElasticsearchCompatibleBestCaseReadState state)
+            throws Exception {
+        return readById(state);
+    }
+
+    @Benchmark
+    public QueryResponse elasticsearchCompatibleBestCaseQueryForId(final ElasticsearchCompatibleBestCaseReadState state)
+            throws Exception {
+        return queryForId(state);
+    }
+
+    @State(Scope.Benchmark)
+    public static class ElasticsearchCompatibleWorstCaseReadState extends ReadState {
+        @Override
+        protected void updateConfiguration(final JsonAuditEventHandlerConfiguration configuration) {
+            configuration.setElasticsearchCompatible(true);
+        }
+
+        /**
+         * Builds a simple, unique event instance, that contains periods in one of the field-names, which will be
+         * normalized for ElasticSearch compatibility.
+         * <p>
+         * This is a worst-case scenario, because every single event will need to be denormalized-on-read.
+         *
+         * @param id Unique identifier
+         * @return Event instance
+         */
+        @Override
+        JsonValue buildUniqueEvent(final String id) {
+            return json(object(field(FIELD_CONTENT_ID, id), field(TIMESTAMP, id), field(FIELD_HAS_A_PERIOD, id)));
+        }
+    }
+
+    @Benchmark
+    public String elasticsearchCompatibleWorstCaseReadById(final ElasticsearchCompatibleWorstCaseReadState state)
+            throws Exception {
+        return readById(state);
+    }
+
+    @Benchmark
+    public QueryResponse elasticsearchCompatibleWorstCaseQueryForId(
+            final ElasticsearchCompatibleWorstCaseReadState state) throws Exception {
+        return queryForId(state);
     }
 }

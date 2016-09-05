@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.forgerock.http.routing.RoutingMode;
 import org.forgerock.http.ApiProducer;
+import org.forgerock.http.routing.RoutingMode;
 import org.forgerock.services.context.Context;
 import org.forgerock.services.descriptor.Describable;
 import org.forgerock.util.Pair;
@@ -234,10 +234,8 @@ public abstract class AbstractRouter<T extends AbstractRouter<T, R, H, D>, R, H,
             return Pair.of(bestMatch.decorateContext(context), handler);
         }
 
-        if (defaultRoute != null) {
-            return Pair.of(context, defaultRoute);
-        }
-        return null;
+        final H dftRoute = defaultRoute;
+        return dftRoute != null ? Pair.of(context, dftRoute) : null;
     }
 
     @Override
@@ -263,8 +261,9 @@ public abstract class AbstractRouter<T extends AbstractRouter<T, R, H, D>, R, H,
                 descriptors.add(matcher.transformApi(descriptor, apiProducer));
             }
         }
-        if (defaultRoute instanceof Describable) {
-            descriptors.add(((Describable<D, R>) defaultRoute).api(apiProducer));
+        final H dftRoute = defaultRoute;
+        if (dftRoute instanceof Describable) {
+            descriptors.add(((Describable<D, R>) dftRoute).api(apiProducer));
         }
         this.api = descriptors.isEmpty() ? null : apiProducer.merge(descriptors);
     }

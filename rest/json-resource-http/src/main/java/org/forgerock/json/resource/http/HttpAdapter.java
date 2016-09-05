@@ -662,8 +662,7 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
             context = prepareRequest(context, req, request);
             ApiDescription api = describable.get().handleApiRequest(context, request);
 
-            ObjectWriter writer = API_OBJECT_MAPPER.writer()
-                    .withAttribute(Json.PREFERRED_LOCALES_ATTRIBUTE, request.getPreferredLocales());
+            ObjectWriter writer = Json.makeLocalizingObjectWriter(API_OBJECT_MAPPER, request.getPreferredLocales());
 
             // Enable pretty printer if requested.
             final List<String> values = getParameter(req, PARAM_PRETTY_PRINT);

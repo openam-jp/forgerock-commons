@@ -84,9 +84,7 @@ public class JacksonJsonSerialization {
 
     @Benchmark
     public byte[] testWithAttribute() throws IOException {
-        return MAPPER.writer()
-                .withAttribute(Json.PREFERRED_LOCALES_ATTRIBUTE, LOCALES)
-                .writeValueAsBytes(TARGET);
+        return Json.makeLocalizingObjectWriter(MAPPER, LOCALES).writeValueAsBytes(TARGET);
     }
 
     public static void main(String[] args) throws RunnerException {

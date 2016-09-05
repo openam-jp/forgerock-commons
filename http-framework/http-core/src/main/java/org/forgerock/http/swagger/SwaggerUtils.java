@@ -20,7 +20,6 @@ import static org.forgerock.http.HttpApplication.LOGGER;
 import static org.forgerock.http.protocol.Entity.APPLICATION_JSON_CHARSET_UTF_8;
 import static org.forgerock.http.protocol.Responses.newInternalServerError;
 
-import org.forgerock.http.header.AcceptLanguageHeader;
 import org.forgerock.http.header.ContentTypeHeader;
 import org.forgerock.http.header.MalformedHeaderException;
 import org.forgerock.http.protocol.Request;
@@ -88,11 +87,7 @@ public final class SwaggerUtils {
         try {
             Swagger result = handler.handleApiRequest(context, request);
             if (result != null) {
-                ObjectWriter writer = OBJECT_MAPPER.writer();
-                if (request.getHeaders().containsKey(AcceptLanguageHeader.NAME)) {
-                    writer = writer.withAttribute(Json.PREFERRED_LOCALES_ATTRIBUTE,
-                            request.getHeaders().get(AcceptLanguageHeader.class).getLocales());
-                }
+                ObjectWriter writer = Json.makeLocalizingObjectWriter(OBJECT_MAPPER, request);
                 Response response = new Response()
                         .setStatus(Status.OK)
                         .setEntity(writer.writeValueAsBytes(result));

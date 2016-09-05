@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2013-2015 ForgeRock AS.
+ * Copyright 2013-2016 ForgeRock AS.
  */
 
 package org.forgerock.json.resource.http;
@@ -40,6 +40,7 @@ import org.forgerock.json.resource.QueryResponse;
 import org.forgerock.json.resource.Requests;
 import org.forgerock.json.resource.ResourceException;
 import org.forgerock.json.resource.ResourceResponse;
+import org.forgerock.util.i18n.LocalizableString;
 import org.forgerock.util.promise.Promise;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -83,6 +84,21 @@ public class RequestRunnerTest {
                 + "{\"_id\":\"id\",\"_rev\":\"rev\",\"intField\":42,\"stringField\":\"stringValue\"},"
                 + "{\"_id\":\"id\",\"_rev\":\"rev\",\"intField\":43,\"stringField\":\"otherString\"}" + "],"
                 + "\"resultCount\":2,\"pagedResultsCookie\":null,\"totalPagedResultsPolicy\":\"NONE\","
+                + "\"totalPagedResults\":-1,\"remainingPagedResults\":-1}");
+    }
+
+    @Test
+    public void testIdAndRevisionInPayload()
+            throws Exception {
+        Response response = getAnonymousQueryResourceHandler(QUERY_RESULT,
+                newResourceResponse("id", "rev",
+                        json(object(
+                                field("_id", "id"),
+                                field("_rev", "rev"),
+                                field("aField", new LocalizableString("val"))))));
+        assertEquals(getResponseContent(response), "{" + "\"result\":["
+                + "{\"_id\":\"id\",\"_rev\":\"rev\",\"aField\":\"val\"}],"
+                + "\"resultCount\":1,\"pagedResultsCookie\":null,\"totalPagedResultsPolicy\":\"NONE\","
                 + "\"totalPagedResults\":-1,\"remainingPagedResults\":-1}");
     }
 

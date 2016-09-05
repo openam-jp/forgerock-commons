@@ -30,14 +30,18 @@ import static org.mockito.Mockito.verify;
 
 import java.util.Collections;
 
-import org.forgerock.services.context.Context;
+import org.forgerock.api.models.ApiDescription;
 import org.forgerock.http.routing.UriRouterContext;
+import org.forgerock.services.context.Context;
+import org.forgerock.services.descriptor.Describable;
 import org.forgerock.util.promise.Promise;
+import org.mockito.ArgumentCaptor;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+@SuppressWarnings("javadoc")
 public class RouterTest {
 
     private Router router;
@@ -67,7 +71,6 @@ public class RouterTest {
         };
     }
 
-    @SuppressWarnings("unchecked")
     @Test(dataProvider = "data")
     public void creatingRouterFromExistingRouterShouldCopyAllRoutes(String requestUri, RequestHandler expectedHandler) {
 
@@ -145,7 +148,7 @@ public class RouterTest {
         if (expectedRequestToBeCopied) {
             verify(defaultRouteHandler).handleAction(any(Context.class), any(ActionRequest.class));
         } else {
-            verify(defaultRouteHandler).handleAction(any(Context.class), eq(request));
+            verify(defaultRouteHandler).handleAction(any(Context.class), same(request));
         }
     }
 
@@ -167,7 +170,7 @@ public class RouterTest {
         if (expectedRequestToBeCopied) {
             verify(defaultRouteHandler).handleCreate(any(Context.class), any(CreateRequest.class));
         } else {
-            verify(defaultRouteHandler).handleCreate(any(Context.class), eq(request));
+            verify(defaultRouteHandler).handleCreate(any(Context.class), same(request));
         }
     }
 
@@ -189,7 +192,7 @@ public class RouterTest {
         if (expectedRequestToBeCopied) {
             verify(defaultRouteHandler).handleDelete(any(Context.class), any(DeleteRequest.class));
         } else {
-            verify(defaultRouteHandler).handleDelete(any(Context.class), eq(request));
+            verify(defaultRouteHandler).handleDelete(any(Context.class), same(request));
         }
     }
 
@@ -211,7 +214,7 @@ public class RouterTest {
         if (expectedRequestToBeCopied) {
             verify(defaultRouteHandler).handlePatch(any(Context.class), any(PatchRequest.class));
         } else {
-            verify(defaultRouteHandler).handlePatch(any(Context.class), eq(request));
+            verify(defaultRouteHandler).handlePatch(any(Context.class), same(request));
         }
     }
 
@@ -235,7 +238,7 @@ public class RouterTest {
             verify(defaultRouteHandler).handleQuery(any(Context.class), any(QueryRequest.class),
                     any(QueryResourceHandler.class));
         } else {
-            verify(defaultRouteHandler).handleQuery(any(Context.class), eq(request),
+            verify(defaultRouteHandler).handleQuery(any(Context.class), same(request),
                     any(QueryResourceHandler.class));
         }
     }
@@ -258,7 +261,7 @@ public class RouterTest {
         if (expectedRequestToBeCopied) {
             verify(defaultRouteHandler).handleRead(any(Context.class), any(ReadRequest.class));
         } else {
-            verify(defaultRouteHandler).handleRead(any(Context.class), eq(request));
+            verify(defaultRouteHandler).handleRead(any(Context.class), same(request));
         }
     }
 
@@ -280,8 +283,67 @@ public class RouterTest {
         if (expectedRequestToBeCopied) {
             verify(defaultRouteHandler).handleUpdate(any(Context.class), any(UpdateRequest.class));
         } else {
-            verify(defaultRouteHandler).handleUpdate(any(Context.class), eq(request));
+            verify(defaultRouteHandler).handleUpdate(any(Context.class), same(request));
         }
+    }
+
+    @DataProvider
+    private Object[][] testData2() {
+        return new Object[][]{
+            {"users", ""},
+            {"users/bjensen", "bjensen"},
+            {"groups", "groups"},
+        };
+    }
+
+    private interface DescribableRequestHandler extends RequestHandler, Describable<ApiDescription, Request> {
+    }
+
+    @Test(dataProvider = "testData2")
+    public void handleApiRequestShouldCallBestRoute(String requestedPath, String remainingUri) {
+
+        //Given
+        final String routesPath = "users";
+        final DescribableRequestHandler equalsRouteHandler = mock(DescribableRequestHandler.class);
+        final DescribableRequestHandler startsWithRouteHandler = mock(DescribableRequestHandler.class);
+        final DescribableRequestHandler defaultRouteHandler = mock(DescribableRequestHandler.class);
+
+        router.addRoute(requestUriMatcher(EQUALS, routesPath), equalsRouteHandler);
+        router.addRoute(requestUriMatcher(STARTS_WITH, routesPath), startsWithRouteHandler);
+        router.setDefaultRoute(defaultRouteHandler);
+
+        Context context = newRouterContext(mock(Context.class), remainingUri);
+        Request request = Requests.newApiRequest(ResourcePath.valueOf(requestedPath));
+
+        //When
+        router.handleApiRequest(context, request);
+
+        //Then
+        if (requestedPath.startsWith(routesPath)) {
+            final DescribableRequestHandler handler =
+                routesPath.equals(requestedPath) ? equalsRouteHandler : startsWithRouteHandler;
+
+            final ArgumentCaptor<Request> requestArg = ArgumentCaptor.forClass(Request.class);
+            verify(handler).handleApiRequest(any(Context.class), requestArg.capture());
+            assertThat(requestArg.getValue().getResourcePath()).isEqualTo(remainingUri);
+        } else {
+            verify(defaultRouteHandler).handleApiRequest(any(Context.class), same(request));
+        }
+    }
+
+    @Test(dataProvider = "testData", expectedExceptions = UnsupportedOperationException.class)
+    public void handleApiRequestNoMatchThrowsUnsupportedOperationException(String remainingUri, boolean unused) {
+
+        //Given
+        Context context = newRouterContext(mock(Context.class), remainingUri);
+        Request request = mock(Request.class);
+        given(request.getResourcePath()).willReturn("users/demo");
+        given(request.getResourcePathObject()).willReturn(ResourcePath.valueOf("users/demo"));
+
+        //When
+        router.handleApiRequest(context, request);
+
+        //Then throw
     }
 
     @Test
@@ -444,6 +506,20 @@ public class RouterTest {
             assertThat(e.getCode()).isEqualTo(404);
             assertThat(e.getMessage()).isEqualTo("Resource 'users/demo' not found");
         }
+    }
+
+    @Test(expectedExceptions = UnsupportedOperationException.class)
+    public void handleApiRequestShouldThrowsIfNoRouteFound() {
+
+        //Given
+        Context context = mock(Context.class);
+        Request request = mock(Request.class);
+
+        given(request.getResourcePath()).willReturn("users/demo");
+        given(request.getResourcePathObject()).willReturn(ResourcePath.resourcePath("users/demo"));
+
+        //When
+        router.handleApiRequest(context, request);
     }
 
     private Context newRouterContext(Context parentContext, String remainingUri) {

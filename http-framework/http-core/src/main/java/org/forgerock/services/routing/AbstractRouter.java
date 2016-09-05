@@ -13,7 +13,6 @@
  *
  * Copyright 2015-2016 ForgeRock AS.
  */
-
 package org.forgerock.services.routing;
 
 import java.util.ArrayList;
@@ -51,15 +50,15 @@ public abstract class AbstractRouter<T extends AbstractRouter<T, R, H, D>, R, H,
         implements Describable<D, R>, Describable.Listener {
 
     private final Map<RouteMatcher<R>, H> routes = new ConcurrentHashMap<>();
-    private final RouteMatcher<R> thisRouterUriMatcher = uriMatcher(RoutingMode.EQUALS, "");
-    private List<Describable.Listener> apiListeners = new CopyOnWriteArrayList<>();
+    /** Matches the current route. */
+    protected final RouteMatcher<R> thisRouterUriMatcher = uriMatcher(RoutingMode.EQUALS, "");
+    private final List<Describable.Listener> apiListeners = new CopyOnWriteArrayList<>();
     private volatile H defaultRoute;
     private ApiProducer<D> apiProducer;
-    private D api;
+    /** Api of the current router. */
+    protected D api;
 
-    /**
-     * Creates a new abstract router with no routes defined.
-     */
+    /** Creates a new abstract router with no routes defined. */
     protected AbstractRouter() {
     }
 
@@ -292,7 +291,7 @@ public abstract class AbstractRouter<T extends AbstractRouter<T, R, H, D>, R, H,
         if (thisRouterUriMatcher.evaluate(context, request) != null) {
             return this.api;
         }
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("No route matched the request " + request);
     }
 
     private void notifyListeners() {

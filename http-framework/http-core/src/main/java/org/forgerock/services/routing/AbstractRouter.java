@@ -281,15 +281,10 @@ public abstract class AbstractRouter<T extends AbstractRouter<T, R, H, D>, R, H,
     @SuppressWarnings("unchecked")
     public D handleApiRequest(Context context, R request) {
         try {
-            Context nextContext = context;
             Pair<Context, H> bestRoute = getBestRoute(context, request);
-            H handler = bestRoute == null ? null : bestRoute.getSecond();
-            if (handler == null) {
-                handler = defaultRoute;
-            } else {
-                nextContext = bestRoute.getFirst();
-            }
+            H handler = bestRoute != null ? bestRoute.getSecond() : null;
             if (handler instanceof Describable) {
+                Context nextContext = bestRoute.getFirst();
                 return ((Describable<D, R>) handler).handleApiRequest(nextContext, request);
             }
         } catch (IncomparableRouteMatchException e) {

@@ -122,10 +122,11 @@ public final class Definitions {
         @JsonAnySetter
         public Builder put(String name, Schema schema) {
             if (isEmpty(name) || containsWhitespace(name)) {
-                throw new IllegalArgumentException("name required and may not contain whitespace");
+                throw new IllegalArgumentException("Schema name required and may not contain whitespace");
             }
             if (definitions.containsKey(name) && !definitions.get(name).equals(schema)) {
-                throw new IllegalStateException("name not unique");
+                throw new IllegalStateException("The give Schema name already exists but the Schema objects"
+                        + " are not equal");
             }
 
             definitions.put(name, checkNotNull(schema));

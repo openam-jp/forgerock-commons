@@ -34,6 +34,8 @@
 
     <properties>
         <!-- Third party components versions -->
+        <i18nFrameworkVersion>1.4.2</i18nFrameworkVersion>
+        <jodaTime.version>2.7</jodaTime.version>
         <assertj.version>2.4.1</assertj.version>
         <forgerock-guava.version>18.0.4</forgerock-guava.version>
         <jackson.version>2.8.1</jackson.version>
@@ -109,6 +111,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>log4j-over-slf4j</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
 
@@ -422,6 +430,11 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.forgerock.commons</groupId>
+                <artifactId>i18n-core</artifactId>
+                <version>${i18nFrameworkVersion}</version>
+            </dependency>
 
             <!-- ForgeRock Auth filters dependencies -->
             <dependency>
@@ -531,6 +544,12 @@
                 <groupId>org.forgerock.commons</groupId>
                 <artifactId>forgerock-audit-handler-splunk</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${jodaTime.version}</version>
             </dependency>
 
             <!-- ForgeRock User Self-Service dependencies -->

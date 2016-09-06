@@ -37,7 +37,6 @@
     <properties>
         <commons.forgerock-bom.version>7.0</commons.forgerock-bom.version>
 
-        <jodaTime.version>2.1</jodaTime.version>
         <supercsv.version>2.4.0</supercsv.version>
         <javax.servlet-api.version>3.0.1</javax.servlet-api.version>
         <javax.inject.version>1_2</javax.inject.version>
@@ -77,11 +76,6 @@
                 <groupId>net.sf.supercsv</groupId>
                 <artifactId>super-csv</artifactId>
                 <version>${supercsv.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>${jodaTime.version}</version>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>

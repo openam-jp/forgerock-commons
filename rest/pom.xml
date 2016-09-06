@@ -39,7 +39,6 @@
     </distributionManagement>
     <properties>
         <commons.forgerock-bom.version>6.0</commons.forgerock-bom.version>
-        <i18nFrameworkVersion>1.4.1</i18nFrameworkVersion>
     </properties>
     <modules>
         <module>api-descriptor</module>
@@ -68,11 +67,6 @@
     </dependencies>
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.forgerock.commons</groupId>
-                <artifactId>i18n-core</artifactId>
-                <version>${i18nFrameworkVersion}</version>
-            </dependency>
             <dependency>
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>

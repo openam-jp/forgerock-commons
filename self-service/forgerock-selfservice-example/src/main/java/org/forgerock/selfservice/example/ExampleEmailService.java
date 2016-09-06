@@ -11,12 +11,12 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.selfservice.example;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.forgerock.guava.common.base.Strings.isNullOrEmpty;
 import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
@@ -89,25 +89,25 @@ final class ExampleEmailService implements SingletonResourceProvider {
     private JsonValue sendEmail(JsonValue document) throws ResourceException {
         String to = document.get("to").asString();
 
-        if (isEmpty(to)) {
+        if (isNullOrEmpty(to)) {
             throw new BadRequestException("Field to is not specified");
         }
 
         String from = document.get("from").asString();
 
-        if (isEmpty(from)) {
+        if (isNullOrEmpty(from)) {
             throw new BadRequestException("Field from is not specified");
         }
 
         String subject = document.get("subject").asString();
 
-        if (isEmpty(subject)) {
+        if (isNullOrEmpty(subject)) {
             throw new BadRequestException("Field subject is not specified");
         }
 
         String messageBody = document.get("body").asString();
 
-        if (isEmpty(messageBody)) {
+        if (isNullOrEmpty(messageBody)) {
             throw new BadRequestException("Field message is not specified");
         }
 

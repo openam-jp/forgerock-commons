@@ -16,7 +16,7 @@
 
 package org.forgerock.selfservice.stages.email;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.forgerock.guava.common.base.Strings.isNullOrEmpty;
 import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
@@ -162,7 +162,7 @@ public final class VerifyEmailAccountStage implements ProgressStage<VerifyEmailA
     }
 
     private String getEmailAsString(JsonValue email) throws BadRequestException {
-        if (email == null || isEmpty(email.asString())) {
+        if (email == null || isNullOrEmpty(email.asString())) {
             throw new BadRequestException("mail should not be empty");
         }
         return email.asString();
@@ -178,7 +178,7 @@ public final class VerifyEmailAccountStage implements ProgressStage<VerifyEmailA
                 .get("code")
                 .asString();
 
-        if (isEmpty(submittedCode)) {
+        if (isNullOrEmpty(submittedCode)) {
             throw new BadRequestException("Input code is missing");
         }
 

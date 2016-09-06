@@ -48,7 +48,6 @@
 
     <properties>
         <javax.inject.version>1_2</javax.inject.version>
-        <commons-lang3.version>3.4</commons-lang3.version>
         <jackson-mapper-asl.version>1.9.2</jackson-mapper-asl.version>
     </properties>
 
@@ -58,11 +57,6 @@
                 <groupId>org.apache.servicemix.bundles</groupId>
                 <artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
                 <version>${javax.inject.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

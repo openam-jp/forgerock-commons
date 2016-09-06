@@ -16,7 +16,7 @@
 
 package org.forgerock.selfservice.stages.reset;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.forgerock.guava.common.base.Strings.isNullOrEmpty;
 import static org.forgerock.selfservice.stages.CommonStateFields.USER_ID_FIELD;
 
 import org.forgerock.json.JsonPointer;
@@ -80,7 +80,7 @@ public final class ResetStage implements ProgressStage<ResetStageConfig> {
                 .get("password")
                 .asString();
 
-        if (isEmpty(password)) {
+        if (isNullOrEmpty(password)) {
             throw new BadRequestException("password is missing from input");
         }
 

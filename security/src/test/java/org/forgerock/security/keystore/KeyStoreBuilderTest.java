@@ -49,6 +49,15 @@ public class KeyStoreBuilderTest {
     }
 
     @DataProvider
+    private Object[][] fileBasedKeyStoresWithNoneFileName() {
+        return new Object[][] {
+                {KeyStoreType.JKS, "none"},
+                {KeyStoreType.JCEKS, "none"},
+                {KeyStoreType.PKCS12, "none"}
+        };
+    }
+
+    @DataProvider
     private Object[][] fileBasedKeyStoresWithFileNameAndProviders() {
         return new Object[][] {
                 {KeyStoreType.JKS, "/keystore.jks", "SUN"},
@@ -125,6 +134,23 @@ public class KeyStoreBuilderTest {
                 .withPassword(KEY_STORE_PASSWORD)
                 .withKeyStoreType(keyStoreType)
                 .withProvider(keyStoreProvider)
+                .build();
+
+        // then
+        assertThat(keyStore).isNotNull();
+    }
+
+    @Test(dataProvider = "fileBasedKeyStoresWithNoneFileName")
+    public void shouldLoadKeyStoreWithNullInputStream(final KeyStoreType keyStoreType, final String keyStoreFileName)
+            throws Exception {
+        // given nothing
+
+
+        // when
+        final KeyStore keyStore = new KeyStoreBuilder()
+                .withKeyStoreFile(keyStoreFileName)
+                .withPassword(KEY_STORE_PASSWORD)
+                .withKeyStoreType(keyStoreType)
                 .build();
 
         // then

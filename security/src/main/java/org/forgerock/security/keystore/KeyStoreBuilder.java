@@ -30,6 +30,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.Locale;
 
 import org.forgerock.util.Reject;
 import org.slf4j.Logger;
@@ -40,6 +41,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class KeyStoreBuilder {
     private static final Logger logger = LoggerFactory.getLogger(KeyStoreBuilder.class);
+
+    private static final String NONE = "none";
 
     private KeyStoreType type = KeyStoreType.JKS;
     private KeyStore.LoadStoreParameter loadStoreParameter;
@@ -73,14 +76,15 @@ public final class KeyStoreBuilder {
     }
 
     /**
-     * Specifies the file to load the keystore from.
+     * Specifies the file to load the keystore from. If the file name is "NONE" (case-insensitive), empty, or null
+     * the keystore will be loaded with a null {@link InputStream}.
      *
      * @param keyStoreFile the name of keystore file to load.
      * @return the same builder instance.
      * @throws FileNotFoundException if the file does not exist, is not a file, or cannot be read.
      */
     public KeyStoreBuilder withKeyStoreFile(final String keyStoreFile) throws FileNotFoundException {
-        if (isBlank(keyStoreFile)) {
+        if (isBlank(keyStoreFile) || NONE.equals(keyStoreFile.toLowerCase(Locale.ROOT))) {
             return withInputStream(null);
         } else {
             return withInputStream(new FileInputStream(keyStoreFile));

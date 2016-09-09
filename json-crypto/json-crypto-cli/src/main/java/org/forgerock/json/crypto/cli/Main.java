@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.Key;
 import java.security.KeyStore;
-import java.util.ArrayList;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -29,12 +28,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.forgerock.json.JsonPointer;
-import org.forgerock.json.JsonTransformer;
 import org.forgerock.json.JsonValue;
-import org.forgerock.json.crypto.JsonCrypto;
+import org.forgerock.json.crypto.JsonEncryptFunction;
 import org.forgerock.json.crypto.JsonCryptoException;
-import org.forgerock.json.crypto.JsonCryptoTransformer;
+import org.forgerock.json.crypto.JsonDecryptFunction;
 import org.forgerock.json.crypto.simple.SimpleDecryptor;
 import org.forgerock.json.crypto.simple.SimpleEncryptor;
 import org.forgerock.json.crypto.simple.SimpleKeyStoreSelector;
@@ -136,22 +133,19 @@ public class Main {
             if (key == null) {
                 throw new JsonCryptoException("key not found: " + cmd.getOptionValue(PROPERTIES_ALIAS_OPTION));
             }
-            SimpleEncryptor encryptor = new SimpleEncryptor(
+            JsonEncryptFunction encrypt = new JsonEncryptFunction(new SimpleEncryptor(
                     cmd.getOptionValue(PROPERTIES_CIPHER_OPTION, DEFAULT_CIPHER), key,
-                    cmd.getOptionValue(PROPERTIES_ALIAS_OPTION));
+                    cmd.getOptionValue(PROPERTIES_ALIAS_OPTION)));
             JsonValue value = getSourceValue(cmd.getOptionValue(PROPERTIES_SRCJSON_OPTION), true);
-            value = new JsonCrypto(encryptor.getType(), encryptor.encrypt(value)).toJsonValue();
-            setDestinationValue(cmd.getOptionValue(PROPERTIES_DESTJSON_OPTION), value);
+            setDestinationValue(cmd.getOptionValue(PROPERTIES_DESTJSON_OPTION), value.as(encrypt));
         } else if (cmd.hasOption(PROPERTIES_DECRYPT_COMMAND)) {
-            final ArrayList<JsonTransformer> decryptionTransformers = new ArrayList<>(1);
-            decryptionTransformers.add(new JsonCryptoTransformer(new SimpleDecryptor(
+            JsonDecryptFunction decrypt = new JsonDecryptFunction(new SimpleDecryptor(
                     getSimpleKeySelector(cmd.getOptionValue(PROPERTIES_KEYSTORE_OPTION),
-                    cmd.getOptionValue(PROPERTIES_STORETYPE_OPTION, KeyStore.getDefaultType()),
+                            cmd.getOptionValue(PROPERTIES_STORETYPE_OPTION, KeyStore.getDefaultType()),
                             cmd.getOptionValue(PROPERTIES_STOREPASS_OPTION),
-                            cmd.getOptionValue(PROPERTIES_PROVIDERNAME_OPTION)))));
+                            cmd.getOptionValue(PROPERTIES_PROVIDERNAME_OPTION))));
             JsonValue value = getSourceValue(cmd.getOptionValue(PROPERTIES_SRCJSON_OPTION), true);
-            setDestinationValue(cmd.getOptionValue(PROPERTIES_DESTJSON_OPTION), new JsonValue(value.getObject(),
-                    new JsonPointer(), decryptionTransformers));
+            setDestinationValue(cmd.getOptionValue(PROPERTIES_DESTJSON_OPTION), value.as(decrypt));
         } else {
             usage();
         }

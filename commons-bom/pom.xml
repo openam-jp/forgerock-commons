@@ -376,12 +376,6 @@
 
             <dependency>
                 <groupId>org.forgerock.commons</groupId>
-                <artifactId>json-ref-jackson</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.forgerock.commons</groupId>
                 <artifactId>json-schema-core</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -164,6 +164,14 @@ public final class JsonValueFunctions {
                     }
                 }
             };
+
+    private static final Function<JsonValue, JsonValue, JsonValueException> IDENTITY =
+            new Function<JsonValue, JsonValue, JsonValueException>() {
+                @Override
+                public JsonValue apply(JsonValue value) throws JsonValueException {
+                    return value.copy();
+                }
+            };
     //@Checkstyle:on
 
     /**
@@ -413,5 +421,15 @@ public final class JsonValueFunctions {
     public static Function<JsonValue, JsonValue, JsonValueException> deepTransformBy(
             Function<JsonValue, ?, JsonValueException> function) {
         return new JsonValueTraverseFunction(function);
+    }
+
+    /**
+     * Returns an identity function that will copy the input {@link JsonValue}.
+     * @return an identity function that will copy the input {@link JsonValue}.
+     * @throws JsonValueException
+     *             if an error occurred while copying the input.
+     */
+    public static Function<JsonValue, JsonValue, JsonValueException> identity() {
+        return IDENTITY;
     }
 }

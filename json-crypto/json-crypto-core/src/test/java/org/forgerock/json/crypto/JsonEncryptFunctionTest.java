@@ -11,37 +11,34 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyrighted [year] [name of copyright owner]".
  *
- * Copyright 2011-2015 ForgeRock AS.
+ * Copyright 2016 ForgeRock AS.
  */
-
-package org.forgerock.json.ref;
+package org.forgerock.json.crypto;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
+import static org.forgerock.json.JsonValue.field;
+import static org.forgerock.json.JsonValue.json;
+import static org.forgerock.json.JsonValue.object;
+import static org.forgerock.json.crypto.JsonDecryptorUtilsTest.BASE64_ENCRYPTOR;
 
 import org.forgerock.json.JsonValue;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @SuppressWarnings("javadoc")
-public class JsonReferenceTest {
-
-    /** Empty JSON object. */
-    private JsonValue root;
-
-    @BeforeMethod
-    public void beforeMethod() {
-        root = new JsonValue(new HashMap<>());
-    }
+public class JsonEncryptFunctionTest {
 
     @Test
-    public void x() throws URISyntaxException {
-        JsonReference ref = new JsonReference().setURI(new URI("#/foo"));
-        root.put("foo", "bar");
-        root.put("baz", ref.toJsonValue().getObject());
-        assertThat(root.get("baz").getObject().equals("bar"));
+    public void shouldProduceCryptedJsonValue() throws Exception {
+        JsonValue jsonValue = json(object(field("foo", "bar")));
+
+        JsonValue encrypted = jsonValue.as(new JsonEncryptFunction(BASE64_ENCRYPTOR));
+
+        JsonValue expected = json(
+                object(
+                        field("$crypto", object(
+                                field("type", "base64"),
+                                field("value", "eyJmb28iOiJiYXIifQ==")))));
+
+        assertThat(encrypted.isEqualTo(expected)).isTrue();
     }
 }

@@ -16,7 +16,7 @@
 <differences>
 <!--
 For specifying ignored differences, see:
-  http://mojo.codehaus.org/clirr-maven-plugin/examples/ignored-differences.html
+  http://www.mojohaus.org/clirr-maven-plugin/examples/ignored-differences.html
 
 path/methods/to/from matching can either use:
 - regex when surrounded with '%regex[]'
@@ -201,5 +201,46 @@ Note: waiting on https://jira.codehaus.org/browse/MCLIRR-62 to be resolved to av
 		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
 		<differenceType>8001</differenceType>
 		<justification>Removal of the unused JsonValueKeyAccessChecker feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonTransformer</className>
+		<differenceType>8001</differenceType>
+		<justification>Removal of the JsonTransformer feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>JsonValue(java.lang.Object, java.util.Collection)</method>
+		<justification>Removal of the JsonTransformer feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>JsonValue(java.lang.Object, org.forgerock.json.JsonPointer, java.util.Collection)</method>
+		<justification>Removal of the JsonTransformer feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>void applyTransformers()</method>
+		<justification>Removal of the JsonTransformer feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.List getTransformers()</method>
+		<justification>Removal of the JsonTransformer feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>void applyTransformers()</method>
+		<justification>Removal of the JsonTransformer feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.List getTransformers()</method>
+		<justification>Removal of the JsonTransformer feature</justification>
 	</difference>
 </differences>

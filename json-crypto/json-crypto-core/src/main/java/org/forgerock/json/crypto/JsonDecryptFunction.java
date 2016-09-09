@@ -11,47 +11,53 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyrighted [year] [name of copyright owner]".
  *
- * Copyright 2011-2015 ForgeRock AS. All rights reserved.
+ * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.json.crypto;
 
-import org.forgerock.json.JsonException;
+import static org.forgerock.json.JsonValueFunctions.identity;
+import static org.forgerock.util.Reject.checkNotNull;
+
 import org.forgerock.json.JsonValue;
-import org.forgerock.json.JsonTransformer;
+import org.forgerock.json.JsonValueException;
+import org.forgerock.json.JsonValueTraverseFunction;
 
 /**
- * Transforms JSON values by applying a decryptor.
+ * Create a new {@link JsonValue} by applying a decryptor.
  */
-public class JsonCryptoTransformer implements JsonTransformer {
+public class JsonDecryptFunction extends JsonValueTraverseFunction {
 
     /** Decryptor to apply to JSON values. */
-    private JsonDecryptor decryptor;
+    private final JsonDecryptor decryptor;
 
     /**
-     * Constructs a transformer to apply a decryptor.
+     * Constructs a function to apply a decryptor.
      *
      * @param decryptor the decryptor to apply to JSON values.
      * @throws NullPointerException if {@code decryptor} is {@code null}.
      */
-    public JsonCryptoTransformer(JsonDecryptor decryptor) {
-        if (decryptor == null) {
-            throw new NullPointerException();
-        }
-        this.decryptor = decryptor;
+    public JsonDecryptFunction(JsonDecryptor decryptor) {
+        super(identity());
+        this.decryptor = checkNotNull(decryptor);
     }
 
     @Override
-    public void transform(JsonValue value) throws JsonException {
+    protected Object traverseMap(JsonValue value) {
         if (JsonCrypto.isJsonCrypto(value)) {
             JsonCrypto crypto = new JsonCrypto(value);
             if (crypto.getType().equals(decryptor.getType())) { // only attempt decryption if type matches
                 try {
-                    value.setObject(decryptor.decrypt(crypto.getValue()).getObject());
+                    JsonValue decrypted = decryptor.decrypt(crypto.getValue());
+                    // Set a correct JsonPointer to the decrypted JsonValue (the decrypted one ends with /$crypto/value)
+//                    decrypted = new JsonValue(decrypted.getObject(), value.getPointer());
+                    // The decrypted JsonValue may contain a structure that itself contains some crypted JsonValue.
+                    return apply(decrypted);
                 } catch (JsonCryptoException jce) {
-                    throw new JsonException(jce);
+                    throw new JsonValueException(value, jce);
                 }
             }
         }
+        return super.traverseMap(value);
     }
+
 }

@@ -149,23 +149,6 @@ public final class JsonValueUtils {
      *         a null value, null will be returned.
      */
     public static String extractValueAsString(final JsonValue json, final JsonPointer pointer) {
-        return json.getTransformers().isEmpty()
-                ? extractValueWithoutTransformers(json, pointer)
-                : extractValueWithTransformers(json, pointer);
-    }
-
-    private static String extractValueWithTransformers(final JsonValue json, final JsonPointer pointer) {
-        JsonValue value = json.get(pointer);
-        if (value == null || value.isNull()) {
-            return null;
-        } else if (value.isString()) {
-            return value.asString();
-        } else {
-            return extractComplexString(value.getObject(), pointer);
-        }
-    }
-
-    private static String extractValueWithoutTransformers(final JsonValue json, final JsonPointer pointer) {
         Object value = json.getObject();
         for (String name : pointer.toArray()) {
             if (value instanceof Map<?, ?>) {

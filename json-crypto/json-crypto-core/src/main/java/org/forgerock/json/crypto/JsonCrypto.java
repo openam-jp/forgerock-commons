@@ -16,9 +16,13 @@
 
 package org.forgerock.json.crypto;
 
-import static org.forgerock.util.crypto.CryptoConstants.*;
+import static org.forgerock.json.JsonValue.field;
+import static org.forgerock.json.JsonValue.object;
+import static org.forgerock.util.crypto.CryptoConstants.CRYPTO;
+import static org.forgerock.util.crypto.CryptoConstants.CRYPTO_TYPE;
+import static org.forgerock.util.crypto.CryptoConstants.CRYPTO_VALUE;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.JsonValueException;
@@ -82,10 +86,6 @@ public class JsonCrypto {
     /**
      * Returns {@code true} if the specified JSON value contains a valid {@code $crypto}
      * JSON object structure.
-     * <p>
-     * Note: This method does not suppress transformers in the specified value. Consequently,
-     * this method can return {@code false} if members are transformed, for example if a
-     * {@link JsonCryptoTransformer} transforms the value as it is being inspected.
      *
      * @param value The JSON to check.
      * @return The result.
@@ -150,13 +150,10 @@ public class JsonCrypto {
      * @return The value.
      */
     public JsonValue toJsonValue() {
-        HashMap<String, Object> crypto = new HashMap<>();
-        crypto.put(CRYPTO_TYPE, type);
-        crypto.put(CRYPTO_VALUE, value == null
-                ? null
-                : value.getObject());
-        HashMap<String, Object> result = new HashMap<>();
-        result.put(CRYPTO, crypto);
-        return new JsonValue(result);
+        Map<String, Object> object = object(field(CRYPTO, object(
+                field(CRYPTO_TYPE, type),
+                field(CRYPTO_VALUE, value == null ? null : value.getObject())))
+        );
+        return new JsonValue(object, value == null ? null : value.getPointer());
     }
 }

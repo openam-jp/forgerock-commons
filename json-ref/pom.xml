@@ -38,7 +38,6 @@
     </distributionManagement>
     <modules>
         <module>json-ref-core</module>
-        <module>json-ref-jackson</module>
     </modules>
     <dependencies>
         <dependency>

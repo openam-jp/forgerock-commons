@@ -37,14 +37,6 @@ import org.forgerock.util.RangeSet;
  * Represents a value in a JSON object model structure. JSON values are
  * represented with standard Java objects: {@link String}, {@link Number},
  * {@link Map}, {@link List}, {@link Boolean} and {@code null}.
- * <p>
- * A JSON value may have one or more transformers associated with it.
- * Transformers apply transformations to the JSON value upon construction, and
- * upon members as they are retrieved. Transformers are applied iteratively, in
- * the sequence they appear within the list. If a transformer affects the value,
- * then all transformers are re-applied, in sequence. This repeats until the
- * value is no longer affected. Transformers are inherited by and applied to
- * member values.
  */
 public class JsonValue implements Cloneable, Iterable<JsonValue> {
 
@@ -175,13 +167,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Returns {@code true} if the values are === equal.
-     */
-    private static boolean eq(final Object o1, final Object o2) {
-        return (o1 == o2 || (o1 != null && o1.equals(o2)));
-    }
-
-    /**
      * Returns the key as an list index value. If the string does not represent
      * a valid list index value, then {@code -1} is returned.
      *
@@ -213,9 +198,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     /** The pointer to the value within a JSON structure. */
     private JsonPointer pointer;
 
-    /** Transformers to apply to the value; are inherited by its members. */
-    private final ArrayList<JsonTransformer> transformers = new ArrayList<>(0);
-
     /**
      * Constructs a JSON value object with a given object. This constructor will
      * automatically unwrap {@link JsonValue} objects.
@@ -224,22 +206,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      *            the Java object representing the JSON value.
      */
     public JsonValue(final Object object) {
-        this(object, null, null);
-    }
-
-    /**
-     * Constructs a JSON value object with a given object and transformers. This
-     * constructor will automatically unwrap {@link JsonValue} objects.
-     *
-     * @param object
-     *            the Java object representing the JSON value.
-     * @param transformers
-     *            a list of transformers to apply the value and its members.
-     * @throws JsonException
-     *             if a transformer failed during value initialization.
-     */
-    public JsonValue(final Object object, final Collection<? extends JsonTransformer> transformers) {
-        this(object, null, transformers);
+        this(object, null);
     }
 
     /**
@@ -252,24 +219,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      *            the pointer to the value in a JSON structure.
      */
     public JsonValue(final Object object, final JsonPointer pointer) {
-        this(object, pointer, null);
-    }
-
-    /**
-     * Constructs a JSON value object with given object, pointer and
-     * transformers.
-     *
-     * @param object
-     *            the Java object representing the JSON value.
-     * @param pointer
-     *            the pointer to the value in a JSON structure.
-     * @param transformers
-     *            a list of transformers to apply the value and its members.
-     * @throws JsonException
-     *             if a transformer failed during value initialization.
-     */
-    public JsonValue(final Object object, final JsonPointer pointer,
-            final Collection<? extends JsonTransformer> transformers) {
         this.object = object;
         this.pointer = pointer;
         if (object instanceof JsonValue) {
@@ -278,18 +227,9 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
             if (pointer == null) {
                 this.pointer = jv.pointer;
             }
-            if (transformers == null) {
-                this.transformers.addAll(jv.transformers);
-            }
-        }
-        if (transformers != null) {
-            this.transformers.addAll(transformers);
         }
         if (this.pointer == null) {
             this.pointer = new JsonPointer();
-        }
-        if (this.transformers.size() > 0) {
-            applyTransformers();
         }
     }
 
@@ -409,36 +349,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     public JsonValue addPermissive(final JsonPointer pointer, final Object object) {
         navigateToParentOfPermissive(pointer).addToken(pointer.leaf(), object);
         return this;
-    }
-
-    /**
-     * Applies all of the transformations to the value. If a transformer affects
-     * the value, then all transformers are re-applied. This repeats until the
-     * value is no longer affected.
-     * <p>
-     * This method has an absurdly high upper-limit of {@link Integer#MAX_VALUE}
-     * iterations, beyond which a {@code JsonException} will be thrown.
-     *
-     * @throws JsonException
-     *             if there was a failure applying transformation(s)
-     */
-    public void applyTransformers() {
-        Object object = this.object;
-        for (int n = 0; n < Integer.MAX_VALUE; n++) {
-            boolean affected = false;
-            for (final JsonTransformer transformer : transformers) {
-                transformer.transform(this);
-                if (!eq(object, this.object)) { // transformer affected the value
-                    object = this.object; // note the new value for next iteration
-                    affected = true;
-                    break; // reiterate all transformers
-                }
-            }
-            if (!affected) { // full iteration of transformers without affecting value
-                return; // success
-            }
-        }
-        throw new JsonException("Transformer iteration overflow");
     }
 
     /**
@@ -754,7 +664,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     @Override
     public JsonValue clone() {
         final JsonValue result = new JsonValue(this.object, this.pointer);
-        result.transformers.addAll(this.transformers); // avoid re-applying transformers
         if (isMap()) {
             result.object = new LinkedHashMap<>(this.asMap());
         } else if (isList()) {
@@ -783,10 +692,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
 
     /**
      * Returns a deep copy of this JSON value.
-     * <p>
-     * This method applies all transformations while traversing the values's
-     * members and their members, and so on. Consequently, the returned copy
-     * does not include the transformers from this value.
      * <p>
      * Note: This method is recursive, and currently has no ability to detect or
      * correct for structures containing cyclic references. Processing such a
@@ -822,7 +727,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      * @return this JSON value or a new JSON value containing the default value.
      */
     public JsonValue defaultTo(final Object object) {
-        return (this.object != null ? this : new JsonValue(object, this.pointer, this.transformers));
+        return (this.object != null ? this : new JsonValue(object, this.pointer));
     }
 
     /**
@@ -852,8 +757,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      * @return the child value, or a JSON value containing {@code null}.
      * @throws JsonValueException
      *             if index is negative.
-     * @throws JsonException
-     *             if a transformer failed to transform the child value.
      */
     public JsonValue get(final int index) {
         Object result = null;
@@ -866,7 +769,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
                 result = list.get(index);
             }
         }
-        return new JsonValue(result, pointer.child(index), transformers);
+        return new JsonValue(result, pointer.child(index));
     }
 
     /**
@@ -877,8 +780,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      * @param pointer
      *            the JSON pointer identifying the child value to return.
      * @return the child value, or {@code null} if no such value exists.
-     * @throws JsonException
-     *             if a transformer failed to transform the resulting value.
      */
     public JsonValue get(final JsonPointer pointer) {
         JsonValue result = this;
@@ -900,8 +801,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      *            the {@code Map} key or {@code List} index identifying the item
      *            to return.
      * @return a JSON value containing the value or {@code null}.
-     * @throws JsonException
-     *             if a transformer failed to transform the child value.
      */
     public JsonValue get(final String key) {
         Object result = null;
@@ -914,7 +813,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
                 result = list.get(index);
             }
         }
-        return new JsonValue(result, pointer.child(key), transformers);
+        return new JsonValue(result, pointer.child(key));
     }
 
     /**
@@ -933,18 +832,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      */
     public JsonPointer getPointer() {
         return pointer;
-    }
-
-    /**
-     * Returns the JSON value's list of transformers. This list is modifiable.
-     * Child values inherit the list when they are constructed. If any
-     * transformers are added to the list, call the {@link #applyTransformers()}
-     * method to apply them to the current value.
-     *
-     * @return the JSON value's list of transformers.
-     */
-    public List<JsonTransformer> getTransformers() {
-        return transformers;
     }
 
     /**
@@ -1044,9 +931,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      * If this value is a {@link Map}, then the order of the
      * resulting child values is undefined. Calling the {@link Iterator#remove()}
      * method of the returned iterator will throw a {@link UnsupportedOperationException}.
-     * <p>
-     * Note: calls to the {@code next()} method may throw the runtime
-     * {@link JsonException} if any transformers fail to execute.
      *
      * @return an iterator over the child values that this JSON value contains.
      */
@@ -1065,7 +949,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
                 @Override
                 public JsonValue next() {
                     final Object element = i.next();
-                    return new JsonValue(element, pointer.child(cursor++), transformers);
+                    return new JsonValue(element, pointer.child(cursor++));
                 }
 
                 @Override
@@ -1313,12 +1197,9 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Sets the Java object representing this JSON value. Does not apply
-     * transformers to the new value.
+     * Sets the Java object representing this JSON value.
      * <p>
      * This method will automatically unwrap {@link JsonValue} objects.
-     * Transformers are inherited from the wrapped value. This value's pointer
-     * remains unaffected.
      *
      * @param object
      *            the object to set.
@@ -1328,7 +1209,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
         if (object instanceof JsonValue) {
             final JsonValue jv = (JsonValue) object;
             this.object = jv.object;
-            this.transformers.addAll(jv.transformers);
         }
     }
 

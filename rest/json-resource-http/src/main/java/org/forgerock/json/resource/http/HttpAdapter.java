@@ -69,6 +69,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.forgerock.api.CrestApiProducer;
+import org.forgerock.api.jackson.PathsModule;
 import org.forgerock.api.models.ApiDescription;
 import org.forgerock.api.transform.OpenApiTransformer;
 import org.forgerock.guava.common.base.Optional;
@@ -157,8 +158,10 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
         Describable.Listener {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpAdapter.class);
-    private static final ObjectMapper API_OBJECT_MAPPER = new ObjectMapper()
-            .registerModules(new Json.LocalizableStringModule(), new Json.JsonValueModule());
+    private static final ObjectMapper API_OBJECT_MAPPER = new ObjectMapper().registerModules(
+            new Json.LocalizableStringModule(),
+            new Json.JsonValueModule(),
+            new PathsModule());
 
     private final ConnectionFactory connectionFactory;
     private final HttpContextFactory contextFactory;

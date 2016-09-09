@@ -13,7 +13,6 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.api.util;
 
 import static org.forgerock.api.util.ValidationUtil.isEmpty;

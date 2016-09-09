@@ -20,11 +20,11 @@ import static org.forgerock.api.enums.PatchOperation.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 import org.forgerock.api.enums.CountPolicy;
 import org.forgerock.api.enums.CreateMode;
 import org.forgerock.api.enums.QueryType;
+import org.forgerock.api.jackson.PathsModule;
 import org.forgerock.api.models.ApiDescription;
 import org.forgerock.api.models.Resource;
 import org.forgerock.api.models.Schema;
@@ -46,12 +46,14 @@ public class JsonToApiDescriptorObjectTest {
 
     private static final File[] EXAMPLE_FILES = new File("docs/examples").listFiles();
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-            .registerModules(new Json.JsonValueModule(), new Json.LocalizableStringModule());
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModules(
+            new Json.JsonValueModule(),
+            new Json.LocalizableStringModule(),
+            new PathsModule());
 
     @Test
     public void subResourcesJsonToApiDescriptorPropertiesTest() throws IOException {
-        File file = Paths.get("docs/examples/sub-resources.json").toFile();
+        File file = java.nio.file.Paths.get("docs/examples/sub-resources.json").toFile();
 
         ApiDescription apiDescription = OBJECT_MAPPER.readValue(file, ApiDescription.class);
 
@@ -269,7 +271,6 @@ public class JsonToApiDescriptorObjectTest {
 
     @Test(dataProvider = "exampleFilesProvider")
     public void testExample(File example) throws Exception {
-        System.out.println(example.getName());
         ApiDescription description = OBJECT_MAPPER.readValue(example, ApiDescription.class);
         String jsonFromDescription = writeApiDescriptiontoJson(description);
         ApiDescription descriptionFromJsonString = OBJECT_MAPPER.readValue(jsonFromDescription, ApiDescription.class);

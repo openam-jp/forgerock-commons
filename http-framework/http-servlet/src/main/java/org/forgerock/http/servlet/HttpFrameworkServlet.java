@@ -14,11 +14,9 @@
  * Copyright 2010–2011 ApexIdentity Inc.
  * Portions Copyright 2011-2016 ForgeRock AS.
  */
-
 package org.forgerock.http.servlet;
 
 import static java.util.Collections.list;
-import static org.forgerock.http.HttpApplication.LOGGER;
 import static org.forgerock.http.handler.Handlers.asDescribableHandler;
 import static org.forgerock.http.handler.Handlers.chainOf;
 import static org.forgerock.http.handler.Handlers.internalServerErrorHandler;
@@ -72,6 +70,8 @@ import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
 import org.forgerock.util.promise.ResultHandler;
 import org.forgerock.util.promise.RuntimeExceptionHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.models.Scheme;
 import io.swagger.models.Swagger;
@@ -90,11 +90,10 @@ import io.swagger.models.Swagger;
  */
 public final class HttpFrameworkServlet extends HttpServlet {
 
+    private static final Logger logger = LoggerFactory.getLogger(HttpFrameworkServlet.class);
     private static final long serialVersionUID = 3524182656424860912L;
 
-    /**
-     * Standard specified request attribute name for retrieving X509 Certificates.
-     */
+    /** Standard specified request attribute name for retrieving X509 Certificates. */
     private static final String SERVLET_REQUEST_X509_ATTRIBUTE = "javax.servlet.request.X509Certificate";
 
     /** Methods that should not include an entity body. */
@@ -155,7 +154,7 @@ public final class HttpFrameworkServlet extends HttpServlet {
                 this.handler.api(apiProducer);
             }
         } catch (HttpApplicationException e) {
-            LOGGER.error("Error while starting the application.", e);
+            logger.error("Error while starting the application.", e);
             handler = asDescribableHandler(internalServerErrorHandler(e));
         }
     }
@@ -258,7 +257,7 @@ public final class HttpFrameworkServlet extends HttpServlet {
             promise.thenOnRuntimeException(new RuntimeExceptionHandler() {
                 @Override
                 public void handleRuntimeException(RuntimeException e) {
-                    LOGGER.error("RuntimeException caught", e);
+                    logger.error("RuntimeException caught", e);
                     writeResponse(request, newInternalServerError(), resp, sessionContext, sync);
                 }
             });
@@ -274,7 +273,7 @@ public final class HttpFrameworkServlet extends HttpServlet {
             // RuntimeExceptionHandler), possibly leaving a stale response in the web container :'(
             // Servlet specification indicates that it's the responsibility of the Servlet implementer to call
             // AsyncContext.complete()
-            LOGGER.error("Throwable caught", throwable);
+            logger.error("Throwable caught", throwable);
             writeResponse(request, newInternalServerError(), resp, sessionContext, sync);
         }
 
@@ -418,7 +417,7 @@ public final class HttpFrameworkServlet extends HttpServlet {
                 response.getEntity().copyRawContentTo(servletResponse.getOutputStream());
             }
         } catch (IOException e) {
-            LOGGER.error("Failed to write response", e);
+            logger.error("Failed to write response", e);
         } finally {
             closeSilently(response);
         }

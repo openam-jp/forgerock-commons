@@ -13,10 +13,8 @@
  *
  * Copyright 2012-2016 ForgeRock AS.
  */
-
 package org.forgerock.json.resource.http;
 
-import static org.forgerock.http.HttpApplication.LOGGER;
 import static org.forgerock.json.resource.Applications.simpleCrestApplication;
 import static org.forgerock.json.resource.Requests.newApiRequest;
 import static org.forgerock.json.resource.http.HttpUtils.CONTENT_TYPE_REGEX;
@@ -114,6 +112,8 @@ import org.forgerock.util.AsyncFunction;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -155,6 +155,7 @@ import io.swagger.models.Swagger;
 final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.http.protocol.Request>,
         Describable.Listener {
 
+    private static final Logger logger = LoggerFactory.getLogger(HttpAdapter.class);
     private static final ObjectMapper API_OBJECT_MAPPER = new ObjectMapper()
             .registerModules(new Json.LocalizableStringModule(), new Json.JsonValueModule());
     private final ConnectionFactory connectionFactory;
@@ -238,7 +239,7 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
                 describable.get().addDescriptorListener(this);
             }
         } catch (ResourceException e) {
-            LOGGER.warn("Could not create connection", e);
+            logger.warn("Could not create connection", e);
         }
 
     }
@@ -682,7 +683,7 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
     private Optional<Describable<ApiDescription, Request>> getDescribableConnection()
             throws ResourceException {
         if (apiId == null || apiVersion == null) {
-            LOGGER.info("CREST API Descriptor API ID and Version are not set. Not describing.");
+            logger.info("CREST API Descriptor API ID and Version are not set. Not describing.");
             return Optional.absent();
         }
         Connection connection = connectionFactory.getConnection();

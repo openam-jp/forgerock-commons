@@ -15,6 +15,7 @@
  */
 package org.forgerock.json.resource.http;
 
+import static org.forgerock.api.commons.CommonsApi.*;
 import static org.forgerock.json.resource.Applications.simpleCrestApplication;
 import static org.forgerock.json.resource.Requests.newApiRequest;
 import static org.forgerock.json.resource.http.HttpUtils.CONTENT_TYPE_REGEX;
@@ -158,6 +159,7 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
     private static final Logger logger = LoggerFactory.getLogger(HttpAdapter.class);
     private static final ObjectMapper API_OBJECT_MAPPER = new ObjectMapper()
             .registerModules(new Json.LocalizableStringModule(), new Json.JsonValueModule());
+
     private final ConnectionFactory connectionFactory;
     private final HttpContextFactory contextFactory;
     private final String apiId;
@@ -829,7 +831,7 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
             if (describable.isPresent()) {
                 ApiDescription api = describable.get().api(new CrestApiProducer(apiId, apiVersion));
                 if (api != null) {
-                    descriptor = apiProducer.addApiInfo(OpenApiTransformer.execute(api));
+                    descriptor = apiProducer.addApiInfo(OpenApiTransformer.execute(api, COMMONS_API_DESCRIPTION));
                 }
             }
         } catch (ResourceException e) {

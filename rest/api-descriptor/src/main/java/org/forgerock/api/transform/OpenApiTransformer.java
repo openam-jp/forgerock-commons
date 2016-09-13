@@ -13,7 +13,6 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.api.transform;
 
 import static java.lang.Boolean.TRUE;
@@ -103,17 +102,11 @@ public class OpenApiTransformer {
     private static final String EMPTY_STRING = "";
 
     private static final String PARAMETER_FIELDS = "_fields";
-
     private static final String PARAMETER_PRETTY_PRINT = "_prettyPrint";
-
     private static final String PARAMETER_MIME_TYPE = "_mimeType";
-
     private static final String PARAMETER_IF_MATCH = "If-Match";
-
     private static final String PARAMETER_IF_NONE_MATCH = "If-None-Match";
-
     private static final String PARAMETER_IF_NONE_MATCH_ANY_ONLY = "If-None-Match: *";
-
     private static final String PARAMETER_IF_NONE_MATCH_REV_ONLY = "If-None-Match: <rev>";
 
     static final String DEFINITIONS_REF = "#/definitions/";
@@ -124,16 +117,11 @@ public class OpenApiTransformer {
 
     @VisibleForTesting
     final Swagger swagger;
-
     private final ReferenceResolver referenceResolver;
-
     private final ApiDescription apiDescription;
-
     private final Map<String, Model> definitionMap = new HashMap<>();
 
-    /**
-     * Default constructor that is only used by unit tests.
-     */
+    /** Default constructor that is only used by unit tests. */
     @VisibleForTesting
     OpenApiTransformer() {
         swagger = null;
@@ -224,11 +212,9 @@ public class OpenApiTransformer {
         return swagger;
     }
 
-    /**
-     * Build globally-defined parameters, which are referred to by-reference.
-     */
+    /** Build globally-defined parameters, which are referred to by-reference. */
     private void buildParameters() {
-        ClassLoader loader = this.getClass().getClassLoader();
+        ClassLoader loader = getClass().getClassLoader();
 
         // _fields
         final LocalizableQueryParameter fieldsParameter = new LocalizableQueryParameter();
@@ -274,9 +260,7 @@ public class OpenApiTransformer {
         swagger.addParameter(ifMatchParameter.getName(), ifMatchParameter);
     }
 
-    /**
-     * Traverse CREST API Descriptor paths, to build the Swagger model.
-     */
+    /** Traverse CREST API Descriptor paths, to build the Swagger model. */
     private void buildPaths() {
         final Paths paths = apiDescription.getPaths();
         if (paths != null) {
@@ -290,7 +274,6 @@ public class OpenApiTransformer {
                 for (final Version version : versions) {
                     final String versionName;
                     if (VersionedPath.UNVERSIONED.equals(version)) {
-                        // resource is unversioned
                         versionName = EMPTY_STRING;
                     } else {
                         // versionName is start of URL-fragment for path (e.g., /myPath#1.0)
@@ -894,18 +877,6 @@ public class OpenApiTransformer {
     }
 
     /**
-     * Adds a description to a Swagger operation.
-     *
-     * @param description Operation description or {@code null}
-     * @param operation Swagger operation
-     */
-    private void applyOperationDescription(final String description, final Operation operation) {
-        if (!isEmpty(description)) {
-            operation.setDescription(description);
-        }
-    }
-
-    /**
      * Marks a Swagger operation as <em>deprecated</em> when CREST operation is deprecated or removed.
      *
      * @param stability CREST operation stability or {@code null}
@@ -1012,7 +983,7 @@ public class OpenApiTransformer {
             if (schema.getSchema() != null) {
                 // https://github.com/swagger-api/swagger-core/issues/1306
                 final Model model = buildModel(schema.getSchema());
-                final String name = UUID.randomUUID().toString() + "-response";
+                final String name = UUID.randomUUID() + "-response";
                 definitionMap.put(name, model);
                 response.schema(new RefProperty(name));
             } else {
@@ -1109,7 +1080,7 @@ public class OpenApiTransformer {
 
                 // https://github.com/swagger-api/swagger-core/issues/1306
                 final Model model = buildModel(errorJsonSchema);
-                final String name = UUID.randomUUID().toString() + "-error";
+                final String name = UUID.randomUUID() + "-error";
                 definitionMap.put(name, model);
                 response.schema(new RefProperty(name));
 
@@ -1175,9 +1146,7 @@ public class OpenApiTransformer {
         return info;
     }
 
-    /**
-     * Converts global CREST schema definitions into glabal Swagger schema definitions.
-     */
+    /** Converts global CREST schema definitions into glabal Swagger schema definitions. */
     @VisibleForTesting
     void buildDefinitions() {
         final Definitions definitions = apiDescription.getDefinitions();
@@ -1605,5 +1574,4 @@ public class OpenApiTransformer {
             model.description((LocalizableString) source.getObject());
         }
     }
-
 }

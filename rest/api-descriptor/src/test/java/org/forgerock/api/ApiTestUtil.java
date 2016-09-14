@@ -13,7 +13,6 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.api;
 
 import static java.util.Arrays.asList;
@@ -30,7 +29,6 @@ import static org.forgerock.api.models.Services.services;
 import static org.forgerock.api.models.VersionedPath.versionedPath;
 import static org.forgerock.http.routing.Version.version;
 import static org.forgerock.json.JsonValue.*;
-import static org.forgerock.json.JsonValue.field;
 
 import java.util.Arrays;
 import java.util.List;

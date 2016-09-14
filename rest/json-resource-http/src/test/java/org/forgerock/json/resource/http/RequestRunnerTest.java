@@ -13,7 +13,6 @@
  *
  * Copyright 2013-2016 ForgeRock AS.
  */
-
 package org.forgerock.json.resource.http;
 
 import static org.forgerock.json.JsonValue.*;
@@ -23,7 +22,6 @@ import static org.forgerock.json.resource.Responses.newResourceResponse;
 import static org.forgerock.util.promise.Promises.newExceptionPromise;
 import static org.forgerock.util.promise.Promises.newResultPromise;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.eq;
 import static org.testng.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;

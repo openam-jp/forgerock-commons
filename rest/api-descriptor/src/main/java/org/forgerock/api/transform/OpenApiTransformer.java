@@ -1141,9 +1141,10 @@ public class OpenApiTransformer {
     @VisibleForTesting
     Info buildInfo(final LocalizableString title) {
         // TODO set other Info fields
-        Info info = new LocalizableInfo().title(title).description(apiDescription.getDescription());
-        info.setVersion(apiDescription.getVersion());
-        return info;
+        return new LocalizableInfo()
+            .title(title != null ? title : new LocalizableString(apiDescription.getId()))
+            .description(apiDescription.getDescription())
+            .version(apiDescription.getVersion());
     }
 
     /** Converts global CREST schema definitions into glabal Swagger schema definitions. */

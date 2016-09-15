@@ -228,14 +228,14 @@ public class OpenApiTransformer {
         final LocalizableQueryParameter prettyPrintParameter = new LocalizableQueryParameter();
         prettyPrintParameter.setName(PARAMETER_PRETTY_PRINT);
         prettyPrintParameter.setType("boolean");
-        fieldsParameter.description(new LocalizableString(PRETTYPRINT_PARAMETER_DESCRIPTION, loader));
+        prettyPrintParameter.description(new LocalizableString(PRETTYPRINT_PARAMETER_DESCRIPTION, loader));
         swagger.addParameter(prettyPrintParameter.getName(), prettyPrintParameter);
 
         // _mimeType
         final LocalizableQueryParameter mimeTypeParameter = new LocalizableQueryParameter();
         mimeTypeParameter.setName(PARAMETER_MIME_TYPE);
         mimeTypeParameter.setType("string");
-        fieldsParameter.description(new LocalizableString(MIMETYPE_PARAMETER_DESCRIPTION, loader));
+        mimeTypeParameter.description(new LocalizableString(MIMETYPE_PARAMETER_DESCRIPTION, loader));
         swagger.addParameter(mimeTypeParameter.getName(), mimeTypeParameter);
 
         // PUT-operation IF-NONE-MATCH always has * value

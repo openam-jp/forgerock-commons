@@ -25,6 +25,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.forgerock.http.Applications.describedHttpApplication;
 import static org.forgerock.http.Applications.simpleHttpApplication;
 import static org.forgerock.http.filter.TransactionIdInboundFilter.SYSPROP_TRUST_TRANSACTION_HEADER;
+import static org.forgerock.http.handler.Handlers.chainOf;
 import static org.forgerock.http.protocol.Response.newResponsePromise;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
@@ -43,6 +44,7 @@ import org.forgerock.http.DescribedHttpApplication;
 import org.forgerock.http.Handler;
 import org.forgerock.http.HttpApplication;
 import org.forgerock.http.HttpApplicationException;
+import org.forgerock.http.handler.DescribableHandler;
 import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.http.header.CookieHeader;
 import org.forgerock.http.header.SetCookieHeader;
@@ -53,12 +55,12 @@ import org.forgerock.http.protocol.Status;
 import org.forgerock.http.routing.UriRouterContext;
 import org.forgerock.http.session.Session;
 import org.forgerock.http.session.SessionContext;
+import org.forgerock.http.swagger.OpenApiRequestFilter;
 import org.forgerock.http.swagger.SwaggerApiProducer;
 import org.forgerock.services.TransactionId;
 import org.forgerock.services.context.ClientContext;
 import org.forgerock.services.context.Context;
 import org.forgerock.services.context.TransactionIdContext;
-import org.forgerock.services.descriptor.Describable;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
 import org.testng.annotations.AfterMethod;
@@ -211,7 +213,8 @@ public abstract class BindingTest {
      */
     @Test
     public void testRequestApi() throws Exception {
-        HttpApplication application = describedHttpApplication(new TestHandler(), null,
+        DescribableHandler testHandler = chainOf(new TestHandler(), new OpenApiRequestFilter());
+        HttpApplication application = describedHttpApplication(testHandler, null,
                 new SwaggerApiProducer(new Info(), "", "", asList(HTTP, HTTPS)));
         addApplication(application);
 
@@ -307,7 +310,7 @@ public abstract class BindingTest {
         }
     }
 
-    private final class TestHandler implements Handler, Describable<Swagger, Request> {
+    private final class TestHandler implements DescribableHandler {
 
         @Override
         public Promise<Response, NeverThrowsException> handle(Context context, Request request) {
@@ -389,9 +392,5 @@ public abstract class BindingTest {
                         .setEntity(e.getMessage()).setCause(new Exception(e)));
             }
         }
-    }
-
-    interface DescribableHandler extends Handler, Describable<Swagger, Request> {
-        // for mocking
     }
 }

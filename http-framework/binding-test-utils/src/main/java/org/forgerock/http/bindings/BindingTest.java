@@ -24,6 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.forgerock.http.Applications.describedHttpApplication;
 import static org.forgerock.http.Applications.simpleHttpApplication;
+import static org.forgerock.http.filter.TransactionIdInboundFilter.SYSPROP_TRUST_TRANSACTION_HEADER;
+import static org.forgerock.http.protocol.Response.newResponsePromise;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,8 +54,10 @@ import org.forgerock.http.routing.UriRouterContext;
 import org.forgerock.http.session.Session;
 import org.forgerock.http.session.SessionContext;
 import org.forgerock.http.swagger.SwaggerApiProducer;
+import org.forgerock.services.TransactionId;
 import org.forgerock.services.context.ClientContext;
 import org.forgerock.services.context.Context;
+import org.forgerock.services.context.TransactionIdContext;
 import org.forgerock.services.descriptor.Describable;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
@@ -260,6 +264,49 @@ public abstract class BindingTest {
         }
     }
 
+    /**
+     * Test the presence of the transaction context and the propagation of the transactionId.
+     * @throws Exception In case of failure.
+     */
+    @Test
+    public void testTransactionContext() throws Exception {
+        Handler handler = new Handler() {
+            @Override
+            public Promise<Response, NeverThrowsException> handle(Context context, Request request) {
+                if (!context.containsContext(TransactionIdContext.class)) {
+                    return newResponsePromise(new Response(Status.EXPECTATION_FAILED));
+                }
+                Response response = new Response(Status.OK);
+                TransactionId transactionId = context.asContext(TransactionIdContext.class).getTransactionId();
+                response.setEntity(transactionId.getValue());
+                return newResponsePromise(response);
+            }
+        };
+        HttpApplication application = simpleHttpApplication(handler, null);
+        addApplication(application);
+
+        String previousPropertyValue = System.setProperty(SYSPROP_TRUST_TRANSACTION_HEADER, "true");
+        port = startServer();
+
+        try (final HttpClientHandler httpClientHandler = new HttpClientHandler()) {
+            final Client client = new Client(httpClientHandler);
+            final Request request = new Request()
+                    .setMethod("GET")
+                    .setUri(format("http://localhost:%d/", port));
+            request.getHeaders().add("X-ForgeRock-TransactionId", "test-transaction-id");
+
+            Response response = client.send(request).get();
+            assertThat(response.getStatus()).isEqualTo(Status.OK);
+            assertThat(response.getEntity().toString()).isEqualTo("test-transaction-id");
+        } finally {
+            if (previousPropertyValue == null) {
+                System.clearProperty(SYSPROP_TRUST_TRANSACTION_HEADER);
+            } else {
+                System.setProperty(SYSPROP_TRUST_TRANSACTION_HEADER, previousPropertyValue);
+            }
+        }
+    }
+
     private final class TestHandler implements Handler, Describable<Swagger, Request> {
 
         @Override
@@ -285,11 +332,10 @@ public abstract class BindingTest {
                 final Response response = new Response(Status.OK);
                 response.getHeaders().addAll(request.getHeaders().asMapOfHeaders());
                 response.setEntity(request.getEntity().toString().toUpperCase());
-                return Response.newResponsePromise(response);
+                return newResponsePromise(response);
             } catch (SoftAssertionError e) {
-                return Response
-                        .newResponsePromise(new Response(Status.INTERNAL_SERVER_ERROR)
-                                .setEntity(e.getMessage()).setCause(new Exception(e)));
+                return newResponsePromise(new Response(Status.INTERNAL_SERVER_ERROR)
+                        .setEntity(e.getMessage()).setCause(new Exception(e)));
             }
         }
 
@@ -337,11 +383,10 @@ public abstract class BindingTest {
 
                 final Response response = new Response(Status.OK);
                 response.setEntity("OK");
-                return Response.newResponsePromise(response);
+                return newResponsePromise(response);
             } catch (AssertionError e) {
-                return Response
-                        .newResponsePromise(new Response(Status.INTERNAL_SERVER_ERROR)
-                                .setEntity(e.getMessage()).setCause(new Exception(e)));
+                return newResponsePromise(new Response(Status.INTERNAL_SERVER_ERROR)
+                        .setEntity(e.getMessage()).setCause(new Exception(e)));
             }
         }
     }

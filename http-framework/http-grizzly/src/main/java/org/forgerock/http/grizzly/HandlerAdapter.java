@@ -33,6 +33,7 @@ import org.forgerock.http.DescribedHttpApplication;
 import org.forgerock.http.Handler;
 import org.forgerock.http.HttpApplication;
 import org.forgerock.http.HttpApplicationException;
+import org.forgerock.http.filter.TransactionIdInboundFilter;
 import org.forgerock.http.io.Buffer;
 import org.forgerock.http.io.IO;
 import org.forgerock.http.routing.UriRouterContext;
@@ -90,7 +91,7 @@ final class HandlerAdapter extends HttpHandler {
     public void start() {
         super.start();
         try {
-            chfHandler = httpApplication.start();
+            chfHandler = chainOf(httpApplication.start(), new TransactionIdInboundFilter());
             if (httpApplication instanceof DescribedHttpApplication) {
                 ApiProducer<Swagger> apiProducer = ((DescribedHttpApplication) httpApplication).getApiProducer();
                 if (apiProducer != null && chfHandler instanceof Describable) {

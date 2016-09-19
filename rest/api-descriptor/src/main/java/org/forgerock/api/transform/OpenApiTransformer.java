@@ -79,6 +79,8 @@ import org.forgerock.util.Function;
 import org.forgerock.util.annotations.VisibleForTesting;
 import org.forgerock.util.i18n.LocalizableString;
 import org.forgerock.util.i18n.PreferredLocales;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.swagger.models.Info;
 import io.swagger.models.Model;
@@ -101,6 +103,8 @@ import io.swagger.models.properties.RefProperty;
  * @see <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md">OpenAPI 2.0</a> spec
  */
 public class OpenApiTransformer {
+
+    private static final Logger logger = LoggerFactory.getLogger(OpenApiTransformer.class);
 
     private static final String EMPTY_STRING = "";
 
@@ -1329,7 +1333,15 @@ public class OpenApiTransformer {
 
                 boolean sortByPropertyOrder = false;
                 for (final Map.Entry<String, Object> entry : propertiesMap.entrySet()) {
-                    final Property property = buildProperty(json(entry.getValue()));
+                    final Property property;
+                    try {
+                        property = buildProperty(json(entry.getValue()));
+                    } catch (RuntimeException re) {
+                        //json schema can be valid but fail on building the properties
+                        logger.info("Json schema error: " + entry.getValue() + "\n"
+                                + re.getMessage(), re.fillInStackTrace());
+                        throw re;
+                    }
                     if (!sortByPropertyOrder && property.getVendorExtensions().containsKey("x-propertyOrder")) {
                         sortByPropertyOrder = true;
                     }

@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -19,19 +19,20 @@ package org.forgerock.caf.authentication.framework;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.util.Map;
+
 import javax.security.auth.Subject;
 import javax.security.auth.message.AuthStatus;
-import java.util.Map;
 
 import org.forgerock.caf.authentication.api.AsyncServerAuthContext;
 import org.forgerock.caf.authentication.api.AuthContextWithState;
 import org.forgerock.caf.authentication.api.AuthenticationException;
 import org.forgerock.caf.authentication.api.AuthenticationState;
 import org.forgerock.caf.authentication.api.MessageContext;
-import org.forgerock.services.context.Context;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
+import org.forgerock.services.context.Context;
 import org.forgerock.util.promise.Promise;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -93,7 +94,7 @@ public class MessageContextImplTest {
     public void setResponseShouldReplaceInitialResponse() {
 
         //Given
-        Response response = new Response().setStatus(Status.UNAUTHORIZED);
+        Response response = new Response(Status.UNAUTHORIZED);
 
         //When
         context.setResponse(response);

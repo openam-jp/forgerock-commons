@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2013-2015 ForgeRock AS.
+ * Copyright 2013-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -19,27 +19,31 @@ package org.forgerock.caf.authentication.framework;
 import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+
+import java.util.Collections;
+import java.util.List;
 
 import javax.security.auth.Subject;
 import javax.security.auth.message.AuthStatus;
-import java.util.Collections;
-import java.util.List;
 
 import org.assertj.core.api.Assertions;
 import org.forgerock.caf.authentication.api.AsyncServerAuthContext;
 import org.forgerock.caf.authentication.api.AuthenticationException;
 import org.forgerock.caf.authentication.api.MessageContext;
-import org.forgerock.services.context.Context;
 import org.forgerock.http.Handler;
-import org.forgerock.http.session.Session;
-import org.forgerock.services.context.AttributesContext;
-import org.forgerock.http.session.SessionContext;
-import org.forgerock.services.context.RootContext;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
+import org.forgerock.http.session.Session;
+import org.forgerock.http.session.SessionContext;
 import org.forgerock.json.resource.ResourceException;
+import org.forgerock.services.context.AttributesContext;
+import org.forgerock.services.context.Context;
+import org.forgerock.services.context.RootContext;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
 import org.forgerock.util.promise.Promises;
@@ -57,10 +61,10 @@ public class AuthenticationFrameworkTest {
     private AsyncServerAuthContext authContext;
     private Subject serviceSubject;
 
-    private final Response successfulResponse = new Response().setStatus(Status.OK);
-    private final Response unauthenticatedResponse = new Response().setStatus(Status.UNAUTHORIZED);
-    private final Response failedResponse = new Response().setStatus(Status.BAD_REQUEST);
-    private final Response serverErrorResponse = new Response().setStatus(Status.INTERNAL_SERVER_ERROR);
+    private final Response successfulResponse = new Response(Status.OK);
+    private final Response unauthenticatedResponse = new Response(Status.UNAUTHORIZED);
+    private final Response failedResponse = new Response(Status.BAD_REQUEST);
+    private final Response serverErrorResponse = new Response(Status.INTERNAL_SERVER_ERROR);
 
     @BeforeMethod
     public void setup() {

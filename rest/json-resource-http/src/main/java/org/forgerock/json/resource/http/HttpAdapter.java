@@ -678,7 +678,7 @@ final class HttpAdapter implements Handler, Describable<Swagger, org.forgerock.h
                 }
             }
 
-            return newResultPromise(new Response().setStatus(Status.OK).setEntity(writer.writeValueAsBytes(api)));
+            return newResultPromise(new Response(Status.OK).setEntity(writer.writeValueAsBytes(api)));
         } catch (Exception e) {
             return fail(req, e);
         }

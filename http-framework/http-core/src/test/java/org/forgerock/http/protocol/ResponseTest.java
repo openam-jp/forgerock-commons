@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
 public class ResponseTest {
     @Test
     public void testMethodChaining() {
-        Response response = new Response().setVersion("123").setStatus(Status.OK);
+        Response response = new Response(Status.TEAPOT).setVersion("123").setStatus(Status.OK);
         assertThat(response.getVersion()).isEqualTo("123");
         assertThat(response.getStatus()).isEqualTo(Status.OK);
     }
@@ -37,7 +37,7 @@ public class ResponseTest {
 
     @Test
     public void testDefensiveCopyIsEquivalent() throws Exception {
-        Response response = new Response()
+        Response response = new Response(Status.OK)
                 .setVersion("1.0")
                 .setEntity("Hello");
         response.getHeaders().put("X-Test", "Hello World");
@@ -51,7 +51,7 @@ public class ResponseTest {
 
     @Test
     public void testDefensiveCopyIsDetached() throws Exception {
-        Response response = new Response()
+        Response response = new Response(Status.OK)
                 .setVersion("1.0")
                 .setEntity("Hello");
         response.getHeaders().put("X-Test", "Hello World");

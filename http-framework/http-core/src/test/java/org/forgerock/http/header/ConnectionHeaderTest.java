@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
- * Copyright 2014-2015 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 package org.forgerock.http.header;
 
@@ -23,6 +23,7 @@ import static org.testng.Assert.assertNull;
 
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -53,7 +54,7 @@ public class ConnectionHeaderTest {
 
     @Test(dataProvider = "connectionHeaders")
     public void testConnectionHeaderFromMessageResponse(final String cheader) throws Exception {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get(NAME));
         response.getHeaders().put(NAME, cheader);
         assertNotNull(response.getHeaders().get(NAME));
@@ -78,7 +79,7 @@ public class ConnectionHeaderTest {
 
     @Test
     public void testConnectionHeaderFromEmptyMessage() {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get(NAME));
 
         final ConnectionHeader ch = ConnectionHeader.valueOf(response);
@@ -121,7 +122,7 @@ public class ConnectionHeaderTest {
 
     @Test(dataProvider = "nullOrEmptyDataProvider", dataProviderClass = StaticProvider.class)
     public void testConnectionHeaderToMessageNullOrEmptyDoesNothing(final String cheader) {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get(NAME));
         final ConnectionHeader ch = ConnectionHeader.valueOf(cheader);
         response.getHeaders().put(ch);
@@ -130,7 +131,7 @@ public class ConnectionHeaderTest {
 
     @Test(dataProvider = "connectionHeaders")
     public void testConnectionHeaderToMessageResponse(final String connectionHeader) {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get(NAME));
         final ConnectionHeader ch = ConnectionHeader.valueOf(connectionHeader);
         response.getHeaders().put(ch);

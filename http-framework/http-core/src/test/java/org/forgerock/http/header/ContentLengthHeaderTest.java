@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
- * Copyright 2014-2015 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 
 package org.forgerock.http.header;
@@ -21,6 +21,7 @@ import static org.forgerock.http.header.ContentLengthHeader.NAME;
 
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -75,7 +76,7 @@ public class ContentLengthHeaderTest {
 
     @Test
     public void testContentLengthHeaderFromMessageResponse() throws Exception {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertThat(response.getHeaders().get(NAME)).isNull();
         response.getHeaders().put(NAME, String.valueOf(LENGTH_DEFAULT_VALUE));
 
@@ -86,7 +87,7 @@ public class ContentLengthHeaderTest {
 
     @Test
     public void testContentLengthHeaderFromMessageResponseFails() throws Exception {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertThat(response.getHeaders().get(NAME)).isNull();
         response.getHeaders().put(NAME, "invalid");
 

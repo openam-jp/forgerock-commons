@@ -58,7 +58,7 @@ public class ProtectedResource implements Handler {
     @Override
     public Promise<Response, NeverThrowsException> handle(Context context, Request request) {
 
-        Response response = new Response().setStatus(Status.OK);
+        Response response = new Response(Status.OK);
 
         response.getHeaders().put(RESOURCE_CALLED_HEADER, "true");
 

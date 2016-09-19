@@ -18,6 +18,8 @@
 
 package org.forgerock.http.protocol;
 
+import static org.forgerock.util.Reject.checkNotNull;
+
 import java.io.IOException;
 
 import org.forgerock.util.promise.NeverThrowsException;
@@ -66,13 +68,6 @@ public final class Response extends MessageImpl<Response> {
     }
 
     /**
-     * Creates a new response.
-     */
-    public Response() {
-        // Nothing to do.
-    }
-
-    /**
      * Creates a defensive copy of the given {@code response} message.
      *
      * @param response
@@ -92,7 +87,7 @@ public final class Response extends MessageImpl<Response> {
      * @param status The status to use for the Reponse.
      */
     public Response(Status status) {
-        this.status = status;
+        this.status = checkNotNull(status);
     }
 
     /**
@@ -142,7 +137,7 @@ public final class Response extends MessageImpl<Response> {
      * @return This response.
      */
     public Response setStatus(final Status status) {
-        this.status = status;
+        this.status = checkNotNull(status);
         return this;
     }
 

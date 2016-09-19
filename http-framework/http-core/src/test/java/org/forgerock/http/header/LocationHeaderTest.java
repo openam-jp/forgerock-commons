@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
- * Copyright 2014-2015 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 package org.forgerock.http.header;
 
@@ -23,6 +23,7 @@ import static org.testng.Assert.assertNull;
 
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -63,7 +64,7 @@ public class LocationHeaderTest {
 
     @Test(dataProvider = "locationHeaderProvider")
     public void testLocationHeaderFromMessage(final String lHeader) {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get(NAME));
         response.getHeaders().put(NAME, lHeader);
         assertNotNull(response.getHeaders().get(NAME));
@@ -74,7 +75,7 @@ public class LocationHeaderTest {
 
     @Test
     public void testLocationHeaderFromEmptyMessage() {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get(NAME));
 
         final LocationHeader lh = LocationHeader.valueOf(response);
@@ -100,7 +101,7 @@ public class LocationHeaderTest {
 
     @Test(dataProvider = "locationHeaderProvider")
     public void testLocationHeaderToMessageResponse(final String lHeader) {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get(NAME));
 
         final LocationHeader lh = LocationHeader.valueOf(lHeader);

@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
- * Copyright 2014-2015 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 package org.forgerock.http.header;
 
@@ -24,6 +24,7 @@ import static org.testng.Assert.assertNull;
 import org.forgerock.http.protocol.Cookie;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.testng.annotations.Test;
 
 /**
@@ -127,7 +128,7 @@ public class CookieHeaderTest {
 
     @Test
     public void testCookieHeaderToResponseMessage() {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertNull(response.getHeaders().get("cookie"));
         assertNull(response.getHeaders().get("Customer"));
         final CookieHeader ch = CookieHeader.valueOf(CHEADER_1);

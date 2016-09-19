@@ -407,7 +407,7 @@ final class RequestRunner implements RequestVisitor<Promise<Response, NeverThrow
                             // No change so 304.
                             Map<String, Object> responseBody = newResourceException(304)
                                     .setReason("Not Modified").toJsonValue().asMap();
-                            return newResultPromise(new Response().setStatus(Status.valueOf(304))
+                            return newResultPromise(new Response(Status.valueOf(304))
                                     .setEntity(responseBody));
                         }
                     }

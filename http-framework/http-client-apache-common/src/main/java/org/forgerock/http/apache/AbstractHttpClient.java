@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.http.apache;
@@ -157,26 +157,23 @@ public abstract class AbstractHttpClient implements HttpClient {
      * The returned message has some of its headers filtered/ignored (proxy behaviour).
      *
      * @param result AHC response structure
-     * @return openIG response structure
+     * @return CHF response structure
      */
     protected Response createResponse(final HttpResponse result) {
-        Response response = new Response();
+        // Response status line
+        StatusLine statusLine = result.getStatusLine();
+        Response response = new Response(Status.valueOf(statusLine.getStatusCode(), statusLine.getReasonPhrase()));
+        response.setVersion(statusLine.getProtocolVersion().toString());
+
         // Response entity
         HttpEntity entity = result.getEntity();
         if (entity != null) {
             try {
                 response.setEntity(IO.newBranchingInputStream(entity.getContent(), storage));
             } catch (IOException e) {
-                response.setStatus(Status.INTERNAL_SERVER_ERROR);
-                response.setCause(e);
-                return response;
+                return new Response(Status.INTERNAL_SERVER_ERROR).setCause(e);
             }
         }
-
-        // Response status line
-        StatusLine statusLine = result.getStatusLine();
-        response.setVersion(statusLine.getProtocolVersion().toString());
-        response.setStatus(Status.valueOf(statusLine.getStatusCode(), statusLine.getReasonPhrase()));
 
         // Parse response Connection headers to be suppressed in message
         CaseInsensitiveSet removableHeaderNames = new CaseInsensitiveSet();

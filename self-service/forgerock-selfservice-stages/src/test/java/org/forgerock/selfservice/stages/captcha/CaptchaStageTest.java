@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 package org.forgerock.selfservice.stages.captcha;
 
@@ -24,6 +24,7 @@ import org.forgerock.http.Client;
 import org.forgerock.http.Handler;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.JsonValueException;
 import org.forgerock.json.resource.BadRequestException;
@@ -147,14 +148,14 @@ public final class CaptchaStageTest {
     }
 
     private Promise<Response, NeverThrowsException> newPromiseSuccess() {
-        Response response = new Response();
+        Response response = new Response(Status.OK);
         response.getEntity().setJson(json(object(
                 field("success", true))));
         return Promises.newResultPromise(response);
     }
 
     private Promise<Response, NeverThrowsException> newPromiseFailure() {
-        Response response = new Response();
+        Response response = new Response(Status.INTERNAL_SERVER_ERROR);
         response.getEntity().setJson(json(object(
                 field("success", false),
                 field("error-codes",

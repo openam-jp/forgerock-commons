@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
- * Copyright 2014-2015 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 
 package org.forgerock.http.header;
@@ -31,6 +31,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -70,7 +71,7 @@ public class ContentEncodingHeaderTest {
 
     @Test(dataProvider = "contentEncodingHeaders")
     public void testContentEncodingHeaderFromMessageResponse(final String cheader) throws Exception {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertThat(response.getHeaders().get(NAME)).isNull();
         response.getHeaders().put(NAME, cheader);
 
@@ -93,7 +94,7 @@ public class ContentEncodingHeaderTest {
 
     @Test
     public void testContentEncodingHeaderFromEmptyMessage() {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertThat(response.getHeaders().get(NAME)).isNull();
 
         final ContentEncodingHeader ch = ContentEncodingHeader.valueOf(response);
@@ -113,7 +114,7 @@ public class ContentEncodingHeaderTest {
 
     @Test(dataProvider = "nullOrEmptyDataProvider", dataProviderClass = StaticProvider.class)
     public void testContentEncodingHeaderToMessageNullOrEmptyDoesNothing(final String cheader) {
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertThat(response.getHeaders().get(NAME)).isNull();
 
         final ContentEncodingHeader ceh = ContentEncodingHeader.valueOf(cheader);

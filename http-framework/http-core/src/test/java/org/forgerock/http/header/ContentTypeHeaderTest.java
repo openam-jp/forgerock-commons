@@ -28,6 +28,7 @@ import org.assertj.core.data.MapEntry;
 import org.forgerock.http.protocol.Message;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -111,7 +112,7 @@ public class ContentTypeHeaderTest {
     public void testContentTypeHeaderFromMessageResponse(final String cheader, final String type, final String charset,
             final String boundary) {
         // Creates response.
-        final Response response = new Response();
+        final Response response = new Response(Status.OK);
         assertThat(response.getHeaders().get(NAME)).isNull();
         response.getHeaders().put(NAME, cheader);
         assertThat(response.getHeaders().get(NAME)).isNotNull();

@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -21,7 +21,14 @@ import static org.forgerock.caf.authentication.framework.JaspiAdapters.MESSAGE_I
 import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
@@ -31,9 +38,6 @@ import javax.security.auth.message.MessageInfo;
 import javax.security.auth.message.MessagePolicy;
 import javax.security.auth.message.config.ServerAuthContext;
 import javax.security.auth.message.module.ServerAuthModule;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.forgerock.caf.authentication.api.AsyncServerAuthContext;
@@ -43,6 +47,7 @@ import org.forgerock.caf.authentication.api.MessageContext;
 import org.forgerock.caf.authentication.api.MessageInfoContext;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.forgerock.util.promise.Promise;
 import org.testng.annotations.Test;
 
@@ -417,7 +422,7 @@ public class JaspiAdaptersTest {
 
         //Given
         MessageInfoContext messageInfoContext = mock(MessageInfoContext.class);
-        Response response = new Response();
+        Response response = new Response(Status.OK);
 
         //When
         MessageInfo messageInfo = JaspiAdapters.adapt(messageInfoContext);

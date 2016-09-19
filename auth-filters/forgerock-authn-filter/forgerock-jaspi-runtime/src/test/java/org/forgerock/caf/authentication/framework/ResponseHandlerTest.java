@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2014-2015 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -34,6 +34,7 @@ import org.forgerock.guava.common.net.MediaType;
 import org.forgerock.http.header.ContentTypeHeader;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.forgerock.json.resource.ResourceException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -59,7 +60,7 @@ public class ResponseHandlerTest {
 
         //Given
         MessageContext context = mock(MessageContext.class);
-        Response response = new Response();
+        Response response = new Response(Status.UNAUTHORIZED);
         AuditTrail auditTrail = mock(AuditTrail.class);
         AuthenticationException exception = new AuthenticationFailedException();
 
@@ -84,7 +85,7 @@ public class ResponseHandlerTest {
 
         //Given
         MessageContext context = mock(MessageContext.class);
-        Response response = new Response();
+        Response response = new Response(Status.INTERNAL_SERVER_ERROR);
         AuditTrail auditTrail = mock(AuditTrail.class);
         AuthenticationException exception = new AuthenticationException("ERROR");
 
@@ -109,7 +110,7 @@ public class ResponseHandlerTest {
 
         //Given
         MessageContext context = mock(MessageContext.class);
-        Response response = new Response();
+        Response response = new Response(Status.BAD_REQUEST);
         AuditTrail auditTrail = mock(AuditTrail.class);
         List<Map<String, Object>> failureReasons = new ArrayList<>();
         ResourceException jre = ResourceException.getException(ResourceException.BAD_REQUEST, "BAD_REQUEST");
@@ -157,7 +158,7 @@ public class ResponseHandlerTest {
 
         //Given
         Request request = new Request();
-        Response response = new Response();
+        Response response = new Response(Status.BAD_REQUEST);
         AuditTrail auditTrail = mock(AuditTrail.class);
         MessageContext context = mock(MessageContext.class);
         ResourceException jre = ResourceException.getException(ResourceException.BAD_REQUEST, "BAD_REQUEST");

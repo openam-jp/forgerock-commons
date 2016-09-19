@@ -67,4 +67,10 @@
     <differenceType>7013</differenceType>
     <method>java.lang.Object transformApi(java.lang.Object, org.forgerock.http.ApiProducer)</method>
   </difference>
+  <difference>
+    <className>org/forgerock/http/protocol/Response</className>
+    <differenceType>7002</differenceType>
+    <method>Response()</method>
+    <comment>CHF-47 Make Response constructor require a Status</comment>
+  </difference>
 </differences>

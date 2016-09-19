@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.http.routing;
@@ -62,7 +62,7 @@ public class RouterTest {
         router.setDefaultRoute(defaultRouteHandler);
 
         given(defaultRouteHandler.handle(any(Context.class), eq(request)))
-                .willReturn(Promises.<Response, NeverThrowsException>newResultPromise(new Response()));
+                .willReturn(Promises.<Response, NeverThrowsException>newResultPromise(new Response(Status.OK)));
 
         //When
         router.handle(context, request);

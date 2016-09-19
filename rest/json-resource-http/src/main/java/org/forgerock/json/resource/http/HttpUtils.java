@@ -677,7 +677,7 @@ public final class HttpUtils {
     }
 
     static Response prepareResponse(org.forgerock.http.protocol.Request req) throws ResourceException {
-        return prepareResponse(req, new Response());
+        return prepareResponse(req, new Response(Status.OK));
     }
 
     static Response prepareResponse(org.forgerock.http.protocol.Request req, org.forgerock.http.protocol.Response resp)

@@ -102,7 +102,9 @@ public final class Router extends AbstractRouter<Router, Request, Handler, Swagg
                 return newResultPromise(newNotFound());
             }
         } catch (IncomparableRouteMatchException e) {
-            logger.trace("Route for '{}' not found", getRemainingRequestUri(context, request));
+            if (logger.isTraceEnabled()) {
+                logger.trace("Route for '{}' not found", getRemainingRequestUri(context, request));
+            }
             return newResultPromise(new ResponseException(e.getMessage()).getResponse());
         }
     }

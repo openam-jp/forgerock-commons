@@ -1175,19 +1175,11 @@ public class OpenApiTransformer {
      */
     @VisibleForTesting
     Model buildModel(final JsonValue schema) {
-        final LocalizableModelImpl model;
+        // TODO discriminator (see openapi spec and https://gist.github.com/leedm777/5730877)
         final String type = schema.get("type").asString();
         switch (type) {
         case "object":
-            model = new LocalizableModelImpl();
-            model.type(type);
-            model.setProperties(buildProperties(schema));
-            final List<String> required = getArrayOfJsonString("required", schema);
-            if (!required.isEmpty()) {
-                model.setRequired(required);
-            }
-            model.setAdditionalProperties(buildProperty(schema.get("additionalProperties")));
-            break;
+            return buildObjectModel(schema);
         case "array":
             return buildArrayModel(schema);
         case "null":
@@ -1196,45 +1188,65 @@ public class OpenApiTransformer {
         case "integer":
         case "number":
         case "string":
-            model = new LocalizableModelImpl();
-            model.type(type);
-            if (schema.get("default").isNotNull()) {
-                model.setDefaultValue(schema.get("default").asString());
-            }
-
-            final List<String> enumValues = getArrayOfJsonString("enum", schema);
-            if (!enumValues.isEmpty()) {
-                model.setEnum(enumValues);
-
-                // enum_titles only provided with enum values
-                final JsonValue options = schema.get("options");
-                if (options.isNotNull()) {
-                    final List<String> enumTitles = getArrayOfJsonString("enum_titles", options);
-                    if (!enumTitles.isEmpty()) {
-                        model.setVendorExtension("x-enum_titles", enumTitles);
-                    }
-                }
-            }
-
-            if (schema.get("format").isNotNull()) {
-                // https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#dataTypeFormat
-                model.setFormat(schema.get("format").asString());
-                if ("full-date".equals(model.getFormat()) && "string".equals(type)) {
-                    // Swagger normalizes full-date to date format
-                    model.setFormat("date");
-                }
-            }
-            break;
+            return buildStringModel(schema, type);
         default:
             throw new TransformerException("Unsupported JSON schema type: " + type);
         }
+    }
 
+    private Model buildObjectModel(final JsonValue schema) {
+        final LocalizableModelImpl model = new LocalizableModelImpl();
+        model.type("object");
+        model.setDiscriminator(schema.get("discriminator").asString());
+        model.setProperties(buildProperties(schema));
+        final List<String> required = getArrayOfJsonString("required", schema);
+        if (!required.isEmpty()) {
+            model.setRequired(required);
+        }
+        model.setAdditionalProperties(buildProperty(schema.get("additionalProperties")));
         setTitleFromJsonValue(model, schema.get("title"));
         setDescriptionFromJsonValue(model, schema.get("description"));
 
         // TODO reference
         // TODO external-docs URLs
-        // TODO discriminator (see openapi spec and https://gist.github.com/leedm777/5730877)
+
+        return model;
+    }
+
+    private LocalizableModelImpl buildStringModel(final JsonValue schema, final String type) {
+        final LocalizableModelImpl model = new LocalizableModelImpl();
+        model.type("string");
+        setTitleFromJsonValue(model, schema.get("title"));
+        setDescriptionFromJsonValue(model, schema.get("description"));
+        if (schema.get("default").isNotNull()) {
+            model.setDefaultValue(schema.get("default").asString());
+        }
+  
+        final List<String> enumValues = getArrayOfJsonString("enum", schema);
+        if (!enumValues.isEmpty()) {
+            model.setEnum(enumValues);
+  
+            // enum_titles only provided with enum values
+            final JsonValue options = schema.get("options");
+            if (options.isNotNull()) {
+                final List<String> enumTitles = getArrayOfJsonString("enum_titles", options);
+                if (!enumTitles.isEmpty()) {
+                    model.setVendorExtension("x-enum_titles", enumTitles);
+                }
+            }
+        }
+  
+        if (schema.get("format").isNotNull()) {
+            // https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#dataTypeFormat
+            model.setFormat(schema.get("format").asString());
+            if ("full-date".equals(model.getFormat()) && "string".equals(type)) {
+                // Swagger normalizes full-date to date format
+                model.setFormat("date");
+            }
+        }
+
+        // TODO reference
+        // TODO external-docs URLs
 
         return model;
     }

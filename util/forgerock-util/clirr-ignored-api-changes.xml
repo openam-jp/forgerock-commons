@@ -11,7 +11,7 @@
   ~ Header, with the fields enclosed by brackets [] replaced by your own identifying
   ~ information: "Portions copyright [year] [name of copyright owner]".
   ~
-  ~ Copyright 2015 ForgeRock AS.
+  ~ Copyright 2015-2016 ForgeRock AS.
   -->
 <differences>
 <!--
@@ -41,31 +41,10 @@ Note: waiting on https://jira.codehaus.org/browse/MCLIRR-62 to be resolved to av
   </difference>
 -->
 	<difference>
-		<className>org/forgerock/util/promise/Promise</className>
-		<differenceType>7012</differenceType>
-		<method>org.forgerock.util.promise.Promise thenCatchRuntimeException(org.forgerock.util.Function)</method>
-		<justification>Allow for transforming promise completed with a runtime exception (COMMONS-73)</justification>
-	</difference>
-	<difference>
-		<className>org/forgerock/util/promise/Promise</className>
-		<differenceType>7012</differenceType>
-		<method>org.forgerock.util.promise.Promise thenCatchRuntimeExceptionAsync(org.forgerock.util.AsyncFunction)</method>
-		<justification>Allow for transforming promise completed with a runtime exception (COMMONS-73)</justification>
-	</difference>
-	<difference>
-		<className>org/forgerock/util/promise/Promise</className>
-		<differenceType>7012</differenceType>
-		<method>org.forgerock.util.promise.Promise then(org.forgerock.util.Function, org.forgerock.util.Function, org.forgerock.util.Function)</method>
-		<from>org.forgerock.util.promise.Promise then(org.forgerock.util.Function, org.forgerock.util.Function)</from>
-		<to>org.forgerock.util.promise.Promise then(org.forgerock.util.Function, org.forgerock.util.Function, org.forgerock.util.Function)</to>
-		<justification>Allow for transforming promise completed with a runtime exception (COMMONS-73)</justification>
-	</difference>
-	<difference>
-		<className>org/forgerock/util/promise/Promise</className>
-		<differenceType>7012</differenceType>
-		<method>org.forgerock.util.promise.Promise thenAsync(org.forgerock.util.AsyncFunction, org.forgerock.util.AsyncFunction, org.forgerock.util.AsyncFunction)</method>
-		<from>org.forgerock.util.promise.Promise thenAsync(org.forgerock.util.AsyncFunction, org.forgerock.util.AsyncFunction)</from>
-		<to>org.forgerock.util.promise.Promise thenAsync(org.forgerock.util.AsyncFunction, org.forgerock.util.AsyncFunction, org.forgerock.util.AsyncFunction)</to>
-		<justification>Allow for transforming promise completed with a runtime exception (COMMONS-73)</justification>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7006</differenceType>
+		<method>java.lang.Object object(java.util.Map$Entry[])</method>
+                <to>java.util.Map</to>
+		<justification>Update return type to avoid cast</justification>
 	</difference>
 </differences>

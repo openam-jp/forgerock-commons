@@ -16,8 +16,7 @@
 
 package org.forgerock.caf.authn;
 
-import static org.forgerock.json.JsonValue.*;
-
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -114,9 +113,7 @@ final class BodyMatcher {
      */
     @SuppressWarnings("unchecked")
     static Map<JsonPointer, Condition<?>> noData() {
-        return (Map<JsonPointer, Condition<?>>) object(
-                field(null, Conditions.equalTo(""))
-        );
+        return Collections.<JsonPointer, Condition<?>>singletonMap(null, Conditions.equalTo(""));
     }
 
     private static final Condition<Object> NULL_CONDITION = new Condition<Object>() {

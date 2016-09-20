@@ -13,8 +13,9 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.api.transform;
+
+import static java.util.Arrays.asList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -48,15 +49,18 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import io.swagger.models.ArrayModel;
+import io.swagger.models.ComposedModel;
 import io.swagger.models.Info;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
 import io.swagger.models.Operation;
+import io.swagger.models.RefModel;
 import io.swagger.models.Swagger;
 import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
 import io.swagger.models.properties.Property;
 
+@SuppressWarnings("javadoc")
 public class OpenApiTransformerTest {
 
     public static final PreferredLocales PREFERRED_LOCALES = new PreferredLocales();
@@ -246,7 +250,7 @@ public class OpenApiTransformerTest {
     public Object[][] buildModelData() {
         return new Object[][]{
                 {null, null, NullPointerException.class},
-                {json(null), null, NullPointerException.class},
+                {json(null), null, TransformerException.class},
                 {json(object(field("type", "not_a_json_schema_type"))), null, TransformerException.class},
                 {json(object(field("type", "object"))), new LocalizableModelImpl().type("object"), null},
                 {json(object(
@@ -340,6 +344,37 @@ public class OpenApiTransformerTest {
                                 return o;
                             }
                         }.get(), null},
+                {json(object(
+                        field("title", "This is a cool title"),
+                        field("description", "This is a cool description"),
+                        field("allOf", array(
+                            object(field("$ref", "#/definitions/someDefinition")),
+                            object(field("type", "object")))))),
+                        new Supplier<Model>() {
+                            @Override
+                            public Model get() {
+                                final RefModel m1 = new LocalizableRefModel();
+                                m1.setReference("#/definitions/someDefinition");
+                                final ModelImpl m2 = new LocalizableModelImpl();
+                                m2.type("object");
+
+                                final ComposedModel o = new LocalizableComposedModel();
+                                o.setTitle("This is a cool title");
+                                o.setDescription("This is a cool description");
+                                o.setAllOf(asList(m1, m2));
+                                return o;
+                            }
+                        }.get(), null},
+                {json(object(
+                        field("title", "This is a cool title"),
+                        field("description", "This is a cool description"),
+                        field("allOf", null))),
+                 null, TransformerException.class},
+                {json(object(
+                        field("title", "This is a cool title"),
+                        field("description", "This is a cool description"),
+                        field("allOf", array()))),
+                 null, TransformerException.class},
         };
     }
 
@@ -347,21 +382,17 @@ public class OpenApiTransformerTest {
     public void testBuildModel(final JsonValue schema, final Model expectedReturnValue,
             final Class<? extends Throwable> expectedException) {
         final OpenApiTransformer transformer = new OpenApiTransformer();
-        final Model actualReturnValue;
         try {
-            actualReturnValue = transformer.buildModel(schema);
+            final Model actualReturnValue = transformer.buildModel(schema);
+            if (expectedException != null) {
+                failBecauseExceptionWasNotThrown(expectedException);
+            }
+            assertThat(actualReturnValue).isEqualTo(expectedReturnValue);
         } catch (final Exception e) {
             if (expectedException != null) {
                 assertThat(e).isInstanceOf(expectedException);
             }
-            return;
         }
-
-        if (expectedException != null) {
-            failBecauseExceptionWasNotThrown(expectedException);
-        }
-
-        assertThat(actualReturnValue).isEqualTo(expectedReturnValue);
     }
 
     @DataProvider(name = "buildPropertyData")

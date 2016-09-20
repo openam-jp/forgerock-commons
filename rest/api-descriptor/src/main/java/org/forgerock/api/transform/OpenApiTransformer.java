@@ -29,6 +29,7 @@ import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.fieldIfNotNull;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
+import static org.forgerock.json.JsonValueFunctions.*;
 import static org.forgerock.util.Reject.checkNotNull;
 
 import java.util.ArrayList;
@@ -73,6 +74,8 @@ import org.forgerock.http.header.AcceptApiVersionHeader;
 import org.forgerock.http.routing.Version;
 import org.forgerock.http.swagger.SwaggerExtended;
 import org.forgerock.json.JsonValue;
+import org.forgerock.json.JsonValueException;
+import org.forgerock.util.Function;
 import org.forgerock.util.annotations.VisibleForTesting;
 import org.forgerock.util.i18n.LocalizableString;
 import org.forgerock.util.i18n.PreferredLocales;
@@ -1175,8 +1178,16 @@ public class OpenApiTransformer {
      */
     @VisibleForTesting
     Model buildModel(final JsonValue schema) {
-        // TODO discriminator (see openapi spec and https://gist.github.com/leedm777/5730877)
         final String type = schema.get("type").asString();
+        if (type == null) {
+            if (schema.keys().contains("allOf")) {
+                return buildAllOfModel(schema);
+            } else if (schema.keys().contains("$ref")) {
+                return buildReferenceModel(schema);
+            }
+            throw new TransformerException("Unsupported JSON schema: "
+                + "expected \"type\", \"allOf\" or \"$ref\" property in: `" + schema + "`");
+        }
         switch (type) {
         case "object":
             return buildObjectModel(schema);
@@ -1194,6 +1205,41 @@ public class OpenApiTransformer {
         }
     }
 
+    private Model buildAllOfModel(final JsonValue schema) {
+        final List<Model> allOf = schema.get("allOf").as(listOf(model()));
+        if (allOf == null || allOf.isEmpty()) {
+            throw new TransformerException("Unsupported JSON schema: "
+                + "expected \"type\" or \"allOf\" property in: `" + schema + "`");
+        }
+        final LocalizableComposedModel model = new LocalizableComposedModel();
+        setTitleAndDescriptionFromSchema(model, schema);
+        model.setAllOf(allOf);
+
+        // TODO external-docs URLs
+
+        return model;
+    }
+
+    private Model buildReferenceModel(JsonValue schema) {
+        final LocalizableRefModel model = new LocalizableRefModel();
+        setTitleAndDescriptionFromSchema(model, schema);
+        model.setReference(schema.get("$ref").asString());
+        model.setProperties(buildProperties(schema));
+
+        // TODO external-docs URLs
+
+        return model;
+    }
+
+    private Function<JsonValue, Model, JsonValueException> model() {
+        return new Function<JsonValue, Model, JsonValueException>() {
+            @Override
+            public Model apply(JsonValue value) throws JsonValueException {
+                return buildModel(value);
+            }
+        };
+    }
+
     private Model buildObjectModel(final JsonValue schema) {
         final LocalizableModelImpl model = new LocalizableModelImpl();
         model.type("object");
@@ -1204,10 +1250,8 @@ public class OpenApiTransformer {
             model.setRequired(required);
         }
         model.setAdditionalProperties(buildProperty(schema.get("additionalProperties")));
-        setTitleFromJsonValue(model, schema.get("title"));
-        setDescriptionFromJsonValue(model, schema.get("description"));
+        setTitleAndDescriptionFromSchema(model, schema);
 
-        // TODO reference
         // TODO external-docs URLs
 
         return model;
@@ -1215,17 +1259,16 @@ public class OpenApiTransformer {
 
     private LocalizableModelImpl buildStringModel(final JsonValue schema, final String type) {
         final LocalizableModelImpl model = new LocalizableModelImpl();
-        model.type("string");
-        setTitleFromJsonValue(model, schema.get("title"));
-        setDescriptionFromJsonValue(model, schema.get("description"));
+        model.type(type);
+        setTitleAndDescriptionFromSchema(model, schema);
         if (schema.get("default").isNotNull()) {
             model.setDefaultValue(schema.get("default").asString());
         }
-  
+
         final List<String> enumValues = getArrayOfJsonString("enum", schema);
         if (!enumValues.isEmpty()) {
             model.setEnum(enumValues);
-  
+
             // enum_titles only provided with enum values
             final JsonValue options = schema.get("options");
             if (options.isNotNull()) {
@@ -1235,7 +1278,7 @@ public class OpenApiTransformer {
                 }
             }
         }
-  
+
         if (schema.get("format").isNotNull()) {
             // https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#dataTypeFormat
             model.setFormat(schema.get("format").asString());
@@ -1245,7 +1288,6 @@ public class OpenApiTransformer {
             }
         }
 
-        // TODO reference
         // TODO external-docs URLs
 
         return model;
@@ -1259,12 +1301,10 @@ public class OpenApiTransformer {
      */
     private Model buildArrayModel(final JsonValue schema) {
         final LocalizableArrayModel model = new LocalizableArrayModel();
-        setTitleFromJsonValue(model, schema.get("title"));
-        setDescriptionFromJsonValue(model, schema.get("description"));
+        setTitleAndDescriptionFromSchema(model, schema);
         model.setProperties(buildProperties(schema));
         model.setItems(buildProperty(schema.get("items")));
 
-        // TODO reference
         // TODO external-docs URLs
 
         return model;
@@ -1486,8 +1526,7 @@ public class OpenApiTransformer {
         if (schema.get("default").isNotNull()) {
             abstractProperty.setDefault(schema.get("default").asString());
         }
-        setTitleFromJsonValue(abstractProperty, schema.get("title"));
-        setDescriptionFromJsonValue(abstractProperty, schema.get("description"));
+        setTitleAndDescriptionFromSchema(abstractProperty, schema);
 
         final String readPolicy = schema.get("readPolicy").asString();
         if (!isEmpty(readPolicy)) {
@@ -1570,6 +1609,11 @@ public class OpenApiTransformer {
             }
         }
         return null;
+    }
+
+    private void setTitleAndDescriptionFromSchema(LocalizableTitleAndDescription<?> model, JsonValue schema) {
+        setTitleFromJsonValue(model, schema.get("title"));
+        setDescriptionFromJsonValue(model, schema.get("description"));
     }
 
     static void setTitleFromJsonValue(LocalizableTitleAndDescription<?> model, JsonValue source) {

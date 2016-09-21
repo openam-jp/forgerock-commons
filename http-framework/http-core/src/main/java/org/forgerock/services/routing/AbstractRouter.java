@@ -246,25 +246,34 @@ public abstract class AbstractRouter<T extends AbstractRouter<T, R, H, D>, R, H,
         return this.api;
     }
 
-    @SuppressWarnings("unchecked")
     private void updateApi() {
-        if (apiProducer == null) {
-            return;
+        if (this.apiProducer != null) {
+            this.api = buildApi(this.apiProducer);
         }
+    }
+
+    /**
+     * Build an api with a given {@link ApiProducer}.
+     *
+     * @param producer The given ApiProducer to use.
+     * @return an api.
+     */
+    @SuppressWarnings("unchecked")
+    protected D buildApi(ApiProducer<D> producer) {
         List<D> descriptors = new ArrayList<>(routes.size());
         for (Map.Entry<RouteMatcher<R>, H> route : routes.entrySet()) {
             H handler = route.getValue();
             if (handler instanceof Describable) {
                 RouteMatcher<R> matcher = route.getKey();
-                D descriptor = ((Describable<D, R>) handler).api(apiProducer.newChildProducer(matcher.idFragment()));
-                descriptors.add(matcher.transformApi(descriptor, apiProducer));
+                D descriptor = ((Describable<D, R>) handler).api(producer.newChildProducer(matcher.idFragment()));
+                descriptors.add(matcher.transformApi(descriptor, producer));
             }
         }
         final H dftRoute = defaultRoute;
         if (dftRoute instanceof Describable) {
-            descriptors.add(((Describable<D, R>) dftRoute).api(apiProducer));
+            descriptors.add(((Describable<D, R>) dftRoute).api(producer));
         }
-        this.api = descriptors.isEmpty() ? null : apiProducer.merge(descriptors);
+        return descriptors.isEmpty() ? null : producer.merge(descriptors);
     }
 
     /**

@@ -210,7 +210,7 @@ public final class Resources {
             final DescribableResourceHandler descriptorProvider = new DescribableResourceHandler();
             router = new Router() {
                 @Override
-                public ApiDescription api(ApiProducer<ApiDescription> producer) {
+                protected ApiDescription buildApi(ApiProducer<ApiDescription> producer) {
                     return descriptorProvider.api(producer);
                 }
             };

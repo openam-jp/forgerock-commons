@@ -32,14 +32,10 @@ import static org.forgerock.json.resource.Resources.*;
 import static org.forgerock.json.resource.Responses.*;
 import static org.forgerock.json.resource.Router.*;
 import static org.forgerock.json.resource.TestUtils.*;
-import static org.forgerock.json.resource.TestUtils.filter;
 import static org.forgerock.json.resource.test.assertj.AssertJActionResponseAssert.assertThat;
 import static org.forgerock.json.resource.test.assertj.AssertJResourceResponseAssert.assertThat;
 import static org.forgerock.util.promise.Promises.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
@@ -60,6 +56,7 @@ import org.forgerock.api.annotations.Schema;
 import org.forgerock.api.annotations.SingletonProvider;
 import org.forgerock.api.annotations.Update;
 import org.forgerock.api.enums.QueryType;
+import org.forgerock.api.enums.Stability;
 import org.forgerock.api.models.ApiDescription;
 import org.forgerock.api.models.Resource;
 import org.forgerock.api.models.VersionedPath;
@@ -81,6 +78,13 @@ import org.testng.annotations.Test;
  */
 @SuppressWarnings("javadoc")
 public final class ResourcesTest {
+
+    public static final String CREST_API_ID = "frapi:test";
+    public static final String CREST_API_VERSION = "1.0";
+    public static final String DESCRIPTION_CONTENT = "A description";
+    public static final String EMPTY_PATH = "";
+    public static final String SINGLETON_DESCRIPTION = "Singleton description";
+    public static final String SINGLETON_TITLE = "My singleton provider";
 
     @DataProvider
     public Object[][] testFilterData() {
@@ -229,7 +233,7 @@ public final class ResourcesTest {
         connection.readAsync(new RootContext(), read);
         ArgumentCaptor<ReadRequest> captor = ArgumentCaptor.forClass(ReadRequest.class);
         verify(collection).readInstance(any(Context.class), eq(expectedId), captor.capture());
-        Assertions.assertThat(captor.getValue().getResourcePath()).isEqualTo("");
+        Assertions.assertThat(captor.getValue().getResourcePath()).isEqualTo(EMPTY_PATH);
     }
 
     @DataProvider
@@ -778,7 +782,7 @@ public final class ResourcesTest {
         Router router = (Router) Resources.newHandler(thingsProvider);
 
         // When
-        ApiDescription api = router.api(new CrestApiProducer("frapi:test", "1.0"));
+        ApiDescription api = router.api(new CrestApiProducer(CREST_API_ID, CREST_API_VERSION));
 
         // Then
         assertThat(api.getPaths().getNames()).containsOnly("/things");
@@ -826,6 +830,59 @@ public final class ResourcesTest {
         @Read(operationDescription = @Operation)
         public Promise<ResourceResponse, ResourceException> get() {
             getCalls++;
+            return null;
+        }
+    }
+
+    @Test
+    public void shouldInterfaceBasedSingletonProviderSucceedWithAnnotations() {
+        // Given
+        Describable<ApiDescription, Request> requestHandler = (Describable<ApiDescription, Request>)
+                Resources.newHandler(new MySingletonProvider());
+
+        // When
+        requestHandler.api(new CrestApiProducer(CREST_API_ID, CREST_API_VERSION));
+        ApiDescription api = requestHandler.handleApiRequest(
+                new RootContext(), Requests.newApiRequest(ResourcePath.resourcePath(EMPTY_PATH)));
+
+        // Then
+        assertThat(api.getId()).isEqualTo(CREST_API_ID);
+        assertThat(api.getVersion()).isEqualTo(CREST_API_VERSION);
+        assertThat(api.getPaths().getNames()).containsOnly(EMPTY_PATH);
+        Resource resource = api.getPaths().get(EMPTY_PATH).get(UNVERSIONED);
+        assertThat(resource.getDescription().toString()).isEqualTo(SINGLETON_DESCRIPTION);
+        assertThat(resource.getTitle().toString()).isEqualTo(SINGLETON_TITLE);
+        assertThat(resource.getResourceSchema()).isNotNull();
+        assertThat(resource.isMvccSupported()).isTrue();
+        assertThat(resource.getActions()).isEmpty();
+        assertThat(resource.getRead().getDescription().toString()).isEqualTo(DESCRIPTION_CONTENT);
+    }
+
+    @SingletonProvider(@Handler(title = SINGLETON_TITLE,
+                                description = SINGLETON_DESCRIPTION,
+                                resourceSchema = @Schema(fromType = SchemaType.class),
+                                mvccSupported = true))
+    private static final class MySingletonProvider implements SingletonResourceProvider {
+
+        @Override
+        public Promise<ActionResponse, ResourceException> actionInstance(Context context, ActionRequest request) {
+            return null;
+        }
+
+        @Override
+        public Promise<ResourceResponse, ResourceException> patchInstance(Context context, PatchRequest request) {
+            return null;
+        }
+
+        @Override
+        @Read(operationDescription = @Operation(description = DESCRIPTION_CONTENT,
+                                                stability = Stability.EVOLVING))
+        public Promise<ResourceResponse, ResourceException> readInstance(Context context, ReadRequest request) {
+            return null;
+        }
+
+        @Override
+        public Promise<ResourceResponse, ResourceException> updateInstance(Context context, UpdateRequest request) {
             return null;
         }
     }

@@ -29,7 +29,7 @@ import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.fieldIfNotNull;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
-import static org.forgerock.json.JsonValueFunctions.*;
+import static org.forgerock.json.JsonValueFunctions.listOf;
 import static org.forgerock.util.Reject.checkNotNull;
 
 import java.util.ArrayList;
@@ -1180,13 +1180,12 @@ public class OpenApiTransformer {
     Model buildModel(final JsonValue schema) {
         final String type = schema.get("type").asString();
         if (type == null) {
-            if (schema.keys().contains("allOf")) {
+            if (schema.isDefined("allOf")) {
                 return buildAllOfModel(schema);
-            } else if (schema.keys().contains("$ref")) {
+            } else if (schema.isDefined("$ref")) {
                 return buildReferenceModel(schema);
             }
-            throw new TransformerException("Unsupported JSON schema: "
-                + "expected \"type\", \"allOf\" or \"$ref\" property in: `" + schema + "`");
+            throw new TransformerException(unsupportedJsonSchema(schema));
         }
         switch (type) {
         case "object":
@@ -1199,17 +1198,16 @@ public class OpenApiTransformer {
         case "integer":
         case "number":
         case "string":
-            return buildStringModel(schema, type);
+            return buildScalarModel(schema, type);
         default:
-            throw new TransformerException("Unsupported JSON schema type: " + type);
+            throw new TransformerException("Unsupported JSON Schema type '" + type + "' in schema " + schema);
         }
     }
 
     private Model buildAllOfModel(final JsonValue schema) {
         final List<Model> allOf = schema.get("allOf").as(listOf(model()));
         if (allOf == null || allOf.isEmpty()) {
-            throw new TransformerException("Unsupported JSON schema: "
-                + "expected \"type\" or \"allOf\" property in: `" + schema + "`");
+            throw new TransformerException(unsupportedJsonSchema(schema));
         }
         final LocalizableComposedModel model = new LocalizableComposedModel();
         setTitleAndDescriptionFromSchema(model, schema);
@@ -1218,6 +1216,10 @@ public class OpenApiTransformer {
         // TODO external-docs URLs
 
         return model;
+    }
+
+    private String unsupportedJsonSchema(final JsonValue schema) {
+        return "Unsupported JSON schema: expected 'type', '$ref' or non-empty 'allOf' property in: '" + schema + "'";
     }
 
     private Model buildReferenceModel(JsonValue schema) {
@@ -1257,7 +1259,7 @@ public class OpenApiTransformer {
         return model;
     }
 
-    private LocalizableModelImpl buildStringModel(final JsonValue schema, final String type) {
+    private LocalizableModelImpl buildScalarModel(final JsonValue schema, final String type) {
         final LocalizableModelImpl model = new LocalizableModelImpl();
         model.type(type);
         setTitleAndDescriptionFromSchema(model, schema);

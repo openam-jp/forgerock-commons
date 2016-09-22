@@ -1,0 +1,70 @@
+<differences>
+<!--
+  <difference>
+    <className>**/example/*Remote</className>
+    <differenceType>...</differenceType>
+    <field>my*</field>
+    <method>MyObject* method(int, java.lang.String)</method>
+    <from>...</from>
+    <to>...</to>
+  </difference>
+-->
+  <difference>
+    <className>org/forgerock/http/HttpApplication</className>
+    <differenceType>6001</differenceType>
+    <field>LOGGER</field>
+  </difference>
+  <difference>
+    <className>org/forgerock/http/handler/Handlers</className>
+    <differenceType>7006</differenceType>
+    <method>org.forgerock.http.Handler filtered(org.forgerock.http.Handler, org.forgerock.http.Filter)</method>
+    <to>org.forgerock.http.handler.DescribableHandler</to>
+  </difference>
+  <difference>
+    <className>org/forgerock/http/handler/Handlers</className>
+    <differenceType>7006</differenceType>
+    <method>org.forgerock.http.Handler chainOf(org.forgerock.http.Handler, org.forgerock.http.Filter[])</method>
+    <to>org.forgerock.http.handler.DescribableHandler</to>
+  </difference>
+  <difference>
+    <className>org/forgerock/http/handler/Handlers</className>
+    <differenceType>7006</differenceType>
+    <method>org.forgerock.http.Handler chainOf(org.forgerock.http.Handler, java.util.List)</method>
+    <to>org.forgerock.http.handler.DescribableHandler</to>
+  </difference>
+  <difference>
+    <className>org/forgerock/http/io/BranchingInputStream</className>
+    <differenceType>7004</differenceType>
+    <method>BranchingInputStream()</method>
+  </difference>
+  <difference>
+    <className>org/forgerock/http/io/BranchingInputStream</className>
+    <differenceType>7009</differenceType>
+    <method>BranchingInputStream()</method>
+  </difference>
+  <difference>
+    <className>org/forgerock/http/io/Buffer</className>
+    <differenceType>7012</differenceType>
+    <method>void append(byte)</method>
+  </difference>
+  <difference>
+    <className>org/forgerock/http/io/Buffer</className>
+    <differenceType>7012</differenceType>
+    <method>byte read(int)</method>
+  </difference>
+  <difference>
+    <className>org/forgerock/services/routing/AbstractRouter</className>
+    <differenceType>7013</differenceType>
+    <method>org.forgerock.services.routing.RouteMatcher uriMatcher(org.forgerock.http.routing.RoutingMode, java.lang.String)</method>
+  </difference>
+  <difference>
+    <className>org/forgerock/services/routing/RouteMatcher</className>
+    <differenceType>7013</differenceType>
+    <method>java.lang.String idFragment()</method>
+  </difference>
+  <difference>
+    <className>org/forgerock/services/routing/RouteMatcher</className>
+    <differenceType>7013</differenceType>
+    <method>java.lang.Object transformApi(java.lang.Object, org.forgerock.http.ApiProducer)</method>
+  </difference>
+</differences>

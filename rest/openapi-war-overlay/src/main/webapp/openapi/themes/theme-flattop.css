@@ -11,7 +11,8 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2016 ForgeRock AS.
+ * Copyright 2015-2016 Ivan Sagalaev <Maniac@SoftwareManiacs.Org>
+ * Portions copyright 2016 ForgeRock AS.
  */
 
 /* Original style from softwaremaniacs.org (c) Ivan Sagalaev <Maniac@SoftwareManiacs.Org> */
@@ -154,8 +155,8 @@
   quotes: none;
 }
 .swagger-section .swagger-ui-wrap p {
-  line-height: 1.4em;
-  padding: 0 0 10px;
+  /*line-height: 1.4em;*/
+  /*padding: 0 0 10px;*/
   color: #3E4049;
 }
 .swagger-section .swagger-ui-wrap q:before,
@@ -210,7 +211,7 @@
 .swagger-section .swagger-ui-wrap ol li {
   padding: 5px 0px;
   font-size: 0.9em;
-  color: ##3E4049;
+  color: #3E4049;
 }
 .swagger-section .swagger-ui-wrap ol,
 .swagger-section .swagger-ui-wrap ul {

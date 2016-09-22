@@ -68,7 +68,7 @@ assets available via HTTP,
 
 ## Swagger UI
 
-The current version of [Swagger UI](https://github.com/swagger-api/swagger-ui) in this module is **2.1.4**.
+The current version of [Swagger UI](https://github.com/swagger-api/swagger-ui) in this module is **2.2.4**.
 
 We had to make minor modifications to `swagger-ui.js` in order to remove URL fragments prior
 to executing HTTP requests. We changed,

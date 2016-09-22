@@ -178,6 +178,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      *            include optional elements).
      * @return The JSON object.
      */
+    @SafeVarargs
     public static Map<String, Object> object(final Map.Entry<String, Object>... fields) {
         final Map<String, Object> object = new LinkedHashMap<>(fields.length);
         for (final Map.Entry<String, Object> field : fields) {

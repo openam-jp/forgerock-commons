@@ -41,6 +41,7 @@ import org.forgerock.api.enums.QueryType;
 import org.forgerock.api.enums.Stability;
 import org.forgerock.api.jackson.JacksonUtils;
 import org.forgerock.http.util.Json;
+import org.forgerock.json.JsonValue;
 import org.forgerock.util.i18n.LocalizableString;
 import org.forgerock.util.i18n.PreferredLocales;
 import org.testng.annotations.BeforeClass;
@@ -790,8 +791,8 @@ public class ResourceTest {
 
         String serialized = mapper.writeValueAsString(resource);
 
-        assertThat(serialized.matches(TRANSLATED_DISCRIPTION_TWICE_REGEX));
-        assertThat(serialized.matches(TRANSLATED_JSON_SCHEMA_DESC_TITLE));
+        assertThat(serialized.matches(TRANSLATED_DISCRIPTION_TWICE_REGEX)).isTrue();
+        assertThat(serialized.matches(TRANSLATED_JSON_SCHEMA_DESC_TITLE)).isTrue();
 
     }
 
@@ -841,6 +842,8 @@ public class ResourceTest {
 
     private Schema getI18nSchema() throws IOException {
         InputStream is = this.getClass().getResourceAsStream(I18NJSONSCHEMA_JSON);
-        return Schema.schema().schema(json(JacksonUtils.OBJECT_MAPPER.readValue(is, Object.class))).build();
+        JsonValue schema = json(JacksonUtils.OBJECT_MAPPER.readValue(is, Object.class))
+                .as(new TranslateJsonSchema(getClass().getClassLoader()));
+        return Schema.schema().schema(schema).build();
     }
 }

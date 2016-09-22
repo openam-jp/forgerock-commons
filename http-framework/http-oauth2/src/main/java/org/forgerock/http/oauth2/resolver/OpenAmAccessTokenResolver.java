@@ -19,6 +19,7 @@ package org.forgerock.http.oauth2.resolver;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.forgerock.json.JsonValueFunctions.setOf;
 import static org.forgerock.util.Utils.closeSilently;
 
 import java.io.IOException;
@@ -209,11 +210,11 @@ public class OpenAmAccessTokenResolver implements AccessTokenResolver {
         public AccessTokenInfo apply(final JsonValue raw) throws AccessTokenException {
             try {
                 final long expiresIn = raw.get("expires_in").required().asLong();
-                final Set<String> scopes = raw.get("scope").required().asSet(String.class);
+                final Set<String> scopes = raw.get("scope").required().as(setOf(String.class));
                 final String token = raw.get("access_token").required().asString();
 
                 return new AccessTokenInfo(raw, token, scopes, getExpirationTime(expiresIn));
-            } catch (JsonValueException e) {
+            } catch (JsonValueException | NullPointerException e) {
                 throw new AccessTokenException("Cannot build AccessToken from the given JSON: invalid format", e);
             }
         }

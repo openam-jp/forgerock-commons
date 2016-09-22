@@ -118,7 +118,6 @@ public class AssertJJsonValueAssertTest {
         assertThat(json(1)).isInteger().isPositive(); // another assertion for IntegerAssert
         assertThat(json(1L)).isLong().isGreaterThan(0); // another assertion for LongAssert
         assertThat(json(3.5)).isDouble().isBetween(3d, 4d); // another assertion for DoubleAssert
-        assertThat(json(set("foo", 42))).isSet().hasSize(2);
     }
 
     @Test (expectedExceptions = AssertionError.class)

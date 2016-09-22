@@ -105,7 +105,7 @@ public class AccessAuditEventBuilderTest {
         assertThat(value.get(TRANSACTION_ID).asString()).isEqualTo("transactionId");
         assertThat(value.get(TIMESTAMP).asString()).isEqualTo("2015-03-25T14:21:26.239Z");
         assertThat(value.get(EVENT_NAME).asString()).isEqualTo("IDM-sync-10");
-        assertThat(value.get(TRACKING_IDS).asSet()).containsExactly("12345", "67890");
+        assertThat(value.get(TRACKING_IDS).asList()).containsExactlyInAnyOrder("12345", "67890");
         assertThat(value.get(SERVER).get(IP).asString()).isEqualTo("sip");
         assertThat(value.get(SERVER).get(PORT).asLong()).isEqualTo(80);
         assertThat(value.get(HTTP).get(REQUEST).get(METHOD).asString()).isEqualTo("GET");

@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 package org.forgerock.audit.events;
 
@@ -142,7 +142,7 @@ public class AuditEventBuilderTest {
         assertThat(value.get(TRANSACTION_ID).asString()).isEqualTo("transactionId");
         assertThat(value.get(TIMESTAMP).asString()).isEqualTo("2015-03-25T14:21:26.239Z");
         assertThat(value.get(USER_ID).asString()).isEqualTo("someone@forgerock.com");
-        assertThat(value.get(TRACKING_IDS).asSet()).containsExactly("12345");
+        assertThat(value.get(TRACKING_IDS).asList()).containsExactlyInAnyOrder("12345");
         assertThat(value.get("open").getObject()).isEqualTo("value");
     }
 

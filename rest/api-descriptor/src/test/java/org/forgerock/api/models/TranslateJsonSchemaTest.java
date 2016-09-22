@@ -20,7 +20,6 @@ import static org.forgerock.json.JsonValue.array;
 import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
-import static org.forgerock.json.JsonValue.set;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.util.i18n.LocalizableString;
@@ -87,15 +86,5 @@ public class TranslateJsonSchemaTest {
         assertThat(result.get(0).getObject()).isInstanceOf(LocalizableString.class);
         assertThat(result.get(1).getObject()).isInstanceOf(LocalizableString.class);
     }
-
-    @Test
-    public void testTransformSetTransformsChildren() {
-        TranslateJsonSchema translateFunction = new TranslateJsonSchema(null);
-        JsonValue jsonValue = json(set("i18n:here", "i18n:there"));
-        JsonValue result = jsonValue.as(translateFunction);
-        assertThat(result.get(0).getObject()).isInstanceOf(LocalizableString.class);
-        assertThat(result.get(1).getObject()).isInstanceOf(LocalizableString.class);
-    }
-
 
 }

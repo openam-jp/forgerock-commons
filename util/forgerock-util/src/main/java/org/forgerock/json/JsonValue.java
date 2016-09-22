@@ -23,7 +23,6 @@ import static org.forgerock.json.JsonValueFunctions.file;
 import static org.forgerock.json.JsonValueFunctions.listOf;
 import static org.forgerock.json.JsonValueFunctions.pattern;
 import static org.forgerock.json.JsonValueFunctions.pointer;
-import static org.forgerock.json.JsonValueFunctions.setOf;
 import static org.forgerock.json.JsonValueFunctions.uri;
 import static org.forgerock.json.JsonValueFunctions.url;
 import static org.forgerock.json.JsonValueFunctions.uuid;
@@ -40,7 +39,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -81,23 +79,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      */
     public static List<Object> array(final Object... objects) {
         return new ArrayList<>(Arrays.asList(objects));
-    }
-
-    /**
-     * Returns a mutable JSON set containing the provided objects. This method
-     * is provided as a convenience method for constructing JSON set. Example
-     * usage:
-     *
-     * <pre>
-     * JsonValue value = json(set(1, 2, 3));
-     * </pre>
-     *
-     * @param objects
-     *            The set elements.
-     * @return A JSON set.
-     */
-    public static Set<Object> set(final Object... objects) {
-        return new LinkedHashSet<>(Arrays.asList(objects));
     }
 
     /**
@@ -353,36 +334,24 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Adds the specified value to a set or to the end of the list. This is method is
+     * Adds the specified value to the end of the list. This method is
      * equivalent to the following code:
      *
      * <pre>
      * add(size(), object);
      * </pre>
      *
-     * for lists, and
-     *
-     * <pre>
-     * asSet().add(object);
-     * </pre>
-     *
-     * for sets.
-     *
      * @param object
      *            the java object to add.
      * @return this JSON value.
      * @throws JsonValueException
-     *             if this JSON value is not a {@code Set} or a {@code List}.
+     *             if this JSON value is not a {@code List}.
      */
     public JsonValue add(final Object object) {
         if (isList()) {
             return add(size(), object);
-        } else if (isSet()) {
-            required().asSet().add(object);
-            return this;
-        } else {
-            throw new JsonValueException(this, "Expecting a Set or List");
         }
+        throw new JsonValueException(this, "Expecting a List");
     }
 
     /**
@@ -595,20 +564,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Returns the JSON value as a {@link Set} object. If the JSON value is
-     * {@code null}, this method returns {@code null}.
-     * The returned {@link Set} is <b>not</b> a copy : any interaction with it
-     * will affect the {@link JsonValue}.
-     *
-     * @return the set value, or {@code null} if no value.
-     * @throws JsonValueException
-     *             if the JSON value is not a {@code Set}.
-     */
-    public Set<Object> asSet() {
-        return asSet(Object.class);
-    }
-
-    /**
      * Returns the JSON value as a {@link Collection} containing objects of the
      * specified type. If the value is {@code null}, this method returns
      * {@code null}. If any of the elements of the collection are not {@code null} and
@@ -658,17 +613,13 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      *            the type of object that all elements are expected to be.
      * @return the list value, or {@code null} if no value.
      * @throws JsonValueException
-     *             if the JSON value is not a {@code List}, not a {@code Set},
-     *             or contains an unexpected type.
+     *             if the JSON value is not a {@code List} or contains an unexpected type.
      * @throws NullPointerException
      *             if {@code type} is {@code null}.
      */
     @SuppressWarnings("unchecked")
     public <E> List<E> asList(final Class<E> type) {
         if (object != null) {
-            if (isSet()) {
-                return new ArrayList<>(asSet(type));
-            }
             expect(List.class);
             if (type != Object.class) {
                 final List<Object> list = (List<Object>) this.object;
@@ -681,47 +632,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
             }
         }
         return (List<E>) object;
-    }
-
-    /**
-     * Returns the JSON value as a {@link Set} containing objects of the
-     * specified type. If the value is {@code null}, this method returns
-     * {@code null}. If any of the elements of the set are not {@code null} and
-     * not of the specified type, {@code JsonValueException} is thrown.  If
-     * called on an object which wraps a List, this method will drop duplicates
-     * performing element comparisons using equals/hashCode.
-     * The returned {@link Set} is <b>not</b> a copy : any interaction with it
-     * will affect the {@link JsonValue}.
-     *
-     * @param <E>
-     *            the type of elements in this set
-     * @param type
-     *            the type of object that all elements are expected to be.
-     * @return the set value, or {@code null} if no value.
-     * @throws JsonValueException
-     *             if the JSON value is not a {@code Set}, not a {@code List},
-     *             or contains an unexpected type.
-     * @throws NullPointerException
-     *             if {@code type} is {@code null}.
-     */
-    @SuppressWarnings("unchecked")
-    public <E> Set<E> asSet(final Class<E> type) {
-        if (object != null) {
-            if (isList()) {
-                return new LinkedHashSet<>(asList(type));
-            }
-            expect(Set.class);
-            if (type != Object.class) {
-                final Set<Object> list = (Set<Object>) this.object;
-                for (final Object element : list) {
-                    if (element != null && !type.isInstance(element)) {
-                        throw new JsonValueException(this, "Expecting a Set of " + type.getName()
-                                + " elements");
-                    }
-                }
-            }
-        }
-        return (Set<E>) object;
     }
 
     /**
@@ -744,8 +654,8 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      *            to the desired type
      * @return the list value, or {@code null} if no value.
      * @throws E
-     *             if the JSON value is not a {@code List}, not a {@code Set}, contains an
-     *             unexpected type, or contains an element that cannot be transformed
+     *             if the JSON value is not a {@code List}, contains an unexpected type,
+     *             or contains an element that cannot be transformed
      * @throws NullPointerException
      *             if {@code transformFunction} is {@code null}.
      * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
@@ -759,49 +669,12 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Returns the JSON value as a {@link Set} containing objects whose type
-     * (and value) is specified by a transformation function. If the value is
-     * {@code null}, this method returns {@code null}. It is up to to the
-     * transformation function to transform/enforce source types of the elements
-     * in the Json source collection.  If called on an object which wraps a List,
-     * this method will drop duplicates performing element comparisons using
-     * equals/hashCode. If any of the elements of the collection are not of
-     * the appropriate type, or the type-transformation cannot occur, the
-     * exception specified by the transformation function is thrown.
-     * The returned {@link Set} is a new one : any interaction with it
-     * will not affect the {@link JsonValue}.
-     *
-     * @param <V>
-     *            the type of elements in this set
-     * @param <E>
-     *            the type of exception thrown by the transformation function
-     * @param transformFunction
-     *            a {@link Function} to transform an element of the JsonValue set
-     *            to the desired type
-     * @return the set value, or {@code null} if no value.
-     * @throws E
-     *             if the JSON value is not a {@code Set}, contains an
-     *             unexpected type, or contains an element that cannot be
-     *             transformed
-     * @throws NullPointerException
-     *             if {@code transformFunction} is {@code null}.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asSet(transformFunction)} with {@code jv.map(JsonValueFunctions.set(transformFunction))}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#setOf(Function)
-     */
-    @Deprecated
-    public <V, E extends Exception> Set<V> asSet(final Function<JsonValue, V, E> transformFunction) throws E {
-        return as(setOf(transformFunction));
-    }
-
-    /**
      * Returns the JSON value as an object whose type
      * (and value) is specified by a transformation function. It is up to to the
      * transformation function to transform/enforce source types of the elements
      * in the Json source element and to decide what to do depending on the kind
      * of {@link JsonValue} : if it is null, a {@link String}, a {@link List},
-     * a {@link Set} or {@link Map}. If the type-transformation cannot occur,
+     * or {@link Map}. If the type-transformation cannot occur,
      * the exception specified by the transformation function is thrown.
      *
      * @param <V>
@@ -1064,7 +937,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
 
     /**
      * Returns a shallow copy of this JSON value. If this JSON value contains a
-     * {@code Map}, a {@code Set}, or a {@code List} object, the returned JSON
+     * {@code Map} or a {@code List} object, the returned JSON
      * value will contain a shallow copy of the original contained object.
      * <p>
      * The new value's members can be modified without affecting the original
@@ -1085,8 +958,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
             result.object = new LinkedHashMap<>(this.asMap());
         } else if (isList()) {
             result.object = new ArrayList<>(this.asList());
-        } else if (isSet()) {
-            result.object = new LinkedHashSet<>(this.asSet());
         }
         return result;
     }
@@ -1137,12 +1008,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
                 list.add(element.copy().getObject()); // recursion
             }
             result.object = list;
-        } else if (isSet()) {
-            final Set<Object> set = new LinkedHashSet<>(size());
-            for (final JsonValue element : this) {
-                set.add(element.copy().getObject()); // recursion
-            }
-            result.object = set;
         }
         return result;
     }
@@ -1329,15 +1194,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Returns {@code true} if the JSON value is a {@link Set}.
-     *
-     * @return {@code true} if the JSON value is a {@link Set}.
-     */
-    public boolean isSet() {
-        return (object instanceof Set);
-    }
-
-    /**
      * Returns {@code true} if the JSON value is a {@link Map}.
      *
      * @return {@code true} if the JSON value is a {@link Map}.
@@ -1384,7 +1240,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
 
     /**
      * Returns an iterator over the child values that this JSON value contains.
-     * If this value is a {@link Map} or a {@link Set}, then the order of the
+     * If this value is a {@link Map}, then the order of the
      * resulting child values is undefined. Calling the {@link Iterator#remove()}
      * method of the returned iterator will throw a {@link UnsupportedOperationException}.
      * <p>
@@ -1409,26 +1265,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
                 public JsonValue next() {
                     final Object element = i.next();
                     return new JsonValue(element, pointer.child(cursor++), transformers);
-                }
-
-                @Override
-                public void remove() {
-                    throw new UnsupportedOperationException();
-                }
-            };
-        } else if (isSet()) {
-            return new Iterator<JsonValue>() {
-                Iterator<Object> i = asSet().iterator();
-
-                @Override
-                public boolean hasNext() {
-                    return i.hasNext();
-                }
-
-                @Override
-                public JsonValue next() {
-                    final Object element = i.next();
-                    return new JsonValue(element, pointer.child(String.valueOf(object)), transformers);
                 }
 
                 @Override

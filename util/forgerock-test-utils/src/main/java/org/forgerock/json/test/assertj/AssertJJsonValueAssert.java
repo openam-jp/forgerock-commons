@@ -24,7 +24,6 @@ import org.assertj.core.api.AbstractBooleanAssert;
 import org.assertj.core.api.AbstractCharSequenceAssert;
 import org.assertj.core.api.AbstractDoubleAssert;
 import org.assertj.core.api.AbstractIntegerAssert;
-import org.assertj.core.api.AbstractIterableAssert;
 import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.AbstractLongAssert;
 import org.assertj.core.api.AbstractMapAssert;
@@ -117,22 +116,10 @@ public final class AssertJJsonValueAssert {
          */
         public ArrayJsonValueAssert isArray() {
             isNotNull();
-            if (!actual.isSet() && !actual.isList()) {
+            if (!actual.isList()) {
                 failWithMessage("Expected %s to be an array", actual.getPointer());
             }
             return new ArrayJsonValueAssert(actual);
-        }
-
-        /**
-         * Check that the {@link JsonValue} is a set.
-         * @return The {@link AbstractIterableAssert} representation of this Assert instance.
-         */
-        public AbstractIterableAssert<?, ? extends Iterable<?>, Object> isSet() {
-            isNotNull();
-            if (!actual.isSet()) {
-                failWithMessage("Expected %s to be a set", actual.getPointer());
-            }
-            return Assertions.assertThat(actual.asSet());
         }
 
         /**

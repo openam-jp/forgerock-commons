@@ -47,4 +47,34 @@ Note: waiting on https://jira.codehaus.org/browse/MCLIRR-62 to be resolved to av
                 <to>java.util.Map</to>
 		<justification>Update return type to avoid cast</justification>
 	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.Set set(java.lang.Object[])</method>
+		<justification>Removal of the set-backing feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.Set asSet()</method>
+		<justification>Removal of the set-backing feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.Set asSet(java.lang.Class)</method>
+		<justification>Removal of the set-backing feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.Set asSet(org.forgerock.util.Function)</method>
+		<justification>Removal of the set-backing feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>boolean isSet()</method>
+		<justification>Removal of the set-backing feature</justification>
+	</difference>
 </differences>

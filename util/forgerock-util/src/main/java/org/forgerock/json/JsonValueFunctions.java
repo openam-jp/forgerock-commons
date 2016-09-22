@@ -17,6 +17,8 @@
 
 package org.forgerock.json;
 
+import static org.forgerock.util.Reject.checkNotNull;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -43,6 +45,29 @@ import org.forgerock.util.time.Duration;
 public final class JsonValueFunctions {
 
     private JsonValueFunctions() {
+    }
+
+    private static class TypeFunction<V> implements Function<JsonValue, V, JsonValueException> {
+
+        private final Class<V> type;
+
+        TypeFunction(Class<V> type) {
+            this.type = checkNotNull(type);
+        }
+
+        @Override
+        public V apply(JsonValue value) throws JsonValueException {
+            if (value.isNull()) {
+                return null;
+            }
+
+            Object object = value.getObject();
+            if (type.isInstance(object)) {
+                return type.cast(object);
+            }
+
+            throw new JsonValueException(value, "Expecting an element of type " + type.getName());
+        }
     }
 
     //@Checkstyle:off
@@ -349,4 +374,29 @@ public final class JsonValueFunctions {
             }
         };
     }
+
+    /**
+     * Returns the JSON value as a {@link Set} containing objects whose type
+     * (and value) is specified by the parameter {@code type}. If the value is
+     * {@code null}, this method returns {@code null}. If called on an object
+     * which wraps a List, this method will drop duplicates performing element
+     * comparisons using equals/hashCode. If any of the elements of the collection
+     * are not of the appropriate type, or the type-transformation cannot occur,
+     * {@link JsonValueException} is thrown.
+     *
+     * @param <V>
+     *            the type of elements in this set
+     * @param type
+     *            a {@link Class} that specifies the desired type of each element
+     *            in the resultant JsonValue set
+     * @return the set value, or {@code null} if no value.
+     * @throws NullPointerException
+     *             if {@code type} is {@code null}.
+     * @throws JsonValueException
+     *             if the elements of the collection cannot be cast as {@code type}.
+     */
+    public static <V> Function<JsonValue, Set<V>, JsonValueException> setOf(final Class<V> type) {
+        return setOf(new TypeFunction<>(type));
+    }
+
 }

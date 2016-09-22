@@ -168,7 +168,6 @@ public class JsonValueFunctionsTest {
     @Test
     public void shouldConvertToList() throws Exception {
         assertThat(listOf(integer).apply(json(array("1", null, "1")))).containsExactly(1, null, 1);
-        assertThat(listOf(integer).apply(json(JsonValue.set("1", null)))).containsExactly(1, null);
     }
 
     @Test
@@ -190,8 +189,7 @@ public class JsonValueFunctionsTest {
 
     @Test
     public void shouldConvertToSet() throws Exception {
-        assertThat(setOf(integer).apply(json(JsonValue.set("1", null)))).containsExactly(1, null);
-        assertThat(setOf(integer).apply(json(JsonValue.array("1", null, "1")))).containsExactly(1, null);
+        assertThat(setOf(integer).apply(json(array("1", null, "1")))).containsExactly(1, null);
     }
 
     @Test
@@ -202,11 +200,6 @@ public class JsonValueFunctionsTest {
     @Test
     public void shouldReturnNullIfJsonValueIsNotCollectionWhenConvertingToSet() throws Exception {
         assertThat(setOf(integer).apply(json(true))).isNull();
-    }
-
-    @Test(expectedExceptions = JsonValueException.class)
-    public void shouldReturnNullIfJsonValueStringNotValidWhenConvertingToSet() throws Exception {
-        setOf(integer).apply(json(JsonValue.set("foo")));
     }
 
     private Function<JsonValue, Integer, JsonValueException> integer =
@@ -226,5 +219,15 @@ public class JsonValueFunctionsTest {
                 throw new JsonValueException(value, "Expecting a String");
             }
         };
+
+    @Test
+    public void shouldConvertToSetOfType() throws Exception {
+        assertThat(setOf(Integer.class).apply(json(array(1, null, 1)))).containsExactly(1, null);
+    }
+
+    @Test(expectedExceptions = JsonValueException.class)
+    public void shouldThrowJsonValueExceptionOnSetOfWrongType() throws Exception {
+        setOf(Integer.class).apply(json(array(1, null, "X")));
+    }
 
 }

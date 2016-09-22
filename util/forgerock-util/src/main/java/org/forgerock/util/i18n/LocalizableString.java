@@ -25,7 +25,8 @@ import java.util.Objects;
  * {@code i18n:bundle#key} which is a URI where:
  * <ul>
  *    <li>{@code i18n:} is the scheme specifying that the string is localizable</li>
- *    <li>{@code bundle} is the path of the bundle in the classpath</li>
+ *    <li>{@code bundle} is the path of the bundle in the classpath (optional, if missing,
+ *    a {@link Class} has to be provided and will be used as resource bundle name)</li>
  *    <li>{@code key}, the fragment, is the key of the translated string</li>
  * </ul>
  * This class attempts to make the i18n work for an OSGi environment, by encapsulating the name of a resource bundle,
@@ -54,7 +55,19 @@ public class LocalizableString {
      * @param value a string
      */
     public LocalizableString(String value) {
-        this(value, null);
+        this(value, (ClassLoader) null);
+    }
+
+    /**
+     * Constructor for potentially localizable {@code String}.
+     * If resource bundle name not provided in the {@code value}, then the provided {@code type} name will be
+     * used instead.
+     * @param value the String ({@literal i18n:#key.name} is accepted here)
+     * @param type class used to support relative resource bundle lookup (must not be {@code null})
+     */
+    public LocalizableString(String value, Class<?> type) {
+        // Integrates class name as the resource name in the value
+        this(value.replace(":#", ":" + type.getName().replace(".", "/") + "#"), type.getClassLoader());
     }
 
     /**

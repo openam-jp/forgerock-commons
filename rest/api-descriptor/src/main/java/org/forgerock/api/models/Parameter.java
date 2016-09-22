@@ -189,7 +189,7 @@ public final class Parameter {
      */
     public static Parameter fromAnnotation(Class<?> type, org.forgerock.api.annotations.Parameter parameter) {
         return parameter()
-                .description(new LocalizableString(parameter.description(), type.getClassLoader()))
+                .description(new LocalizableString(parameter.description(), type))
                 .defaultValue(parameter.defaultValue())
                 .enumValues(parameter.enumValues())
                 .enumTitles(parameter.enumTitles())

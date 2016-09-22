@@ -43,7 +43,7 @@ public class LocalizableStringTest {
     @Test
     public void testLocalizableStringIsNotTranslatedIfLoaderIsNull() {
         PreferredLocales locales = new PreferredLocales();
-        LocalizableString name = new LocalizableString("i18n:locales/bundle#locale", null);
+        LocalizableString name = new LocalizableString("i18n:locales/bundle#locale", (ClassLoader) null);
         assertThat(name.toTranslatedString(locales)).isEqualTo("i18n:locales/bundle#locale");
     }
 
@@ -70,10 +70,18 @@ public class LocalizableStringTest {
     }
 
     @Test
+    public void testDefaultResourceBundleIsUsedWhenOmittedInKey() {
+        PreferredLocales locales = new PreferredLocales(Arrays.asList(new Locale("fr")));
+
+        LocalizableString name = new LocalizableString("i18n:#locale", getClass());
+        assertThat(name.toTranslatedString(locales)).isEqualTo("French");
+    }
+
+    @Test
     public void testLocalizableStringIsDefaultedWhenNoValue() {
         PreferredLocales locales = new PreferredLocales(Arrays.asList(new Locale("fr")));
         LocalizableString name = new LocalizableString("i18n:locales/bundle#novalue", classLoader,
-                new LocalizableString("Default"));
+                                                       new LocalizableString("Default"));
         assertThat(name.toTranslatedString(locales)).isEqualTo("Default");
     }
 }

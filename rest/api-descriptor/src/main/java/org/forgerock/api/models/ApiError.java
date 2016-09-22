@@ -140,7 +140,7 @@ public final class ApiError {
     public static ApiError fromAnnotation(org.forgerock.api.annotations.ApiError apiError,
                                           ApiDescription descriptor, Class<?> relativeType) {
         ApiError apiErrorDefinition = apiError()
-                .description(new LocalizableString(apiError.description(), relativeType.getClassLoader()))
+                .description(new LocalizableString(apiError.description(), relativeType))
                 .code(apiError.code())
                 .schema(Schema.fromAnnotation(apiError.detailSchema(), descriptor, relativeType))
                 .build();

@@ -42,6 +42,7 @@ import org.forgerock.api.enums.Stability;
 import org.forgerock.api.jackson.JacksonUtils;
 import org.forgerock.http.util.Json;
 import org.forgerock.util.i18n.LocalizableString;
+import org.forgerock.util.i18n.PreferredLocales;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -804,9 +805,12 @@ public class ResourceTest {
         assertThat(referenced).isNotNull();
         assertThat(referenced.getResourceSchema()).isNotNull();
         assertThat(referenced.getRead()).isNotNull();
+        assertThat(referenced.getTitle().toTranslatedString(new PreferredLocales()))
+                .isEqualTo("ReferencedHandler Title");
     }
 
     @SingletonProvider(@Handler(id = "referenced",
+                                title = "i18n:#service.title",
             resourceSchema = @org.forgerock.api.annotations.Schema(fromType = Response.class),
             mvccSupported = true))
     private static final class ReferencedHandler {

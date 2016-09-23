@@ -78,7 +78,8 @@ public class SwaggerApiProducer implements ApiProducer<Swagger> {
         this.info = info;
         this.basePath = basePath;
         this.host = host;
-        this.schemes = schemes;
+        this.schemes = new ArrayList<>(schemes.size());
+        this.schemes.addAll(schemes);
     }
 
     @Override

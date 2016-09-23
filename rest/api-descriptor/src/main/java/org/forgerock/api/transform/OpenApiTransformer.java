@@ -1567,12 +1567,11 @@ public class OpenApiTransformer {
                 || property instanceof LocalizableLongProperty
                 || property instanceof LocalizableFloatProperty
                 || property instanceof LocalizableDoubleProperty
-                || property instanceof LocalizableDateProperty
-                || property instanceof LocalizableDateTimeProperty
                 || property instanceof LocalizableUUIDProperty) {
+            // just call toString() for scalars
             return String.valueOf(value);
         }
-        // FIXME support arrays, objects, etc.
+        // FIXME support the rest: arrays, objects, etc.
         return null;
     }
 

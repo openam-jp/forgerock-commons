@@ -1394,132 +1394,9 @@ public class OpenApiTransformer {
 
         // https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#dataTypeFormat
         final String format = schema.get("format").asString();
-
-        final LocalizableProperty abstractProperty;
-        final String type = schema.get("type").asString();
-        switch (type) {
-        case "object": {
-            // TODO there is a MapProperty type, but I am not sure how it is useful
-            final LocalizableObjectProperty property = new LocalizableObjectProperty();
-            property.setProperties(buildProperties(schema));
-            property.setRequiredProperties(getArrayOfJsonString("required", schema));
-            abstractProperty = property;
-            break;
-        }
-        case "array": {
-            final LocalizableArrayProperty property = new LocalizableArrayProperty();
-            property.setItems(buildProperty(schema.get("items")));
-            property.setMinItems(schema.get("minItems").asInteger());
-            property.setMaxItems(schema.get("maxItems").asInteger());
-            property.setUniqueItems(schema.get("uniqueItems").asBoolean());
-            abstractProperty = property;
-            break;
-        }
-        case "boolean":
-            abstractProperty = new LocalizableBooleanProperty();
-            break;
-        case "integer": {
-            final AbstractNumericProperty property;
-            if ("int64".equals(format)) {
-                property = new LocalizableLongProperty();
-            } else {
-                property = new LocalizableIntegerProperty();
-            }
-            property.setMinimum(schema.get("minimum").asDouble());
-            property.setMaximum(schema.get("maximum").asDouble());
-            property.setExclusiveMinimum(schema.get("exclusiveMinimum").asBoolean());
-            property.setExclusiveMaximum(schema.get("exclusiveMaximum").asBoolean());
-            abstractProperty = (LocalizableProperty) property;
-            break;
-        }
-        case "number": {
-            final AbstractNumericProperty property;
-            if (isEmpty(format)) {
-                // ambiguous
-                property = new LocalizableDoubleProperty();
-            } else {
-                switch (format) {
-                case "int32":
-                    property = new LocalizableIntegerProperty();
-                    break;
-                case "int64":
-                    property = new LocalizableLongProperty();
-                    break;
-                case "float":
-                    property = new LocalizableFloatProperty();
-                    break;
-                case "double":
-                default:
-                    property = new LocalizableDoubleProperty();
-                    break;
-                }
-            }
-            property.setMinimum(schema.get("minimum").asDouble());
-            property.setMaximum(schema.get("maximum").asDouble());
-            property.setExclusiveMinimum(schema.get("exclusiveMinimum").asBoolean());
-            property.setExclusiveMaximum(schema.get("exclusiveMaximum").asBoolean());
-            abstractProperty = (LocalizableProperty) property;
-            break;
-        }
-        case "null":
+        final LocalizableProperty abstractProperty = toLocalizableProperty(schema, format);
+        if (abstractProperty == null) {
             return null;
-        case "string": {
-            if (isEmpty(format)) {
-                final LocalizableStringProperty property = new LocalizableStringProperty();
-                property.setMinLength(schema.get("minLength").asInteger());
-                property.setMaxLength(schema.get("maxLength").asInteger());
-                property.setPattern(schema.get("pattern").asString());
-                abstractProperty = property;
-            } else {
-                switch (format) {
-                case "byte":
-                    abstractProperty = new LocalizableByteArrayProperty();
-                    break;
-                case "binary": {
-                    final LocalizableBinaryProperty property = new LocalizableBinaryProperty();
-                    property.setMinLength(schema.get("minLength").asInteger());
-                    property.setMaxLength(schema.get("maxLength").asInteger());
-                    property.setPattern(schema.get("pattern").asString());
-                    abstractProperty = property;
-                    break;
-                }
-                case "date":
-                case "full-date":
-                    abstractProperty = new LocalizableDateProperty();
-                    break;
-                case "date-time":
-                    abstractProperty = new LocalizableDateTimeProperty();
-                    break;
-                case "password": {
-                    final LocalizablePasswordProperty property = new LocalizablePasswordProperty();
-                    property.setMinLength(schema.get("minLength").asInteger());
-                    property.setMaxLength(schema.get("maxLength").asInteger());
-                    property.setPattern(schema.get("pattern").asString());
-                    abstractProperty = property;
-                    break;
-                }
-                case "uuid": {
-                    final LocalizableUUIDProperty property = new LocalizableUUIDProperty();
-                    property.setMinLength(schema.get("minLength").asInteger());
-                    property.setMaxLength(schema.get("maxLength").asInteger());
-                    property.setPattern(schema.get("pattern").asString());
-                    abstractProperty = property;
-                    break;
-                }
-                default: {
-                    final LocalizableStringProperty property = new LocalizableStringProperty();
-                    property.setMinLength(schema.get("minLength").asInteger());
-                    property.setMaxLength(schema.get("maxLength").asInteger());
-                    property.setPattern(schema.get("pattern").asString());
-                    abstractProperty = property;
-                    break;
-                }
-                }
-            }
-            break;
-        }
-        default:
-            throw new TransformerException("Unsupported JSON schema type: " + type);
         }
 
         if (!isEmpty(format)) {
@@ -1560,6 +1437,121 @@ public class OpenApiTransformer {
         }
 
         return abstractProperty;
+    }
+
+    private LocalizableProperty toLocalizableProperty(final JsonValue schema, final String format) {
+        final String type = schema.get("type").asString();
+        switch (type) {
+        case "object": {
+            // TODO there is a MapProperty type, but I am not sure how it is useful
+            final LocalizableObjectProperty property = new LocalizableObjectProperty();
+            property.setProperties(buildProperties(schema));
+            property.setRequiredProperties(getArrayOfJsonString("required", schema));
+            return property;
+        }
+        case "array": {
+            final LocalizableArrayProperty property = new LocalizableArrayProperty();
+            property.setItems(buildProperty(schema.get("items")));
+            property.setMinItems(schema.get("minItems").asInteger());
+            property.setMaxItems(schema.get("maxItems").asInteger());
+            property.setUniqueItems(schema.get("uniqueItems").asBoolean());
+            return property;
+        }
+        case "boolean":
+            return new LocalizableBooleanProperty();
+        case "integer": {
+            final AbstractNumericProperty property;
+            if ("int64".equals(format)) {
+                property = new LocalizableLongProperty();
+            } else {
+                property = new LocalizableIntegerProperty();
+            }
+            property.setMinimum(schema.get("minimum").asDouble());
+            property.setMaximum(schema.get("maximum").asDouble());
+            property.setExclusiveMinimum(schema.get("exclusiveMinimum").asBoolean());
+            property.setExclusiveMaximum(schema.get("exclusiveMaximum").asBoolean());
+            return (LocalizableProperty) property;
+        }
+        case "number": {
+            final AbstractNumericProperty property;
+            if (isEmpty(format)) {
+                // ambiguous
+                property = new LocalizableDoubleProperty();
+            } else {
+                switch (format) {
+                case "int32":
+                    property = new LocalizableIntegerProperty();
+                    break;
+                case "int64":
+                    property = new LocalizableLongProperty();
+                    break;
+                case "float":
+                    property = new LocalizableFloatProperty();
+                    break;
+                case "double":
+                default:
+                    property = new LocalizableDoubleProperty();
+                    break;
+                }
+            }
+            property.setMinimum(schema.get("minimum").asDouble());
+            property.setMaximum(schema.get("maximum").asDouble());
+            property.setExclusiveMinimum(schema.get("exclusiveMinimum").asBoolean());
+            property.setExclusiveMaximum(schema.get("exclusiveMaximum").asBoolean());
+            return (LocalizableProperty) property;
+        }
+        case "null":
+            return null;
+        case "string": {
+            if (isEmpty(format)) {
+                final LocalizableStringProperty property = new LocalizableStringProperty();
+                property.setMinLength(schema.get("minLength").asInteger());
+                property.setMaxLength(schema.get("maxLength").asInteger());
+                property.setPattern(schema.get("pattern").asString());
+                return property;
+            }
+
+            switch (format) {
+            case "byte":
+                return new LocalizableByteArrayProperty();
+            case "binary": {
+                final LocalizableBinaryProperty property = new LocalizableBinaryProperty();
+                property.setMinLength(schema.get("minLength").asInteger());
+                property.setMaxLength(schema.get("maxLength").asInteger());
+                property.setPattern(schema.get("pattern").asString());
+                return property;
+            }
+            case "date":
+            case "full-date":
+                return new LocalizableDateProperty();
+            case "date-time":
+                return new LocalizableDateTimeProperty();
+            case "password": {
+                final LocalizablePasswordProperty property = new LocalizablePasswordProperty();
+                property.setMinLength(schema.get("minLength").asInteger());
+                property.setMaxLength(schema.get("maxLength").asInteger());
+                property.setPattern(schema.get("pattern").asString());
+                return property;
+            }
+            case "uuid": {
+                final LocalizableUUIDProperty property = new LocalizableUUIDProperty();
+                property.setMinLength(schema.get("minLength").asInteger());
+                property.setMaxLength(schema.get("maxLength").asInteger());
+                property.setPattern(schema.get("pattern").asString());
+                return property;
+            }
+            default: {
+                final LocalizableStringProperty property = new LocalizableStringProperty();
+                property.setMinLength(schema.get("minLength").asInteger());
+                property.setMaxLength(schema.get("maxLength").asInteger());
+                property.setPattern(schema.get("pattern").asString());
+                return property;
+            }
+            }
+        }
+        default:
+            throw new TransformerException("Unsupported JSON schema type: " + type);
+        }
     }
 
     /**

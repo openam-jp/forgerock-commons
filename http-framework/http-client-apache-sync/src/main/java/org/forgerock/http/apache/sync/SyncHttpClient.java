@@ -18,7 +18,7 @@
 
 package org.forgerock.http.apache.sync;
 
-import static org.forgerock.http.protocol.Responses.newInternalServerError;
+import static org.forgerock.util.promise.Promises.newResultPromise;
 
 import java.io.IOException;
 
@@ -29,15 +29,19 @@ import org.forgerock.http.apache.AbstractHttpClient;
 import org.forgerock.http.io.Buffer;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
+import org.forgerock.http.protocol.Status;
 import org.forgerock.util.Factory;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
-import org.forgerock.util.promise.Promises;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Apache HTTP Client implementation.
  */
 final class SyncHttpClient extends AbstractHttpClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(SyncHttpClient.class);
 
     /** The Apache HTTP client to transmit requests through. */
     private final CloseableHttpClient httpClient;
@@ -58,11 +62,14 @@ final class SyncHttpClient extends AbstractHttpClient {
             // Convert the request to AHC then send it
             HttpUriRequest clientRequest = createHttpUriRequest(request);
             HttpResponse clientResponse = httpClient.execute(clientRequest);
-            // Convert the AHC response back into OpenIG
+            // Convert the AHC response back into CHF
             Response response = createResponse(clientResponse);
-            return Promises.newResultPromise(response);
-        } catch (final IOException e) {
-            return Promises.newResultPromise(newInternalServerError(e));
+            return newResultPromise(response);
+        } catch (final Exception ex) {
+            logger.trace("Failed to obtain response for {}", request.getUri(), ex);
+            Response response = new Response(Status.BAD_GATEWAY);
+            response.setCause(ex);
+            return newResultPromise(response);
         }
     }
 

@@ -68,7 +68,7 @@ public class AsyncHttpClient extends AbstractHttpClient {
 
             @Override
             public void failed(final Exception ex) {
-                logger.error("Failed to obtain response for {}", request.getUri());
+                logger.trace("Failed to obtain response for {}", request.getUri(), ex);
                 Response response = new Response(Status.BAD_GATEWAY);
                 response.setCause(ex);
                 promise.handleResult(response);

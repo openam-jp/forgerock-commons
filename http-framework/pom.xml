@@ -46,6 +46,7 @@
     <module>http-examples</module>
     <module>binding-test-utils</module>
     <module>http-oauth2</module>
+      <module>http-client-test-utils</module>
   </modules>
   <build>
     <plugins>
@@ -75,12 +76,16 @@
       <dependency>
         <groupId>com.xebialabs.restito</groupId>
         <artifactId>restito</artifactId>
-        <version>0.5.1</version>
-        <scope>test</scope>
+        <version>0.8.2</version>
       </dependency>
       <dependency>
         <groupId>org.forgerock.http</groupId>
         <artifactId>binding-test-utils</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.forgerock.http</groupId>
+        <artifactId>http-client-test-utils</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

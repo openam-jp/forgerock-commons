@@ -1403,7 +1403,7 @@ public class OpenApiTransformer {
             abstractProperty.setFormat(format);
         }
         if (schema.get("default").isNotNull()) {
-            abstractProperty.setDefault(String.valueOf(schema.get("default")));
+            abstractProperty.setDefault(asString(schema.get("default"), abstractProperty));
         }
         setTitleAndDescriptionFromSchema(abstractProperty, schema);
 
@@ -1552,6 +1552,28 @@ public class OpenApiTransformer {
         default:
             throw new TransformerException("Unsupported JSON schema type: " + type);
         }
+    }
+
+    private String asString(JsonValue value, LocalizableProperty property) {
+        if (value.isString()) {
+            // The annotation org.forgerock.api.annotations.Default
+            // can only ever return a string, independent of the type
+            return value.asString();
+        }
+
+        if (property instanceof LocalizableStringProperty
+                || property instanceof LocalizableBooleanProperty
+                || property instanceof LocalizableIntegerProperty
+                || property instanceof LocalizableLongProperty
+                || property instanceof LocalizableFloatProperty
+                || property instanceof LocalizableDoubleProperty
+                || property instanceof LocalizableDateProperty
+                || property instanceof LocalizableDateTimeProperty
+                || property instanceof LocalizableUUIDProperty) {
+            return String.valueOf(value);
+        }
+        // FIXME support arrays, objects, etc.
+        return null;
     }
 
     /**

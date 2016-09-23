@@ -13,7 +13,6 @@
  *
  * Copyright 2016 ForgeRock AS.
  */
-
 package org.forgerock.http.swagger;
 
 import static java.util.Arrays.*;
@@ -55,12 +54,12 @@ public class SwaggerApiProducer implements ApiProducer<Swagger> {
     private final String host;
 
     /**
-     * Create a new API Description Producer with {@literal null} as basePath, host and schemes.
+     * Create a new API Description Producer with {@literal null} as basePath, host and no scheme.
      *
      * @param info The Swagger {@code Info} instance to add to all OpenAPI descriptors.
      */
-    SwaggerApiProducer(Info info) {
-        this(info, null, null, null, null);
+    public SwaggerApiProducer(Info info) {
+        this(info, null, null, Collections.<Scheme> emptyList());
     }
 
     /**
@@ -87,8 +86,7 @@ public class SwaggerApiProducer implements ApiProducer<Swagger> {
         this.info = info;
         this.basePath = basePath;
         this.host = host;
-        this.schemes = new ArrayList<>(schemes.size());
-        this.schemes.addAll(schemes);
+        this.schemes = new ArrayList<>(schemes);
     }
 
     @Override

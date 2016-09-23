@@ -55,6 +55,15 @@ public class SwaggerApiProducer implements ApiProducer<Swagger> {
     private final String host;
 
     /**
+     * Create a new API Description Producer with {@literal null} as basePath, host and schemes.
+     *
+     * @param info The Swagger {@code Info} instance to add to all OpenAPI descriptors.
+     */
+    SwaggerApiProducer(Info info) {
+        this(info, null, null, null, null);
+    }
+
+    /**
      * Create a new API Description Producer.
      *
      * @param info The Swagger {@code Info} instance to add to all OpenAPI descriptors.

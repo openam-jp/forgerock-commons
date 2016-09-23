@@ -1403,7 +1403,7 @@ public class OpenApiTransformer {
             abstractProperty.setFormat(format);
         }
         if (schema.get("default").isNotNull()) {
-            abstractProperty.setDefault(schema.get("default").asString());
+            abstractProperty.setDefault(String.valueOf(schema.get("default")));
         }
         setTitleAndDescriptionFromSchema(abstractProperty, schema);
 

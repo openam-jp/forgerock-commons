@@ -18,6 +18,7 @@
 
 package org.forgerock.http.apache.sync;
 
+import static org.forgerock.http.io.IO.newBranchingInputStream;
 import static org.forgerock.util.promise.Promises.newResultPromise;
 
 import java.io.IOException;
@@ -45,10 +46,11 @@ final class SyncHttpClient extends AbstractHttpClient {
 
     /** The Apache HTTP client to transmit requests through. */
     private final CloseableHttpClient httpClient;
+    private final Factory<Buffer> storage;
 
     SyncHttpClient(final CloseableHttpClient httpClient, final Factory<Buffer> storage) {
-        super(storage);
         this.httpClient = httpClient;
+        this.storage = storage;
     }
 
     @Override
@@ -63,7 +65,9 @@ final class SyncHttpClient extends AbstractHttpClient {
             HttpUriRequest clientRequest = createHttpUriRequest(request);
             HttpResponse clientResponse = httpClient.execute(clientRequest);
             // Convert the AHC response back into CHF
-            Response response = createResponse(clientResponse);
+            Response response = createResponseWithoutEntity(clientResponse);
+            response.getEntity().setRawContentInputStream(
+                    newBranchingInputStream(clientResponse.getEntity().getContent(), storage));
             return newResultPromise(response);
         } catch (final Exception ex) {
             logger.trace("Failed to obtain response for {}", request.getUri(), ex);

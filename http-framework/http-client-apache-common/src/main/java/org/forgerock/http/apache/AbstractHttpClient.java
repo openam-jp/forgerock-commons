@@ -16,13 +16,11 @@
 
 package org.forgerock.http.apache;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -33,14 +31,11 @@ import org.forgerock.http.header.ConnectionHeader;
 import org.forgerock.http.header.ContentEncodingHeader;
 import org.forgerock.http.header.ContentLengthHeader;
 import org.forgerock.http.header.ContentTypeHeader;
-import org.forgerock.http.io.Buffer;
-import org.forgerock.http.io.IO;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
 import org.forgerock.http.spi.HttpClient;
 import org.forgerock.http.util.CaseInsensitiveSet;
-import org.forgerock.util.Factory;
 
 /**
  * This abstract client is used to share commonly used constants and methods
@@ -64,18 +59,6 @@ public abstract class AbstractHttpClient implements HttpClient {
                     // hop-by-hop headers, not forwarded by proxies, per RFC 2616 13.5.1:
                     "Connection", "Keep-Alive", "Proxy-Authenticate", "Proxy-Authorization", "TE",
                     "Trailers", "Transfer-Encoding", "Upgrade"));
-
-    private final Factory<Buffer> storage;
-
-    /**
-     * Base constructor for AHC {@link HttpClient} drivers.
-     *
-     * @param storage
-     *         temporary storage area
-     */
-    protected AbstractHttpClient(final Factory<Buffer> storage) {
-        this.storage = storage;
-    }
 
     /** A request that encloses an entity. */
     private static class EntityRequest extends HttpEntityEnclosingRequestBase {
@@ -159,21 +142,11 @@ public abstract class AbstractHttpClient implements HttpClient {
      * @param result AHC response structure
      * @return CHF response structure
      */
-    protected Response createResponse(final HttpResponse result) {
+    protected static Response createResponseWithoutEntity(final HttpResponse result) {
         // Response status line
         StatusLine statusLine = result.getStatusLine();
         Response response = new Response(Status.valueOf(statusLine.getStatusCode(), statusLine.getReasonPhrase()));
         response.setVersion(statusLine.getProtocolVersion().toString());
-
-        // Response entity
-        HttpEntity entity = result.getEntity();
-        if (entity != null) {
-            try {
-                response.setEntity(IO.newBranchingInputStream(entity.getContent(), storage));
-            } catch (IOException e) {
-                return new Response(Status.INTERNAL_SERVER_ERROR).setCause(e);
-            }
-        }
 
         // Parse response Connection headers to be suppressed in message
         CaseInsensitiveSet removableHeaderNames = new CaseInsensitiveSet();

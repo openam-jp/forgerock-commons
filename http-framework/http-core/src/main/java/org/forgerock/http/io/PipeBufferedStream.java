@@ -14,7 +14,7 @@
  * Portions Copyright 2014-2016 ForgeRock AS.
  */
 
-package org.forgerock.json.resource.http;
+package org.forgerock.http.io;
 
 import static org.forgerock.http.io.IO.newBranchingInputStream;
 
@@ -23,16 +23,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.forgerock.http.io.BranchingInputStream;
-import org.forgerock.http.io.Buffer;
-import org.forgerock.http.io.IO;
 import org.forgerock.util.Factory;
 
 /**
  * Represents a pipe for transferring bytes from an {@link java.io.OutputStream} to a
  * {@link org.forgerock.http.io.BranchingInputStream}.
+ * This class is not thread-safe : the buffer has to be fully filled before reading from it : if the consumers reads
+ * faster than the producer writes into it, then the consumer will get to the end of the buffer and that will be
+ * interpreted an end-of-stream.
  */
-final class PipeBufferedStream {
+public final class PipeBufferedStream {
     private final OutputStream outputStream;
     private final BranchingInputStream inputStream;
     /** The buffer will be closed once both the input and output stream are closed. */
@@ -40,11 +40,19 @@ final class PipeBufferedStream {
     private final Buffer buffer;
     private int position = 0;
 
-    PipeBufferedStream() {
+    /**
+     * Constructs a new {@link PipeBufferedStream} with a default {@link Factory<Buffer>}.
+     */
+    public PipeBufferedStream() {
         this(IO.newTemporaryStorage());
     }
 
-    PipeBufferedStream(final Factory<Buffer> bufferFactory) {
+    /**
+     * Constructs a new {@link PipeBufferedStream} with the given {@link Factory<Buffer>}.
+     *
+     * @param bufferFactory The buffer factory to use to create the {@link BranchingInputStream}
+     */
+    public PipeBufferedStream(final Factory<Buffer> bufferFactory) {
         outputStream = new PipeOutputStream();
         inputStream = newBranchingInputStream(new PipeInputStream(), bufferFactory);
         this.buffer = bufferFactory.newInstance();

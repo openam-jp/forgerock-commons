@@ -101,11 +101,12 @@
                     <!-- Container configuration -->
                     <container>
                         <containerId>tomcat7x</containerId>
-                        <zipUrlInstaller>
-                            <url>http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.47/bin/apache-tomcat-7.0.47.zip</url>
-                            <downloadDir>${project.build.directory}/downloads</downloadDir>
+                        <artifactInstaller>
+                            <groupId>org.apache.tomcat</groupId>
+                            <artifactId>tomcat</artifactId>
+                            <version>7.0.47</version>
                             <extractDir>${project.build.directory}/extracts</extractDir>
-                        </zipUrlInstaller>
+                        </artifactInstaller>
                     </container>
                     <!-- Configuration to use with the container or the deployer -->
                     <configuration>

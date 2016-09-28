@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 package org.forgerock.util;
 
@@ -100,5 +100,20 @@ public class UtilsTest {
     @Test(expectedExceptions = IllegalArgumentException.class)
     public void testActionRequestAsEnumBadEnumType() {
         asEnum("badAction", MyAction.class);
+    }
+
+    @DataProvider
+    public Object[][] strings() {
+        return new Object[][] {
+            { null, true },
+            { "", true },
+            { " ", false },
+            { "Hello World", false }
+        };
+    }
+
+    @Test(dataProvider = "strings")
+    public void testStringNullOrEmpty(String string, boolean result) {
+        assertThat(Utils.isNullOrEmpty(string)).isEqualTo(result);
     }
 }

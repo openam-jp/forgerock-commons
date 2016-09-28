@@ -17,26 +17,28 @@
 package org.forgerock.http.servlet.example;
 
 import static io.swagger.models.Scheme.HTTP;
+import static org.forgerock.http.handler.Handlers.chainOf;
 import static org.forgerock.http.routing.RouteMatchers.requestUriMatcher;
 import static org.forgerock.util.promise.Promises.newResultPromise;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.forgerock.http.DescribedHttpApplication;
-import org.forgerock.http.example.DescribedOauth2Endpoint;
-import org.forgerock.http.routing.Router;
-import org.forgerock.http.routing.RoutingMode;
-import org.forgerock.http.swagger.SwaggerApiProducer;
 import org.forgerock.http.ApiProducer;
-import org.forgerock.services.context.Context;
+import org.forgerock.http.DescribedHttpApplication;
 import org.forgerock.http.Handler;
 import org.forgerock.http.HttpApplication;
+import org.forgerock.http.example.DescribedOauth2Endpoint;
 import org.forgerock.http.io.Buffer;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
+import org.forgerock.http.routing.Router;
+import org.forgerock.http.routing.RoutingMode;
 import org.forgerock.http.routing.UriRouterContext;
+import org.forgerock.http.swagger.OpenApiRequestFilter;
+import org.forgerock.http.swagger.SwaggerApiProducer;
+import org.forgerock.services.context.Context;
 import org.forgerock.util.Factory;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
@@ -81,7 +83,7 @@ public class ExampleHttpApplication implements DescribedHttpApplication {
                 return newResultPromise(new Response(Status.OK).setEntity(content));
             }
         });
-        return router;
+        return chainOf(router, new OpenApiRequestFilter());
     }
 
     @Override

@@ -22,6 +22,7 @@ import static org.assertj.core.util.Files.temporaryFolderPath;
 import static org.assertj.core.util.Strings.concat;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.joda.time.LocalDateTime;
@@ -60,6 +61,24 @@ public class TimeStampFileNamingPolicyTest {
         // then
         final String filename = file.toPath().getFileName().toString();
         assertThat(filename).startsWith(PREFIX + initialFile.toPath().getFileName());
+    }
+
+    @Test
+    public void testNameCollisionPrevention() throws IOException {
+        // given
+        final File initialFile = getTempFile();
+        final TimeStampFileNamingPolicy fileNamingPolicy =
+                new TimeStampFileNamingPolicy(initialFile, TIME_STAMP_DATE_FORMAT, PREFIX);
+        final File file = fileNamingPolicy.getNextName();
+        assertThat(file.createNewFile()).isTrue();
+
+        // when
+        final File fileAgain = fileNamingPolicy.getNextName();
+
+        // then
+        final String filename = file.toPath().getFileName().toString();
+        final String filenameAgain = fileAgain.toPath().getFileName().toString();
+        assertThat(filenameAgain).isEqualTo(filename + ".1");
     }
 
     @Test

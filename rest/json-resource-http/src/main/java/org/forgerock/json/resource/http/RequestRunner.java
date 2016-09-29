@@ -74,7 +74,6 @@ import org.forgerock.json.resource.ReadRequest;
 import org.forgerock.json.resource.Request;
 import org.forgerock.json.resource.RequestVisitor;
 import org.forgerock.json.resource.ResourceException;
-import org.forgerock.json.resource.ResourcePath;
 import org.forgerock.json.resource.ResourceResponse;
 import org.forgerock.json.resource.UpdateRequest;
 import org.forgerock.services.context.Context;
@@ -187,7 +186,7 @@ final class RequestRunner implements RequestVisitor<Promise<Response, NeverThrow
                             writeApiVersionHeaders(result);
                             writeAdvice();
                             if (result.getId() != null) {
-                                httpResponse.getHeaders().put(HEADER_LOCATION, getResourceURL(request, result));
+                                httpResponse.getHeaders().put(HEADER_LOCATION, getResourceURL(result));
                             }
                             httpResponse.setStatus(Status.CREATED);
                             writeResource(result);
@@ -370,22 +369,23 @@ final class RequestRunner implements RequestVisitor<Promise<Response, NeverThrow
         closeSilently(connection);
     }
 
-    private String getResourceURL(final CreateRequest request, final ResourceResponse resource) {
+    private String getResourceURL(final ResourceResponse resource) {
         // Strip out everything except the scheme and host.
         StringBuilder builder = new StringBuilder()
                 .append(httpRequest.getUri().getScheme())
                 .append("://")
                 .append(httpRequest.getUri().getRawAuthority());
 
-        // Add back the context path.
-        builder.append(context.asContext(UriRouterContext.class).getMatchedUri());
-
-        // Add new resource name and resource ID.
-        final ResourcePath resourcePath = request.getResourcePathObject();
-        if (!resourcePath.isEmpty()) {
-            builder.append('/');
-            builder.append(resourcePath);
+        // Add back the full context path.
+        String baseUri = context.asContext(UriRouterContext.class).getBaseUri();
+        if (!baseUri.isEmpty()) {
+            if (!baseUri.startsWith("/")) {
+                builder.append('/');
+            }
+            builder.append(baseUri);
         }
+
+        // Add resource ID.
         builder.append('/');
         builder.append(resource.getId());
 

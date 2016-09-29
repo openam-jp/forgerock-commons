@@ -15,9 +15,11 @@
  */
 package org.forgerock.json.resource.http;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
+import static org.forgerock.json.resource.Requests.newCreateRequest;
 import static org.forgerock.json.resource.ResourceException.newResourceException;
 import static org.forgerock.json.resource.Responses.newQueryResponse;
 import static org.forgerock.json.resource.Responses.newResourceResponse;
@@ -32,11 +34,14 @@ import static org.testng.Assert.assertEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
+import org.forgerock.http.routing.UriRouterContext;
 import org.forgerock.json.resource.Connection;
+import org.forgerock.json.resource.CreateRequest;
 import org.forgerock.json.resource.QueryRequest;
 import org.forgerock.json.resource.QueryResourceHandler;
 import org.forgerock.json.resource.QueryResponse;
@@ -44,6 +49,7 @@ import org.forgerock.json.resource.Requests;
 import org.forgerock.json.resource.ResourceException;
 import org.forgerock.json.resource.ResourceResponse;
 import org.forgerock.services.context.Context;
+import org.forgerock.services.context.RootContext;
 import org.forgerock.util.i18n.LocalizableString;
 import org.forgerock.util.promise.Promise;
 import org.mockito.invocation.InvocationOnMock;
@@ -119,6 +125,48 @@ public class RequestRunnerTest {
                 newResourceResponse("id", "revision",
                         json(object(field("intField", 42), field("stringField", "stringValue")))));
         assertEquals(getResponseContent(response), "{\"code\":404,\"reason\":\"Not Found\",\"message\":\"Not Found\"}");
+    }
+
+    @Test
+    public void testLocationIsCorrectWhenCreatingResourceWithUserProvidedResourceId() throws Exception {
+        // given
+        UriRouterContext context = new UriRouterContext(new RootContext(), "users", "bjensen",
+                Collections.<String, String>emptyMap());
+        CreateRequest create = newCreateRequest("users", json(object())).setNewResourceId("bjensen");
+        RequestRunner runner = new RequestRunner(context, create,
+                new Request().setUri("http://localhost/users/bjensen"), new Response(Status.CREATED));
+
+        Promise<ResourceResponse, ResourceException> result =
+                newResultPromise(newResourceResponse("bjensen", null, json(object())));
+        Connection connection = mock(Connection.class);
+        when(connection.createAsync(context, create)).thenReturn(result);
+
+        // when
+        Response response = runner.handleResult(connection).getOrThrow();
+
+        // then
+        assertThat(response.getHeaders().getFirst("Location")).isEqualTo("http://localhost/users/bjensen");
+    }
+
+    @Test
+    public void testLocationIsCorrectWhenCreatingResourceWithoutUserProvidedResourceId() throws Exception {
+        // given
+        UriRouterContext context = new UriRouterContext(new RootContext(), "users", "",
+                Collections.<String, String>emptyMap());
+        CreateRequest create = newCreateRequest("users", json(object()));
+        RequestRunner runner = new RequestRunner(context, create, new Request().setUri("http://localhost/users"),
+                new Response(Status.CREATED));
+
+        Promise<ResourceResponse, ResourceException> result =
+                newResultPromise(newResourceResponse("bjensen", null, json(object())));
+        Connection connection = mock(Connection.class);
+        when(connection.createAsync(context, create)).thenReturn(result);
+
+        // when
+        Response response = runner.handleResult(connection).getOrThrow();
+
+        // then
+        assertThat(response.getHeaders().getFirst("Location")).isEqualTo("http://localhost/users/bjensen");
     }
 
     private String getResponseContent(Response response) throws IOException {

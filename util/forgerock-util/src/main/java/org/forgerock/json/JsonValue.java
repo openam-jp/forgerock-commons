@@ -161,13 +161,33 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      */
     @SafeVarargs
     public static Map<String, Object> object(final Map.Entry<String, Object>... fields) {
-        final Map<String, Object> object = new LinkedHashMap<>(fields.length);
+        final Map<String, Object> object = object(fields.length);
         for (final Map.Entry<String, Object> field : fields) {
             if (field != null) {
                 object.put(field.getKey(), field.getValue());
             }
         }
         return object;
+    }
+
+    /**
+     * Produces an empty JSON object pre-allocated for {@code size}
+     * {@link #field(String, Object) fields}. This method is provided as a
+     * convenience method for constructing JSON objects. Example usage:
+     *
+     * <pre>
+     * JsonValue value = json(object(20));
+     * for (Map.Entry&lt;String, Object&gt; entry : someMap.entrySet()) {
+     *     value.put(entry.getKey(), entry.getValue());
+     * }
+     * </pre>
+     *
+     * @param size
+     *            The size of the JSON object to allocate.
+     * @return The [empty] JSON object.
+     */
+    public static Map<String, Object> object(int size) {
+        return new LinkedHashMap<>(size);
     }
 
     /**
@@ -997,7 +1017,7 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
         // TODO: track original values to resolve cyclic references
         final JsonValue result = new JsonValue(object, pointer); // start with shallow copy
         if (this.isMap()) {
-            final Map<String, Object> map = new LinkedHashMap<>(size());
+            final Map<String, Object> map = object(size());
             for (final String key : keys()) {
                 map.put(key, this.get(key).copy().getObject()); // recursion
             }

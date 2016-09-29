@@ -399,4 +399,19 @@ public final class JsonValueFunctions {
         return setOf(new TypeFunction<>(type));
     }
 
+    /**
+     * Returns the JSON value as the result of a deep JsonValue object-traversal,
+     * applying the provided transform {@code function} to each element.
+     *
+     * @param function
+     *            a {@link Function} that applies the desired element transformation
+     *            in the resultant JsonValue set
+     * @return the transformed JsonValue
+     * @throws JsonValueException
+     *             if the elements of the JsonValue cannot be transformed by {@code function}.
+     */
+    public static Function<JsonValue, JsonValue, JsonValueException> deepTransformBy(
+            Function<JsonValue, Object, JsonValueException> function) {
+        return new JsonValueTraverseFunction(function);
+    }
 }

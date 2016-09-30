@@ -27,6 +27,7 @@ import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -406,7 +407,8 @@ public class OpenApiTransformerTest {
                 {json(object(
                         field("type", "object"),
                         field("properties", object(field("name", object(field("type", "string"))))),
-                        field("required", array("name")))),
+                        field("required", array("name")),
+                        field("default", object(field("name", "myName"))))),
                         new Supplier<Property>() {
                             @Override
                             public Property get() {
@@ -416,6 +418,7 @@ public class OpenApiTransformerTest {
                                 final LocalizableObjectProperty o = new LocalizableObjectProperty();
                                 o.setProperties(properties);
                                 o.setRequiredProperties(Arrays.asList("name"));
+                                o.setDefault(object(field("name", "myName")));
                                 return o;
                             }
                         }.get(), null},
@@ -425,7 +428,8 @@ public class OpenApiTransformerTest {
                         field("items", object(field("type", "string"))),
                         field("minItems", 1),
                         field("maxItems", 10),
-                        field("uniqueItems", true))),
+                        field("uniqueItems", true),
+                        field("default", array("myValue")))),
                         new Supplier<Property>() {
                             @Override
                             public Property get() {
@@ -434,10 +438,22 @@ public class OpenApiTransformerTest {
                                 o.setMinItems(1);
                                 o.setMaxItems(10);
                                 o.setUniqueItems(true);
+                                o.setDefault(array("myValue"));
                                 return o;
                             }
                         }.get(), null},
                 {json(object(field("type", "boolean"))), new LocalizableBooleanProperty(), null},
+                {json(object(
+                        field("type", "boolean"),
+                        field("default", true))),
+                        new Supplier<Property>() {
+                            @Override
+                            public Property get() {
+                                final LocalizableBooleanProperty o = new LocalizableBooleanProperty();
+                                o.setDefault(true);
+                                return o;
+                            }
+                        }.get(), null},
                 {json(object(field("type", "integer"))), new LocalizableIntegerProperty(), null},
                 {json(object(field("type", "integer"), field("format", "int32"))),
                     new LocalizableIntegerProperty(), null},
@@ -450,7 +466,8 @@ public class OpenApiTransformerTest {
                         field("maximum", 2.0),
                         field("exclusiveMinimum", true),
                         field("exclusiveMaximum", true),
-                        field("readOnly", true))),
+                        field("readOnly", true),
+                        field("default", 1))),
                         new Supplier<Property>() {
                             @Override
                             public Property get() {
@@ -460,6 +477,7 @@ public class OpenApiTransformerTest {
                                 o.setExclusiveMinimum(true);
                                 o.setExclusiveMaximum(true);
                                 o.setReadOnly(true);
+                                o.setDefault(Long.valueOf(1));
                                 return o;
                             }
                         }.get(), null},
@@ -478,7 +496,8 @@ public class OpenApiTransformerTest {
                         field("minimum", 1.0),
                         field("maximum", 2.0),
                         field("exclusiveMinimum", true),
-                        field("exclusiveMaximum", true))),
+                        field("exclusiveMaximum", true),
+                        field("default", 1.1))),
                         new Supplier<Property>() {
                             @Override
                             public Property get() {
@@ -487,27 +506,68 @@ public class OpenApiTransformerTest {
                                 o.setMaximum(2.0);
                                 o.setExclusiveMinimum(true);
                                 o.setExclusiveMaximum(true);
+                                o.setDefault(1.1);
                                 return o;
                             }
                         }.get(), null},
                 {json(object(field("type", "string"))), new LocalizableStringProperty(), null},
                 {json(object(field("type", "string"), field("format", "byte"))), new LocalizableByteArrayProperty(),
                     null},
+                {json(object(
+                        field("type", "string"),
+                        field("format", "byte"),
+                        field("default", "AA=="))),
+                        new Supplier<Property>() {
+                            @Override
+                            public Property get() {
+                                final LocalizableByteArrayProperty o = new LocalizableByteArrayProperty();
+                                o.setDefault("AA==");
+                                return o;
+                            }
+                        }.get(), null},
                 {json(object(field("type", "string"), field("format", "binary"))), new LocalizableBinaryProperty(),
                     null},
+                {json(object(
+                        field("type", "string"),
+                        field("format", "binary"),
+                        field("default", "Rm9yZ2VSb2Nr"))),
+                        new Supplier<Property>() {
+                            @Override
+                            public Property get() {
+                                final LocalizableBinaryProperty o = new LocalizableBinaryProperty();
+                                o.setDefault("Rm9yZ2VSb2Nr");
+                                return o;
+                            }
+                        }.get(), null},
                 {json(object(field("type", "string"), field("format", "date"))), new LocalizableDateProperty(),
                     null},
-                {json(object(field("type", "string"), field("format", "full-date"))),
+                {json(object(
+                        field("type", "string"),
+                        field("format", "full-date"),
+                        field("default", "2010-11-17"))),
                         new Supplier<Property>() {
                             @Override
                             public Property get() {
                                 final LocalizableDateProperty o = new LocalizableDateProperty();
                                 o.setFormat("full-date");
+                                o.setDefault(new Date(1289952000000L));
                                 return o;
                             }
                         }.get(), null},
                 {json(object(field("type", "string"), field("format", "date-time"))), new LocalizableDateTimeProperty(),
                     null},
+                {json(object(
+                        field("type", "string"),
+                        field("format", "date-time"),
+                        field("default", "2010-11-17T00:00:00Z"))),
+                        new Supplier<Property>() {
+                            @Override
+                            public Property get() {
+                                final LocalizableDateTimeProperty o = new LocalizableDateTimeProperty();
+                                o.setDefault(new Date(1289952000000L));
+                                return o;
+                            }
+                        }.get(), null},
                 {json(object(field("type", "string"), field("format", "password"))), new LocalizablePasswordProperty(),
                     null},
                 {json(object(field("type", "string"), field("format", "uuid"))), new LocalizableUUIDProperty(),

@@ -1414,8 +1414,11 @@ public class OpenApiTransformer {
         if (!isEmpty(format)) {
             abstractProperty.setFormat(format);
         }
-        if (schema.get("default").isNotNull()) {
-            abstractProperty.setDefault(asString(schema.get("default"), abstractProperty));
+        if (!(abstractProperty instanceof LocalizableObjectProperty
+                || abstractProperty instanceof LocalizableArrayProperty)
+                && schema.get("default").isNotNull()) {
+            // object and array are handled in toLocalizableProperty
+            abstractProperty.setDefault(schema.get("default").getObject().toString());
         }
         setTitleAndDescriptionFromSchema(abstractProperty, schema);
 
@@ -1459,6 +1462,9 @@ public class OpenApiTransformer {
             final LocalizableObjectProperty property = new LocalizableObjectProperty();
             property.setProperties(buildProperties(schema));
             property.setRequiredProperties(getArrayOfJsonString("required", schema));
+            if (schema.get("default").isNotNull()) {
+                property.setDefault(schema.get("default").getObject());
+            }
             return property;
         }
         case "array": {
@@ -1467,6 +1473,9 @@ public class OpenApiTransformer {
             property.setMinItems(schema.get("minItems").asInteger());
             property.setMaxItems(schema.get("maxItems").asInteger());
             property.setUniqueItems(schema.get("uniqueItems").asBoolean());
+            if (schema.get("default").isNotNull()) {
+                property.setDefault(schema.get("default").asList());
+            }
             return property;
         }
         case "boolean":
@@ -1564,27 +1573,6 @@ public class OpenApiTransformer {
         default:
             throw new TransformerException("Unsupported JSON schema type: " + type);
         }
-    }
-
-    private String asString(JsonValue value, LocalizableProperty property) {
-        if (value.isString()) {
-            // The annotation org.forgerock.api.annotations.Default
-            // can only ever return a string, independent of the type
-            return value.asString();
-        }
-
-        if (property instanceof LocalizableStringProperty
-                || property instanceof LocalizableBooleanProperty
-                || property instanceof LocalizableIntegerProperty
-                || property instanceof LocalizableLongProperty
-                || property instanceof LocalizableFloatProperty
-                || property instanceof LocalizableDoubleProperty
-                || property instanceof LocalizableUUIDProperty) {
-            // just call toString() for scalars
-            return String.valueOf(value);
-        }
-        // FIXME support the rest: arrays, objects, etc.
-        return null;
     }
 
     /**

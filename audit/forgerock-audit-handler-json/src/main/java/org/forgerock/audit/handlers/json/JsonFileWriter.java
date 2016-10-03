@@ -355,6 +355,12 @@ class JsonFileWriter {
                         }
                     }
                 }
+                if (n == 0) {
+                    // no new events, so flush all file buffers, to prevent appearance that events are stuck/lost
+                    for (final TopicEntry topicEntry : topicEntryMap.values()) {
+                        topicEntry.flush();
+                    }
+                }
 
                 if (hasRotationOrRetentionPolicies) {
                     // enforce rotation and/or retention policies for all topic files

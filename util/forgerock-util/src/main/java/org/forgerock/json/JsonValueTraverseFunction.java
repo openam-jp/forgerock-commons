@@ -33,7 +33,7 @@ import org.forgerock.util.Function;
 public class JsonValueTraverseFunction implements Function<JsonValue, JsonValue, JsonValueException> {
 
     /** the transformation function to be applied to each value. */
-    private Function<JsonValue, Object, JsonValueException> transform;
+    private Function<JsonValue, ?, JsonValueException> transform;
 
     /**
      * Construct the traversal function with a transformation function to apply to each array element
@@ -41,7 +41,7 @@ public class JsonValueTraverseFunction implements Function<JsonValue, JsonValue,
      *
      * @param transform a transformation function
      */
-    public JsonValueTraverseFunction(Function<JsonValue, Object, JsonValueException> transform) {
+    public JsonValueTraverseFunction(Function<JsonValue, ?, JsonValueException> transform) {
         this.transform = transform;
     }
 

@@ -411,7 +411,7 @@ public final class JsonValueFunctions {
      *             if the elements of the JsonValue cannot be transformed by {@code function}.
      */
     public static Function<JsonValue, JsonValue, JsonValueException> deepTransformBy(
-            Function<JsonValue, Object, JsonValueException> function) {
+            Function<JsonValue, ?, JsonValueException> function) {
         return new JsonValueTraverseFunction(function);
     }
 }

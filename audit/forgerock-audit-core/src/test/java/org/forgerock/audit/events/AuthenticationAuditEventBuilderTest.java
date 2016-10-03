@@ -18,6 +18,7 @@ package org.forgerock.audit.events;
 import static java.util.Arrays.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.forgerock.audit.events.AuthenticationAuditEventBuilderTest.OpenProductAuthenticationAuditEventBuilder.*;
+import static org.forgerock.json.JsonValueFunctions.enumConstant;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -104,14 +105,14 @@ public class AuthenticationAuditEventBuilderTest {
         assertThat(value.get(TIMESTAMP).asString()).isEqualTo("2015-03-25T14:21:26.239Z");
         assertThat(value.get(EVENT_NAME).asString()).isEqualTo("AM-AUTHENTICATION-SUCCESSFUL");
         assertThat(value.get(USER_ID).asString()).isEqualTo("someone@forgerock.com");
-        assertThat(value.get(RESULT).asEnum(Status.class)).isEqualTo(Status.SUCCESSFUL);
+        assertThat(value.get(RESULT).as(enumConstant(Status.class))).isEqualTo(Status.SUCCESSFUL);
         assertThat(value.get(TRACKING_IDS).asList()).containsExactlyInAnyOrder("12345", "67890");
         assertThat(value.get(PRINCIPAL).asList()).containsExactly("admin");
         assertThat(value.get(CONTEXT).getObject()).isNotNull();
         assertThat(value.get(CONTEXT).get("contextKey").asString()).isEqualTo("contextValue");
         assertThat(value.get(ENTRIES).getObject()).isNotNull();
         assertThat(value.get(ENTRIES).get(0).get("moduleId").asString()).isEqualTo("datastore");
-        assertThat(value.get(ENTRIES).get(0).get("result").asEnum(Status.class)).isEqualTo(Status.SUCCESSFUL);
+        assertThat(value.get(ENTRIES).get(0).get("result").as(enumConstant(Status.class))).isEqualTo(Status.SUCCESSFUL);
         assertThat(value.get(ENTRIES).get(0).get("info").getObject()).isNotNull();
         assertThat(value.get("open").getObject()).isEqualTo("value");
     }

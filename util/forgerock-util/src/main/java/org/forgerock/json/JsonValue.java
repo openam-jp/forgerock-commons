@@ -17,20 +17,6 @@
 
 package org.forgerock.json;
 
-import static org.forgerock.json.JsonValueFunctions.charset;
-import static org.forgerock.json.JsonValueFunctions.enumConstant;
-import static org.forgerock.json.JsonValueFunctions.file;
-import static org.forgerock.json.JsonValueFunctions.listOf;
-import static org.forgerock.json.JsonValueFunctions.pattern;
-import static org.forgerock.json.JsonValueFunctions.pointer;
-import static org.forgerock.json.JsonValueFunctions.uri;
-import static org.forgerock.json.JsonValueFunctions.url;
-import static org.forgerock.json.JsonValueFunctions.uuid;
-
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -43,8 +29,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 import org.forgerock.util.Function;
 import org.forgerock.util.RangeSet;
@@ -470,25 +454,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Returns the JSON string value as a character set used for byte
-     * encoding/decoding. If the JSON value is {@code null}, this method returns
-     * {@code null}.
-     *
-     * @return the character set represented by the string value.
-     * @throws JsonValueException
-     *             if the JSON value is not a string or the character set
-     *             specified is invalid.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asCharset()} with {@code jv.map(JsonValueFunctions.charset())}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#charset()
-     */
-    @Deprecated
-    public Charset asCharset() {
-        return as(charset());
-    }
-
-    /**
      * Returns the JSON value as a {@link Double} object. This may involve
      * rounding. If the JSON value is {@code null}, this method returns
      * {@code null}.
@@ -499,49 +464,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      */
     public Double asDouble() {
         return (object == null ? null : Double.valueOf(asNumber().doubleValue()));
-    }
-
-    /**
-     * Returns the JSON string value as an enum constant of the specified enum
-     * type. The string value and enum constants are compared, ignoring case
-     * considerations. If the JSON value is {@code null}, this method returns
-     * {@code null}.
-     *
-     * @param <T>
-     *            the enum type sub-class.
-     * @param type
-     *            the enum type to match constants with the value.
-     * @return the enum constant represented by the string value.
-     * @throws IllegalArgumentException
-     *             if {@code type} does not represent an enum type. or
-     *             if the JSON value does not match any of the enum's constants.
-     * @throws NullPointerException
-     *             if {@code type} is {@code null}.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asEnum(clazz)} with {@code jv.map(JsonValueFunctions.enumConstant(clazz)}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#enumConstant(Class)
-     */
-    @Deprecated
-    public <T extends Enum<T>> T asEnum(final Class<T> type) {
-        return as(enumConstant(type));
-    }
-
-    /**
-     * Returns the JSON string value as a {@code File} object. If the JSON value
-     * is {@code null}, this method returns {@code null}.
-     *
-     * @return a file represented by the string value.
-     * @throws JsonValueException
-     *             if the JSON value is not a string.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asFile()} with {@code jv.map(JsonValueFunctions.file())}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#file()
-     */
-    @Deprecated
-    public File asFile() {
-        return as(file());
     }
 
     /**
@@ -652,40 +574,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
             }
         }
         return (List<E>) object;
-    }
-
-    /**
-     * Returns the JSON value as a {@link List} containing objects whose type
-     * (and value) is specified by a transformation function. If the value is
-     * {@code null}, this method returns {@code null}. It is up to to the
-     * transformation function to transform/enforce source types of the elements
-     * in the Json source collection.  If any of the elements of the list are not of
-     * the appropriate type, or the type-transformation cannot occur,
-     * the exception specified by the transformation function is thrown.
-     * The returned {@link List} is a new one : any interaction with it
-     * will not affect the {@link JsonValue}.
-     *
-     * @param <V>
-     *            the type of elements in this list
-     * @param <E>
-     *            the type of exception thrown by the transformation function
-     * @param transformFunction
-     *            a {@link Function} to transform an element of the JsonValue list
-     *            to the desired type
-     * @return the list value, or {@code null} if no value.
-     * @throws E
-     *             if the JSON value is not a {@code List}, contains an unexpected type,
-     *             or contains an element that cannot be transformed
-     * @throws NullPointerException
-     *             if {@code transformFunction} is {@code null}.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asList(transformFunction)} with {@code jv.map(JsonValueFunctions.list(transformFunction))}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#listOf(Function)
-     */
-    @Deprecated
-    public <V, E extends Exception> List<V> asList(final Function<JsonValue, V, E> transformFunction) throws E {
-        return as(listOf(transformFunction));
     }
 
     /**
@@ -826,41 +714,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Returns the JSON string value as a regular expression pattern. If the
-     * JSON value is {@code null}, this method returns {@code null}.
-     *
-     * @return the compiled regular expression pattern.
-     * @throws JsonValueException
-     *             if the pattern is not a string or the value is not a valid
-     *             regular expression pattern.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asPattern()} with {@code jv.map(JsonValueFunctions.pattern())}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#pattern()
-     */
-    @Deprecated
-    public Pattern asPattern() {
-        return as(pattern());
-    }
-
-    /**
-     * Returns the JSON string value as a JSON pointer. If the JSON value is
-     * {@code null}, this method returns {@code null}.
-     *
-     * @return the JSON pointer represented by the JSON value string.
-     * @throws JsonValueException
-     *             if the JSON value is not a string or valid JSON pointer.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asPointer()} with {@code jv.map(JsonValueFunctions.pointer())}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#pointer()
-     */
-    @Deprecated
-    public JsonPointer asPointer() {
-        return as(pointer());
-    }
-
-    /**
      * Returns the JSON value as a {@code String} object. If the JSON value is
      * {@code null}, this method returns {@code null}.
      *
@@ -870,57 +723,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
      */
     public String asString() {
         return (object == null ? null : (String) (expect(String.class).object));
-    }
-
-    /**
-     * Returns the JSON string value as a uniform resource identifier. If the
-     * JSON value is {@code null}, this method returns {@code null}.
-     *
-     * @return the URI represented by the string value.
-     * @throws JsonValueException
-     *             if the given string violates URI syntax.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asURI()} with {@code jv.map(JsonValueFunctions.uri())}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#uri()
-     */
-    @Deprecated
-    public URI asURI() {
-        return as(uri());
-    }
-
-    /**
-     * Returns the JSON string value as a uniform resource locator. If the
-     * JSON value is {@code null}, this method returns {@code null}.
-     *
-     * @return the URL represented by the string value.
-     * @throws JsonValueException
-     *             if the given string violates URL syntax.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asURL()} with {@code jv.map(JsonValueFunctions.url())}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#url()
-     */
-    @Deprecated
-    public URL asURL() {
-        return as(url());
-    }
-
-    /**
-     * Returns the JSON string value as a universally unique identifier (UUID).
-     * If the JSON value is {@code null}, this method returns {@code null}.
-     *
-     * @return the UUID represented by the JSON value string.
-     * @throws JsonValueException
-     *             if the JSON value is not a string or valid UUID.
-     * @deprecated Use the method {@link #as(Function)} with the appropriate function. (Replace the following call
-     * {@code jv.asUUID()} with {@code jv.map(JsonValueFunctions.uuid())}).
-     * @see #as(Function)
-     * @see JsonValueFunctions#uuid()
-     */
-    @Deprecated
-    public UUID asUUID() {
-        return as(uuid());
     }
 
     /**

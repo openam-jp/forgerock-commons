@@ -16,9 +16,6 @@
 
 package org.forgerock.json;
 
-import java.io.File;
-import java.net.URI;
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * Subclass of {@link JsonValue} that checks all keys are accessed.
@@ -157,26 +152,8 @@ public class JsonValueKeyAccessChecker extends JsonValue {
 
     /** {@inheritDoc} */
     @Override
-    public Charset asCharset() {
-        return this.delegate.asCharset();
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public Double asDouble() {
         return this.delegate.asDouble();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public <T extends Enum<T>> T asEnum(final Class<T> type) {
-        return this.delegate.asEnum(type);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public File asFile() {
-        return this.delegate.asFile();
     }
 
     /** {@inheritDoc} */
@@ -217,32 +194,8 @@ public class JsonValueKeyAccessChecker extends JsonValue {
 
     /** {@inheritDoc} */
     @Override
-    public Pattern asPattern() {
-        return this.delegate.asPattern();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public JsonPointer asPointer() {
-        return this.delegate.asPointer();
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public String asString() {
         return this.delegate.asString();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public URI asURI() {
-        return this.delegate.asURI();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public UUID asUUID() {
-        return this.delegate.asUUID();
     }
 
     /** {@inheritDoc} */

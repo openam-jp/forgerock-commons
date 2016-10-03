@@ -16,6 +16,8 @@
 
 package org.forgerock.json.ref;
 
+import static org.forgerock.json.JsonValueFunctions.uri;
+
 import java.net.URI;
 import java.util.HashMap;
 
@@ -85,7 +87,7 @@ public class JsonReference {
      * @throws NullPointerException if {@code value} is {@code null}.
      */
     public JsonReference fromJsonValue(JsonValue value) throws JsonValueException {
-        this.uri = value.get("$ref").required().asURI();
+        this.uri = value.get("$ref").required().as(uri());
         return this;
     }
 

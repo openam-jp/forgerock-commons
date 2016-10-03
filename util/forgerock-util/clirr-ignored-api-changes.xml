@@ -77,4 +77,112 @@ Note: waiting on https://jira.codehaus.org/browse/MCLIRR-62 to be resolved to av
 		<method>boolean isSet()</method>
 		<justification>Removal of the set-backing feature</justification>
 	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.nio.charset.Charset asCharset()</method>
+		<justification>Removal of deprecated asCharset() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.lang.Enum asEnum(java.lang.Class)</method>
+		<justification>Removal of deprecated asEnum(Class) method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.io.File asFile()</method>
+		<justification>Removal of deprecated asFile() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.List asList(org.forgerock.util.Function)</method>
+		<justification>Removal of deprecated asList(Function) method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.regex.Pattern asPattern()</method>
+		<justification>Removal of deprecated asPattern() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>org.forgerock.json.JsonPointer asPointer()</method>
+		<justification>Removal of deprecated asPointer() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.net.URI asURI()</method>
+		<justification>Removal of deprecated asURI() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.net.URL asURL()</method>
+		<justification>Removal of deprecated asURL() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.UUID asUUID()</method>
+		<justification>Removal of deprecated asUUID() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.nio.charset.Charset asCharset()</method>
+		<justification>Removal of deprecated asCharset() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.lang.Enum asEnum(java.lang.Class)</method>
+		<justification>Removal of deprecated asEnum(Class) method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.io.File asFile()</method>
+		<justification>Removal of deprecated asFile() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.List asList(org.forgerock.util.Function)</method>
+		<justification>Removal of deprecated asList(Function) method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.regex.Pattern asPattern()</method>
+		<justification>Removal of deprecated asPattern() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>org.forgerock.json.JsonPointer asPointer()</method>
+		<justification>Removal of deprecated asPointer() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.net.URI asURI()</method>
+		<justification>Removal of deprecated asURI() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.net.URL asURL()</method>
+		<justification>Removal of deprecated asURL() method</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>7002</differenceType>
+		<method>java.util.UUID asUUID()</method>
+		<justification>Removal of deprecated asUUID() method</justification>
+	</difference>
 </differences>

@@ -16,6 +16,7 @@
 
 package org.forgerock.json.schema;
 
+import static org.forgerock.json.JsonValueFunctions.uri;
 import static org.kohsuke.args4j.ExampleMode.ALL;
 import static org.kohsuke.args4j.ExampleMode.REQUIRED;
 
@@ -184,7 +185,7 @@ public final class Main {
 
     private void loadSchema(URI base, File schemaFile) throws IOException {
         JsonValue schemaMap = new JsonValue(MAPPER.readValue(new FileInputStream(schemaFile), Map.class));
-        URI id = schemaMap.get(Constants.ID).required().asURI();
+        URI id = schemaMap.get(Constants.ID).required().as(uri());
         Validator v = ObjectValidatorFactory.getTypeValidator(schemaMap.asMap());
         if (!id.isAbsolute()) {
             id = base.resolve(id);
@@ -243,7 +244,7 @@ public final class Main {
     //Validation
 
     private void validate(JsonValue value) throws SchemaException, URISyntaxException {
-        URI schemaId = value.get(Constants.SCHEMA).asURI();
+        URI schemaId = value.get(Constants.SCHEMA).as(uri());
         if (null == schemaId && isEmptyOrBlank(schemaURI)) {
             System.out.println("-i (--id) must be an URI");
             return;

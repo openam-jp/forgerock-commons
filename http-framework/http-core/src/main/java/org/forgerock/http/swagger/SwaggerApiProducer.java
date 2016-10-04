@@ -15,9 +15,11 @@
  */
 package org.forgerock.http.swagger;
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
-import static org.forgerock.guava.common.base.Strings.*;
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.forgerock.guava.common.base.Strings.isNullOrEmpty;
+import static org.forgerock.http.util.Paths.addLeadingSlash;
+import static org.forgerock.http.util.Paths.removeTrailingSlash;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -99,7 +101,7 @@ public class SwaggerApiProducer implements ApiProducer<Swagger> {
         private final String parentPath;
 
         PathTransformer(String parentPath) {
-            this.parentPath = parentPath.endsWith("/") ? parentPath.substring(0, parentPath.length() - 1) : parentPath;
+            this.parentPath = addLeadingSlash(removeTrailingSlash(parentPath));
         }
 
         @Override
@@ -107,10 +109,7 @@ public class SwaggerApiProducer implements ApiProducer<Swagger> {
             Map<String, Path> result = new HashMap<>(pathMap.size());
             for (Map.Entry<String, Path> entry : pathMap.entrySet()) {
                 String key = entry.getKey();
-                if (!key.startsWith("/")) {
-                    key = "/" + key;
-                }
-                result.put(parentPath + key, entry.getValue());
+                result.put(parentPath + addLeadingSlash(key), entry.getValue());
             }
             return result;
         }

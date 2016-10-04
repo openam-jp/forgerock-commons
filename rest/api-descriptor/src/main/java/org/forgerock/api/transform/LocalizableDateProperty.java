@@ -16,12 +16,7 @@
 
 package org.forgerock.api.transform;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.TimeZone;
 
 import org.forgerock.util.i18n.LocalizableString;
 
@@ -80,19 +75,6 @@ class LocalizableDateProperty extends DateProperty implements LocalizablePropert
     @Override
     public LocalizableString getLocalizableDescription() {
         return description;
-    }
-
-    /**
-     * Sets the default value.
-     *
-     * @param defaultValue Default value or {@code null}
-     */
-    public void setDefault(Date defaultValue) {
-        if (defaultValue != null) {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
-            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            this.defaultValue = dateFormat.format(defaultValue);
-        }
     }
 
     /**

@@ -27,7 +27,6 @@ import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -550,7 +549,7 @@ public class OpenApiTransformerTest {
                             public Property get() {
                                 final LocalizableDateProperty o = new LocalizableDateProperty();
                                 o.setFormat("full-date");
-                                o.setDefault(new Date(1289952000000L));
+                                o.setDefault("2010-11-17");
                                 return o;
                             }
                         }.get(), null},
@@ -564,7 +563,7 @@ public class OpenApiTransformerTest {
                             @Override
                             public Property get() {
                                 final LocalizableDateTimeProperty o = new LocalizableDateTimeProperty();
-                                o.setDefault(new Date(1289952000000L));
+                                o.setDefault("2010-11-17T00:00:00Z");
                                 return o;
                             }
                         }.get(), null},

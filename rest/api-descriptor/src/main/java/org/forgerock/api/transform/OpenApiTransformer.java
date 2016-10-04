@@ -115,18 +115,24 @@ public class OpenApiTransformer {
     private static final String PARAMETER_IF_NONE_MATCH = "If-None-Match";
     private static final String PARAMETER_IF_NONE_MATCH_ANY_ONLY = "If-None-Match: *";
     private static final String PARAMETER_IF_NONE_MATCH_REV_ONLY = "If-None-Match: <rev>";
+    private static final String PARAMETER_LOCATION = "Location";
 
     static final String DEFINITIONS_REF = "#/definitions/";
     private static final String I18N_PREFIX = LocalizableString.TRANSLATION_KEY_PREFIX + "ApiDescription#";
     private static final String FIELDS_PARAMETER_DESCRIPTION = I18N_PREFIX + "common.parameters.fields";
     private static final String PRETTYPRINT_PARAMETER_DESCRIPTION = I18N_PREFIX + "common.parameters.prettyprint";
     private static final String MIMETYPE_PARAMETER_DESCRIPTION = I18N_PREFIX + "common.parameters.mimetype";
+    private static final String LOCATION_PARAMETER_DESCRIPTION = I18N_PREFIX + "common.parameters.location";
 
     @VisibleForTesting
     final Swagger swagger;
     private final ReferenceResolver referenceResolver;
     private final ApiDescription apiDescription;
     private final Map<String, Model> definitionMap = new HashMap<>();
+
+    /** {@code Location}-header property. */
+    private final LocalizableStringProperty locationProperty = new LocalizableStringProperty()
+            .description(new LocalizableString(LOCATION_PARAMETER_DESCRIPTION, getClass().getClassLoader()));
 
     /** Default constructor that is only used by unit tests. */
     @VisibleForTesting
@@ -804,7 +810,7 @@ public class OpenApiTransformer {
         applyOperationParameters(mergeParameters(new ArrayList<>(parameters), operationModel.getParameters()),
                 operation);
         applyOperationRequestPayload(requestPayload, operation);
-        applyOperationResponsePayloads(responsePayload, operationModel.getApiErrors(), operation);
+        applyOperationResponsePayloads(responsePayload, operationModel.getApiErrors(), operationModel, operation);
         return operation;
     }
 
@@ -936,9 +942,6 @@ public class OpenApiTransformer {
                                 asList(parameter.getEnumTitles()));
                     }
                 }
-
-                // TODO schema related fields in SerializableParameter
-
                 operation.addParameter(operationParameter);
             }
         }
@@ -979,10 +982,11 @@ public class OpenApiTransformer {
      *
      * @param schema Success-response JSON schema
      * @param apiErrorResponses ApiError responses
+     * @param operationModel CREST operation
      * @param operation Swagger operation
      */
     private void applyOperationResponsePayloads(final Schema schema, final ApiError[] apiErrorResponses,
-            final Operation operation) {
+            final org.forgerock.api.models.Operation operationModel, final Operation operation) {
         final Map<String, Response> responses = new HashMap<>();
         if (schema != null) {
             final Response response = new Response();
@@ -1000,7 +1004,12 @@ public class OpenApiTransformer {
                 }
                 response.schema(new RefProperty(ref));
             }
-            responses.put("200", response);
+            if (operationModel instanceof Create) {
+                response.addHeader(PARAMETER_LOCATION, locationProperty);
+                responses.put("201", response);
+            } else {
+                responses.put("200", response);
+            }
         }
 
         if (!isEmpty(apiErrorResponses)) {
@@ -1147,7 +1156,6 @@ public class OpenApiTransformer {
      */
     @VisibleForTesting
     Info buildInfo(final LocalizableString title) {
-        // TODO set other Info fields
         return new LocalizableInfo()
             .title(title != null ? title : new LocalizableString(apiDescription.getId()))
             .description(apiDescription.getDescription())
@@ -1458,7 +1466,6 @@ public class OpenApiTransformer {
         final String type = schema.get("type").asString();
         switch (type) {
         case "object": {
-            // TODO there is a MapProperty type, but I am not sure how it is useful
             final LocalizableObjectProperty property = new LocalizableObjectProperty();
             property.setProperties(buildProperties(schema));
             property.setRequiredProperties(getArrayOfJsonString("required", schema));

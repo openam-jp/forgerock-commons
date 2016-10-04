@@ -726,27 +726,6 @@ public class JsonValue implements Cloneable, Iterable<JsonValue> {
     }
 
     /**
-     * Returns a subclass of JsonValue that records which keys are accessed in this {@link JsonValue} and its children.
-     * Call #verifyAllKeysAccessed() to verify that all keys were accessed. The returned JsonValue provides an
-     * immutable view on the monitored underlying JsonValue.
-     *
-     * @return a JsonValue monitoring which properties are accessed
-     * @see #verifyAllKeysAccessed()
-     */
-    public JsonValue recordKeyAccesses() {
-        return new JsonValueKeyAccessChecker(this);
-    }
-
-    /**
-     * Verifies that all keys in this {@link JsonValue} and its children have been accessed. #recordKeyAccesses() must
-     * have been called before, otherwise this method will do nothing.
-     *
-     * @see #recordKeyAccesses()
-     */
-    public void verifyAllKeysAccessed() {
-    }
-
-    /**
      * Removes all child values from this JSON value, if it has any.
      */
     public void clear() {

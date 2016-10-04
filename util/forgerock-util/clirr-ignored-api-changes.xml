@@ -185,4 +185,21 @@ Note: waiting on https://jira.codehaus.org/browse/MCLIRR-62 to be resolved to av
 		<method>java.util.UUID asUUID()</method>
 		<justification>Removal of deprecated asUUID() method</justification>
 	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>org.forgerock.json.JsonValue recordKeyAccesses()</method>
+		<justification>Removal of the unused JsonValueKeyAccessChecker feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValue</className>
+		<differenceType>7002</differenceType>
+		<method>void verifyAllKeysAccessed()</method>
+		<justification>Removal of the unused JsonValueKeyAccessChecker feature</justification>
+	</difference>
+	<difference>
+		<className>org/forgerock/json/JsonValueKeyAccessChecker</className>
+		<differenceType>8001</differenceType>
+		<justification>Removal of the unused JsonValueKeyAccessChecker feature</justification>
+	</difference>
 </differences>

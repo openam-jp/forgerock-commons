@@ -16,10 +16,15 @@
 package org.forgerock.api.transform;
 
 import static java.util.Arrays.asList;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.atIndex;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.forgerock.api.models.Paths.paths;
+import static org.forgerock.api.models.Query.query;
 import static org.forgerock.api.models.Reference.reference;
+import static org.forgerock.api.models.Resource.resource;
+import static org.forgerock.api.models.Schema.schema;
+import static org.forgerock.api.models.VersionedPath.versionedPath;
 import static org.forgerock.api.transform.OpenApiTransformer.DEFINITIONS_REF;
 import static org.forgerock.json.JsonValue.array;
 import static org.forgerock.json.JsonValue.field;
@@ -33,13 +38,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.assertj.core.api.Condition;
+import org.assertj.core.api.iterable.Extractor;
 import org.forgerock.api.ApiTestUtil;
+import org.forgerock.api.enums.CountPolicy;
 import org.forgerock.api.enums.PatchOperation;
+import org.forgerock.api.enums.QueryType;
 import org.forgerock.api.enums.ReadPolicy;
 import org.forgerock.api.enums.WritePolicy;
 import org.forgerock.api.models.ApiDescription;
 import org.forgerock.api.models.Definitions;
 import org.forgerock.api.models.Reference;
+import org.forgerock.api.models.Resource;
 import org.forgerock.api.models.Schema;
 import org.forgerock.json.JsonPointer;
 import org.forgerock.json.JsonValue;
@@ -58,6 +67,7 @@ import io.swagger.models.RefModel;
 import io.swagger.models.Swagger;
 import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
+import io.swagger.models.parameters.SerializableParameter;
 import io.swagger.models.properties.Property;
 
 @SuppressWarnings("javadoc")
@@ -229,7 +239,7 @@ public class OpenApiTransformerTest {
     @Test
     public void testBuildDefinitions() {
         final Definitions definitions = Definitions.definitions()
-                .put("myDef", Schema.schema().schema(json(object(field("type", "object")))).build())
+                .put("myDef", schema().schema(json(object(field("type", "object")))).build())
                 .build();
         final ApiDescription apiDescription = ApiDescription.apiDescription()
                 .id("frapi:test")
@@ -665,6 +675,71 @@ public class OpenApiTransformerTest {
         assertThat(transformer.getDefinitionsReference(reference().value(DEFINITIONS_REF + "myDef").build()))
                 .isEqualTo("myDef");
         assertThat(transformer.getDefinitionsReference((Reference) null)).isNull();
+    }
+
+    @DataProvider
+    public static Object[][] countPolicies() {
+        // @Checkstyle:off
+        return new Object[][] {
+                { null, new String[] { "NONE" } },
+                { new CountPolicy[] { }, new String[] { "NONE" } },
+                { new CountPolicy[] { CountPolicy.NONE }, new String[] { "NONE" } },
+                { new CountPolicy[] { CountPolicy.EXACT }, new String[] { "EXACT" } },
+                { new CountPolicy[] { CountPolicy.EXACT, CountPolicy.ESTIMATE }, new String[] { "EXACT", "ESTIMATE" } }
+        };
+        // @Checkstyle:on
+    }
+
+    @Test(dataProvider = "countPolicies")
+    public void testTotalPagedResultPolicyIsProperlyFilled(CountPolicy[] policies, String[] expected) throws Exception {
+        Resource resource = resource()
+                .resourceSchema(schema().schema(json(null)).build())
+                .title("test")
+                .mvccSupported(false)
+                .query(query().queryId("test").countPolicies(policies).type(QueryType.ID).build())
+                .build();
+        final ApiDescription apiDescription = ApiDescription.apiDescription()
+                .id("frapi:test")
+                .version("1.0")
+                .paths(paths().put("/test", versionedPath().put("1.0", resource).build()).build())
+                .build();
+        Swagger swagger = OpenApiTransformer.execute(new LocalizableString("Test"), "localhost:8080",
+                "/", false, apiDescription);
+
+        List<Parameter> parameters = swagger.getPath("/test#1.0_query_id_test").getGet().getParameters();
+        assertThat(parameters)
+                .filteredOn(totalPagedResultsPolicy())
+                .hasSize(1)
+                .hasOnlyElementsOfType(SerializableParameter.class)
+                .extracting(enumValues())
+                .has(countPolicies(expected), atIndex(0));
+    }
+
+    private static Condition<List<String>> countPolicies(final String[] expected) {
+        return new Condition<List<String>>() {
+            @Override
+            public boolean matches(final List<String> value) {
+                return value.containsAll(Arrays.asList(expected)) && value.size() == expected.length;
+            }
+        };
+    }
+
+    private static Extractor<Parameter, List<String>> enumValues() {
+        return new Extractor<Parameter, List<String>>() {
+            @Override
+            public List<String> extract(final Parameter input) {
+                return ((SerializableParameter) input).getEnum();
+            }
+        };
+    }
+
+    private static Condition<Parameter> totalPagedResultsPolicy() {
+        return new Condition<Parameter>() {
+            @Override
+            public boolean matches(final Parameter parameter) {
+                return "_totalPagedResultsPolicy".equals(parameter.getName());
+            }
+        };
     }
 
     private interface Supplier<T> {

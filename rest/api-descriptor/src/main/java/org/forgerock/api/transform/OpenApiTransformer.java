@@ -764,12 +764,12 @@ public class OpenApiTransformer {
                 totalPagedResultsPolicyParameter.setName("_totalPagedResultsPolicy");
                 totalPagedResultsPolicyParameter.setType("string");
                 final List<String> totalPagedResultsPolicyValues = new ArrayList<>();
-                if (query.getCountPolicies() != null) {
+                if (query.getCountPolicies() == null || query.getCountPolicies().length == 0) {
+                    totalPagedResultsPolicyValues.add(CountPolicy.NONE.name());
+                } else {
                     for (final CountPolicy countPolicy : query.getCountPolicies()) {
                         totalPagedResultsPolicyValues.add(countPolicy.name());
                     }
-                } else {
-                    totalPagedResultsPolicyValues.add("NONE");
                 }
                 totalPagedResultsPolicyParameter._enum(totalPagedResultsPolicyValues);
                 operation.addParameter(totalPagedResultsPolicyParameter);

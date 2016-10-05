@@ -19,7 +19,8 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://docbook.org/ns/docbook
                               http://docbook.org/xml/5.0/xsd/docbook.xsd"
-          xmlns:xinclude='http://www.w3.org/2001/XInclude'>
+          xmlns:xlink="http://www.w3.org/1999/xlink"
+          xmlns:xinclude="http://www.w3.org/2001/XInclude">
  <title>About ForgeRock Common REST</title>
 
  <para>
@@ -60,7 +61,7 @@
 
   <variablelist>
    <para>
-    The common REST APIs use the following verbs,
+    The Common REST APIs use the following verbs,
     sometimes referred to collectively as <acronym>CRUDPAQ</acronym>.
     For details and HTTP-based examples of each,
     follow the links to the sections for each verb.
@@ -202,6 +203,8 @@
 
   <simplelist>
    <member><literal>_action</literal></member>
+   <member><literal>_api</literal></member>
+   <member><literal>_crestapi</literal></member>
    <member><literal>_fields</literal></member>
    <member><literal>_mimeType</literal></member>
    <member><literal>_pageSize</literal></member>
@@ -245,6 +248,145 @@
    The parameters are also passed in the query string.
    Which parameters are valid depends on the stored query.
   </para>
+ </section>
+
+ <section xml:id="about-crest-api-descriptors">
+  <title>Common REST API Documentation</title>
+
+  <para>
+   Common REST APIs often depend at least in part on runtime configuration.
+   Many Common REST endpoints therefore serve
+   <firstterm>API descriptors</firstterm> at runtime.
+   An API descriptor documents the actual API as it is configured.
+  </para>
+
+  <variablelist>
+   <para>
+    Use the following query string parameters to retrieve API descriptors:
+   </para>
+
+   <varlistentry>
+    <term><literal>_api</literal></term>
+    <listitem>
+     <para>
+      Serves an API descriptor that complies with the
+      <link
+       xlink:href="https://github.com/OAI/OpenAPI-Specification"
+       xlink:show="new"
+      >OpenAPI specification</link>.
+     </para>
+
+     <para>
+      This API descriptor represents the API accessible over HTTP.
+      It is suitable for use with popular tools such as
+      <link
+       xlink:href="http://swagger.io/swagger-ui/"
+       xlink:show="new"
+      >Swagger UI</link>.
+     </para>
+    </listitem>
+   </varlistentry>
+
+   <varlistentry>
+    <term><literal>_crestapi</literal></term>
+    <listitem>
+     <para>
+      Serves a native Common REST API descriptor.
+     </para>
+
+     <para>
+      This API descriptor provides a compact representation
+      that is not dependent on the transport protocol.
+      It requires a client that understands Common REST,
+      as it omits many Common REST defaults.
+     </para>
+    </listitem>
+   </varlistentry>
+  </variablelist>
+
+  <note>
+   <para>
+    Consider limiting access to API descriptors in production environments
+    in order to avoid unnecessary traffic.
+   </para>
+
+   <para>
+    To provide documentation in production environments,
+    see <xref linkend="use-openapi-descriptors" /> instead.
+   </para>
+  </note>
+
+  <procedure xml:id="use-openapi-descriptors">
+   <title>To Publish OpenAPI Documentation</title>
+
+   <para>
+    In production systems, developers expect stable, well-documented APIs.
+    Rather than retrieving API descriptors at runtime through Common REST,
+    prepare final versions, and publish them alongside the software in production.
+   </para>
+
+   <para>
+    Use the OpenAPI-compliant descriptors to provide API reference documentation
+    for your developers as described in the following steps:
+   </para>
+
+   <step>
+    <para>
+     Configure the software to produce production-ready APIs.
+    </para>
+
+    <para>
+     In other words, the software should be configured as in production
+     so that the APIs are identical to what developers see in production.
+    </para>
+   </step>
+
+   <step>
+    <para>
+     Retrieve the OpenAPI-compliant descriptor.
+    </para>
+
+    <para>
+     The following command saves the descriptor
+     to a file, <filename>myapi.json</filename>:
+    </para>
+
+    <screen>
+$ <userinput>curl -o myapi.json <replaceable>endpoint</replaceable>?_api</userinput>
+    </screen>
+   </step>
+
+   <step performance="optional">
+    <para>
+     If necessary, edit the descriptor.
+    </para>
+
+    <para>
+     For example, you might want to add security definitions
+     to describe how the API is protected.
+    </para>
+
+    <para>
+     If you make any changes, then also consider using a source control system
+     to manage your versions of the API descriptor.
+    </para>
+   </step>
+
+   <step>
+    <para>
+     Publish the descriptor using a tool such as
+     <link
+      xlink:href="https://github.com/swagger-api/swagger-ui"
+      xlink:show="new"
+     >Swagger UI</link>.
+    </para>
+
+    <para>
+     You can customize Swagger UI for your organization
+     as described in the documentation for the tool.
+    </para>
+   </step>
+  </procedure>
  </section>
 
  <section xml:id="about-crest-create">
@@ -888,7 +1030,7 @@ If-Match: <replaceable>_rev</replaceable>
   <title>Action</title>
 
   <para>
-   Actions are a means of extending common REST APIs
+   Actions are a means of extending Common REST APIs
    and are defined by the resource provider,
    so the actions you can use depend on the implementation.
   </para>
@@ -1158,7 +1300,7 @@ UTF8STRING     = UTF-8 string possibly containing white-space
   <title>HTTP Status Codes</title>
 
   <para>
-   When working with a common REST API over HTTP,
+   When working with a Common REST API over HTTP,
    client applications should expect at least the following HTTP status codes.
    Not all servers necessarily return all status codes identified here:
   </para>

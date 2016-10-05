@@ -16,10 +16,12 @@
 package org.forgerock.audit.handlers.splunk;
 
 import static org.forgerock.guava.common.base.Strings.isNullOrEmpty;
+import static org.forgerock.http.handler.HttpClientHandler.OPTION_LOADER;
 import static org.forgerock.json.resource.Responses.newResourceResponse;
 import static org.forgerock.util.CloseSilentlyFunction.closeSilently;
 import static org.forgerock.util.promise.Promises.newExceptionPromise;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
@@ -30,13 +32,18 @@ import org.forgerock.audit.events.handlers.buffering.BatchConsumer;
 import org.forgerock.audit.events.handlers.buffering.BatchException;
 import org.forgerock.audit.events.handlers.buffering.BatchPublisher;
 import org.forgerock.audit.events.handlers.buffering.BatchPublisherFactory;
+import org.forgerock.audit.events.handlers.buffering.BatchPublisherFactoryImpl;
 import org.forgerock.audit.handlers.splunk.SplunkAuditEventHandlerConfiguration.BufferingConfiguration;
 import org.forgerock.audit.handlers.splunk.SplunkAuditEventHandlerConfiguration.ConnectionConfiguration;
 import org.forgerock.http.Client;
+import org.forgerock.http.HttpApplicationException;
+import org.forgerock.http.apache.async.AsyncHttpClientProvider;
+import org.forgerock.http.handler.HttpClientHandler;
 import org.forgerock.http.header.ContentTypeHeader;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Responses;
+import org.forgerock.http.spi.Loader;
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.resource.NotSupportedException;
 import org.forgerock.json.resource.QueryRequest;
@@ -47,6 +54,7 @@ import org.forgerock.json.resource.ResourceResponse;
 import org.forgerock.json.resource.ServiceUnavailableException;
 import org.forgerock.services.context.Context;
 import org.forgerock.util.Function;
+import org.forgerock.util.Options;
 import org.forgerock.util.promise.Promise;
 import org.forgerock.util.time.Duration;
 
@@ -78,6 +86,7 @@ public final class SplunkAuditEventHandler extends AuditEventHandlerBase impleme
 
     private final SplunkAuditEventHandlerConfiguration configuration;
     private final Client client;
+    private final HttpClientHandler defaultHttpClientHandler;
     private final String channelId;
     private final BatchPublisher batchPublisher;
     private final String serviceUrl;
@@ -90,17 +99,23 @@ public final class SplunkAuditEventHandler extends AuditEventHandlerBase impleme
      * @param eventTopicsMetaData
      *         topic meta data
      * @param publisherFactory
-     *         the batch publisher factory
+     *         the batch publisher factory or {@code null}
      * @param client
-     *         HTTP client
+     *         HTTP client or {@code null}
      */
     public SplunkAuditEventHandler(
             final SplunkAuditEventHandlerConfiguration configuration, final EventTopicsMetaData eventTopicsMetaData,
-            final BatchPublisherFactory publisherFactory, final @Audit Client client) {
+            @Audit BatchPublisherFactory publisherFactory, final @Audit Client client) {
         super(configuration.getName(), eventTopicsMetaData, configuration.getTopics(), configuration.isEnabled());
 
         this.configuration = configuration;
-        this.client = client;
+        if (client == null) {
+            this.defaultHttpClientHandler = defaultHttpClientHandler();
+            this.client = new Client(defaultHttpClientHandler);
+        } else {
+            this.defaultHttpClientHandler = null;
+            this.client = client;
+        }
         channelId = UUID.randomUUID().toString();
 
         final ConnectionConfiguration connection = configuration.getConnection();
@@ -114,6 +129,9 @@ public final class SplunkAuditEventHandler extends AuditEventHandlerBase impleme
         final Duration writeInterval = isNullOrEmpty(bufferingConfiguration.getWriteInterval()) ? null
                 : Duration.duration(bufferingConfiguration.getWriteInterval());
 
+        if (publisherFactory == null) {
+            publisherFactory = new BatchPublisherFactoryImpl();
+        }
         batchPublisher = publisherFactory.newBufferedPublisher(this)
                 .capacity(bufferingConfiguration.getMaxSize())
                 .writeInterval(writeInterval)
@@ -131,6 +149,14 @@ public final class SplunkAuditEventHandler extends AuditEventHandlerBase impleme
     @Override
     public void shutdown() throws ResourceException {
         batchPublisher.shutdown();
+        if (defaultHttpClientHandler != null) {
+            try {
+                defaultHttpClientHandler.close();
+            } catch (IOException e) {
+                throw ResourceException.newResourceException(ResourceException.INTERNAL_ERROR,
+                        "An error occurred while closing the default HTTP client handler", e);
+            }
+        }
     }
 
     @Override
@@ -206,4 +232,18 @@ public final class SplunkAuditEventHandler extends AuditEventHandlerBase impleme
                 }), Responses.<Void, BatchException>noopExceptionFunction());
     }
 
+    private HttpClientHandler defaultHttpClientHandler() {
+        try {
+            return new HttpClientHandler(
+                    Options.defaultOptions()
+                            .set(OPTION_LOADER, new Loader() {
+                                @Override
+                                public <S> S load(Class<S> service, Options options) {
+                                    return service.cast(new AsyncHttpClientProvider());
+                                }
+                            }));
+        } catch (HttpApplicationException e) {
+            throw new RuntimeException("Error while building default HTTP Client", e);
+        }
+    }
 }

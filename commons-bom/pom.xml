@@ -343,6 +343,12 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.forgerock.http</groupId>
+                <artifactId>chf-oauth2</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- ForgeRock json-* dependencies -->
             <dependency>
                 <groupId>org.forgerock.commons</groupId>

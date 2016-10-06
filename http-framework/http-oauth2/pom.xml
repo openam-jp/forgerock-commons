@@ -24,6 +24,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>chf-oauth2</artifactId>
+  <packaging>bundle</packaging>
   <name>HTTP OAuth 2.0 Support</name>
 
   <dependencies>

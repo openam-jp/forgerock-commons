@@ -20,8 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.forgerock.json.jose.jwe.handlers.encryption.JWETestUtils.bytes;
 
 import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.forgerock.json.jose.jwe.EncryptionMethod;
@@ -36,6 +38,12 @@ public class AESGCMContentEncryptionHandlerTest {
      */
     @Test
     public void shouldMatchJWEExample() throws Exception {
+        try {
+            Cipher.getInstance(EncryptionMethod.A256GCM.getTransformation());
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
+            throw new SkipException("AES GCM not supported on this JRE");
+        }
+
         if (Cipher.getMaxAllowedKeyLength("AES") < 256) {
             throw new SkipException("Please install JCE Unlimited Strength to test AES-256");
         }

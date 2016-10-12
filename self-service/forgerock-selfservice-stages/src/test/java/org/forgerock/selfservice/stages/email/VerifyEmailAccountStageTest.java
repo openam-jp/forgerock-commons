@@ -236,6 +236,20 @@ public final class VerifyEmailAccountStageTest {
         assertThat(stageResponse.getCallback()).isNull();
     }
 
+    @Test
+    public void testAdvanceSkipEmailValidateStage() throws Exception {
+        // Given
+        given(context.getState("skipValidation")).willReturn(json(true));
+
+        // When
+        StageResponse stageResponse = verifyEmailStage.advance(context, config);
+
+        // Then
+        assertThat(stageResponse.getStageTag()).isSameAs(INITIAL_TAG);
+        assertThat(stageResponse.getRequirements()).isEmpty();
+        assertThat(stageResponse.getCallback()).isNull();
+    }
+
     private JsonValue newEmptyJsonValue() {
         return json(object());
     }

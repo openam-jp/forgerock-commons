@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.selfservice.stages.email;
@@ -58,6 +58,8 @@ public final class VerifyEmailAccountStage implements ProgressStage<VerifyEmailA
 
     private static final String VALIDATE_CODE_TAG = "validateCode";
 
+    private static final String SKIP_VALIDATION = "skipValidation";
+
     private final ConnectionFactory connectionFactory;
 
     /**
@@ -93,6 +95,9 @@ public final class VerifyEmailAccountStage implements ProgressStage<VerifyEmailA
 
     @Override
     public StageResponse advance(ProcessContext context, VerifyEmailAccountConfig config) throws ResourceException {
+        if (context.getState(SKIP_VALIDATION) != null && context.getState(SKIP_VALIDATION).asBoolean()) {
+            return StageResponse.newBuilder().build();
+        }
         switch (context.getStageTag()) {
         case INITIAL_TAG:
             return sendEmail(context, config);

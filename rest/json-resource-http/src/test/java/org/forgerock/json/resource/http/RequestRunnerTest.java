@@ -130,11 +130,11 @@ public class RequestRunnerTest {
     @Test
     public void testLocationIsCorrectWhenCreatingResourceWithUserProvidedResourceId() throws Exception {
         // given
-        UriRouterContext context = uriRouterContext(new RootContext()).matchedUri("users").remainingUri("bjensen")
-                .build();
-        CreateRequest create = newCreateRequest("users", json(object())).setNewResourceId("bjensen");
-        RequestRunner runner = new RequestRunner(context, create,
-                new Request().setUri("http://localhost/users/bjensen"), new Response(Status.CREATED));
+        UriRouterContext context = uriRouterContext(new RootContext()).matchedUri("/openidm")
+                .remainingUri("/managed/user/bjensen").build();
+        CreateRequest create = newCreateRequest("managed/user", json(object())).setNewResourceId("bjensen");
+        Request request = new Request().setUri("http://localhost:8080/openidm/managed/user/bjensen");
+        RequestRunner runner = new RequestRunner(context, create, request, new Response(Status.CREATED));
 
         Promise<ResourceResponse, ResourceException> result =
                 newResultPromise(newResourceResponse("bjensen", null, json(object())));
@@ -145,16 +145,41 @@ public class RequestRunnerTest {
         Response response = runner.handleResult(connection).getOrThrow();
 
         // then
-        assertThat(response.getHeaders().getFirst("Location")).isEqualTo("http://localhost/users/bjensen");
+        assertThat(response.getHeaders().getFirst("Location"))
+                .isEqualTo("http://localhost:8080/openidm/managed/user/bjensen");
+    }
+
+    @Test
+    public void testLocationIsCorrectWhenCreatingResourceWithUserProvidedResourceId2() throws Exception {
+        // given
+        UriRouterContext context = uriRouterContext(new RootContext()).matchedUri("/openig")
+                .remainingUri("/router/routes/wordpress").build();
+        context = uriRouterContext(context).matchedUri("router").remainingUri("/routes/wordpress").build();
+        context = uriRouterContext(context).matchedUri("routes").remainingUri("/wordpress").build();
+        CreateRequest create = newCreateRequest("", json(object())).setNewResourceId("wordpress");
+        Request request = new Request().setUri("http://localhost:8080/openig/router/routes/wordpress");
+        RequestRunner runner = new RequestRunner(context, create, request, new Response(Status.CREATED));
+
+        Promise<ResourceResponse, ResourceException> result =
+                newResultPromise(newResourceResponse("wordpress", null, json(object())));
+        Connection connection = mock(Connection.class);
+        when(connection.createAsync(context, create)).thenReturn(result);
+
+        // when
+        Response response = runner.handleResult(connection).getOrThrow();
+
+        // then
+        assertThat(response.getHeaders().getFirst("Location"))
+                .isEqualTo("http://localhost:8080/openig/router/routes/wordpress");
     }
 
     @Test
     public void testLocationIsCorrectWhenCreatingResourceWithoutUserProvidedResourceId() throws Exception {
         // given
         UriRouterContext context = uriRouterContext(new RootContext()).matchedUri("users").remainingUri("").build();
-        CreateRequest create = newCreateRequest("users", json(object()));
-        RequestRunner runner = new RequestRunner(context, create, new Request().setUri("http://localhost/users"),
-                new Response(Status.CREATED));
+        CreateRequest create = newCreateRequest("", json(object()));
+        Request request = new Request().setUri("http://localhost/users");
+        RequestRunner runner = new RequestRunner(context, create, request, new Response(Status.CREATED));
 
         Promise<ResourceResponse, ResourceException> result =
                 newResultPromise(newResourceResponse("bjensen", null, json(object())));

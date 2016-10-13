@@ -21,6 +21,7 @@ import static org.forgerock.http.handler.Handlers.internalServerErrorHandler;
 import static org.forgerock.http.io.IO.newBranchingInputStream;
 import static org.forgerock.http.io.IO.newTemporaryStorage;
 import static org.forgerock.http.protocol.Responses.newInternalServerError;
+import static org.forgerock.http.routing.UriRouterContext.uriRouterContext;
 import static org.forgerock.util.Utils.closeSilently;
 
 import java.io.File;
@@ -29,7 +30,6 @@ import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.forgerock.http.ApiProducer;
 import org.forgerock.http.DescribedHttpApplication;
@@ -198,8 +198,8 @@ final class HandlerAdapter extends HttpHandler {
 
     private UriRouterContext createRouterContext(Context parent, Request req,
             org.forgerock.http.protocol.Request request) {
-        return new UriRouterContext(parent, "", req.getRequestURI(), Collections.<String, String> emptyMap(),
-                request.getUri().asURI());
+        return uriRouterContext(parent).matchedUri("").remainingUri(req.getRequestURI())
+                .originalUri(request.getUri().asURI()).build();
     }
 
     private ClientContext createClientContext(Context parent, Request req) {

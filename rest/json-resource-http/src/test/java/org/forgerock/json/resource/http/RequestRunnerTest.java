@@ -16,6 +16,7 @@
 package org.forgerock.json.resource.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.forgerock.http.routing.UriRouterContext.uriRouterContext;
 import static org.forgerock.json.JsonValue.field;
 import static org.forgerock.json.JsonValue.json;
 import static org.forgerock.json.JsonValue.object;
@@ -34,7 +35,6 @@ import static org.testng.Assert.assertEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collections;
 
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
@@ -130,8 +130,8 @@ public class RequestRunnerTest {
     @Test
     public void testLocationIsCorrectWhenCreatingResourceWithUserProvidedResourceId() throws Exception {
         // given
-        UriRouterContext context = new UriRouterContext(new RootContext(), "users", "bjensen",
-                Collections.<String, String>emptyMap());
+        UriRouterContext context = uriRouterContext(new RootContext()).matchedUri("users").remainingUri("bjensen")
+                .build();
         CreateRequest create = newCreateRequest("users", json(object())).setNewResourceId("bjensen");
         RequestRunner runner = new RequestRunner(context, create,
                 new Request().setUri("http://localhost/users/bjensen"), new Response(Status.CREATED));
@@ -151,8 +151,7 @@ public class RequestRunnerTest {
     @Test
     public void testLocationIsCorrectWhenCreatingResourceWithoutUserProvidedResourceId() throws Exception {
         // given
-        UriRouterContext context = new UriRouterContext(new RootContext(), "users", "",
-                Collections.<String, String>emptyMap());
+        UriRouterContext context = uriRouterContext(new RootContext()).matchedUri("users").remainingUri("").build();
         CreateRequest create = newCreateRequest("users", json(object()));
         RequestRunner runner = new RequestRunner(context, create, new Request().setUri("http://localhost/users"),
                 new Response(Status.CREATED));

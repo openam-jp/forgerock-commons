@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2012-2015 ForgeRock AS.
+ * Copyright 2012-2016 ForgeRock AS.
  */
 
 package org.forgerock.http.routing;
@@ -22,11 +22,12 @@ import static org.forgerock.util.Reject.checkNotNull;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.forgerock.services.context.Context;
-import org.forgerock.services.context.AbstractContext;
 import org.forgerock.json.JsonValue;
+import org.forgerock.services.context.AbstractContext;
+import org.forgerock.services.context.Context;
 import org.forgerock.util.Reject;
 
 /**
@@ -212,6 +213,90 @@ public final class UriRouterContext extends AbstractContext {
             return parent.asContext(UriRouterContext.class).getOriginalUri();
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Return a builder for a new {@link UriRouterContext}.
+     * @param parent parent context
+     * @return a builder for a new {@link UriRouterContext}.
+     */
+    public static Builder uriRouterContext(Context parent) {
+        return new Builder(parent);
+    }
+
+    /**
+     * Ease {@link UriRouterContext} construction.
+     */
+    public static class Builder {
+
+        private final Context parent;
+        private String matchedUri;
+        private String remainingUri;
+        private URI originalUri;
+        private Map<String, String> variables = new LinkedHashMap<>();
+
+        Builder(final Context parent) {
+            this.parent = parent;
+        }
+
+        /**
+         * Set the {@code matchedUri} value.
+         * @param matchedUri matched uri
+         * @return this builder
+         */
+        public Builder matchedUri(String matchedUri) {
+            this.matchedUri = matchedUri;
+            return this;
+        }
+
+        /**
+         * Set the {@code remainingUri} value.
+         * @param remainingUri remaining uri
+         * @return this builder
+         */
+        public Builder remainingUri(String remainingUri) {
+            this.remainingUri = remainingUri;
+            return this;
+        }
+
+        /**
+         * Set the {@code originalUri} value (only first UriRouterContext is expected to have that value set).
+         * @param originalUri original uri
+         * @return this builder
+         */
+        public Builder originalUri(URI originalUri) {
+            this.originalUri = originalUri;
+            return this;
+        }
+
+        /**
+         * Set the {@code variables} value.
+         * @param variables matched variables
+         * @return this builder
+         */
+        public Builder templateVariables(Map<String, String> variables) {
+            this.variables = checkNotNull(variables);
+            return this;
+        }
+
+        /**
+         * Add the given {@code name}:{@code value} pair in the {@code variables} map.
+         * @param name matched variable name
+         * @param value matched variable value
+         * @return this builder
+         */
+        public Builder templateVariable(String name, String value) {
+            this.variables.put(name, value);
+            return this;
+        }
+
+        /**
+         * Returns a new {@link UriRouterContext} build from provided values.
+         * @return a new {@link UriRouterContext}.
+         */
+        public UriRouterContext build() {
+            return new UriRouterContext(parent, matchedUri, remainingUri, variables, originalUri);
         }
     }
 }

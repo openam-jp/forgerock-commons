@@ -11,21 +11,20 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2012-2015 ForgeRock AS.
+ * Copyright 2012-2016 ForgeRock AS.
  */
 
 package org.forgerock.json.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.forgerock.http.routing.UriRouterContext.uriRouterContext;
 
-import org.forgerock.services.context.Context;
-import org.forgerock.services.context.ClientContext;
-import org.forgerock.services.context.RootContext;
 import org.forgerock.http.routing.UriRouterContext;
+import org.forgerock.services.context.ClientContext;
+import org.forgerock.services.context.Context;
+import org.forgerock.services.context.RootContext;
 import org.forgerock.services.context.SecurityContext;
 import org.testng.annotations.Test;
-
-import java.util.HashMap;
 
 /**
  * Tests {@code Context}.
@@ -66,7 +65,7 @@ public final class ContextTest {
     public void testAsContext() throws Exception {
         final Context root = new RootContext("root-id");
         final ClientContext internal = ClientContext.newInternalClientContext(root);
-        final UriRouterContext router = new UriRouterContext(internal, "test", "", new HashMap<String, String>(0));
+        final UriRouterContext router = uriRouterContext(internal).matchedUri("test").remainingUri("").build();
         final ClientContext internal2 = ClientContext.newInternalClientContext(root);
 
         assertThat(router.asContext(RootContext.class)).isSameAs(root);

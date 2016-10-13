@@ -11,20 +11,20 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.http.routing;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.forgerock.http.routing.UriRouterContext.uriRouterContext;
 
 import java.net.URI;
-import java.util.Collections;
 import java.util.List;
 
+import org.forgerock.http.protocol.Request;
 import org.forgerock.services.context.Context;
 import org.forgerock.services.context.RootContext;
-import org.forgerock.http.protocol.Request;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -65,6 +65,6 @@ public class RouteMatchersTest {
     }
 
     private UriRouterContext newContext(Context parentContext, String matchedUri) {
-        return new UriRouterContext(parentContext, matchedUri, "REMAINING", Collections.<String, String>emptyMap());
+        return uriRouterContext(parentContext).matchedUri(matchedUri).remainingUri("REMAINING").build();
     }
 }

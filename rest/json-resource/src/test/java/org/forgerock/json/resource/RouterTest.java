@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.json.resource;
@@ -20,18 +20,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.forgerock.http.routing.RoutingMode.EQUALS;
 import static org.forgerock.http.routing.RoutingMode.STARTS_WITH;
+import static org.forgerock.http.routing.UriRouterContext.uriRouterContext;
 import static org.forgerock.json.resource.RouteMatchers.requestUriMatcher;
 import static org.forgerock.json.resource.Router.uriTemplate;
 import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import java.util.Collections;
-
 import org.forgerock.api.models.ApiDescription;
-import org.forgerock.http.routing.UriRouterContext;
 import org.forgerock.services.context.Context;
 import org.forgerock.services.descriptor.Describable;
 import org.forgerock.util.promise.Promise;
@@ -523,7 +523,7 @@ public class RouterTest {
     }
 
     private Context newRouterContext(Context parentContext, String remainingUri) {
-        return new UriRouterContext(parentContext, "MATCHED_URI", remainingUri, Collections.<String, String>emptyMap());
+        return uriRouterContext(parentContext).matchedUri("MATCHED_URI").remainingUri(remainingUri).build();
     }
 
     private <T extends Request> T mockRequest(Class<T> clazz, String resourcePath) {

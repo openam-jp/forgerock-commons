@@ -23,6 +23,7 @@ import static org.forgerock.http.handler.Handlers.internalServerErrorHandler;
 import static org.forgerock.http.io.IO.newBranchingInputStream;
 import static org.forgerock.http.io.IO.newTemporaryStorage;
 import static org.forgerock.http.protocol.Responses.newInternalServerError;
+import static org.forgerock.http.routing.UriRouterContext.uriRouterContext;
 import static org.forgerock.util.Utils.closeSilently;
 
 import java.io.File;
@@ -30,7 +31,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.ServiceLoader;
 
@@ -319,8 +319,8 @@ public final class HttpFrameworkServlet extends HttpServlet {
         String matchedUri = routingBase.extractMatchedUri(req);
         final String requestURI = req.getRequestURI();
         String remaining = requestURI.substring(requestURI.indexOf(matchedUri) + matchedUri.length());
-        return new UriRouterContext(parent, matchedUri, remaining, Collections.<String, String>emptyMap(),
-                request.getUri().asURI());
+        return uriRouterContext(parent).matchedUri(matchedUri).remainingUri(remaining)
+                .originalUri(request.getUri().asURI()).build();
     }
 
     private void writeResponse(Request request, Response response, HttpServletResponse servletResponse,

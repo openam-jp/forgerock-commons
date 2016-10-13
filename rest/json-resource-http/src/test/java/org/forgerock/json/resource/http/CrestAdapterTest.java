@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.json.resource.http;
@@ -20,6 +20,7 @@ import static java.lang.String.format;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.forgerock.http.routing.UriRouterContext.uriRouterContext;
 import static org.forgerock.http.routing.Version.version;
 import static org.forgerock.json.JsonValue.array;
 import static org.forgerock.json.JsonValue.field;
@@ -496,10 +497,8 @@ public class CrestAdapterTest {
                     }
                 });
 
-        UriRouterContext context = new UriRouterContext(newContext(),
-                                                        "/users/bjensen",
-                                                        null,
-                                                        singletonMap("name", "bjensen"));
+        UriRouterContext context = uriRouterContext(newContext()).matchedUri("/users/bjensen")
+                .templateVariable("name", "bjensen").build();
         ResourceResponse response = handler.handleCreate(context, newCreateRequest("users/bjensen", json(object())))
                                            .getOrThrow();
 

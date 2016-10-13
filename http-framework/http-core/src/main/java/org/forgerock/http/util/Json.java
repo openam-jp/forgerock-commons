@@ -24,7 +24,6 @@ import static java.lang.String.format;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Arrays;
@@ -239,7 +238,11 @@ public final class Json {
      *             If an error occurs during reading/parsing the data.
      */
     public static Object readJsonLenient(final InputStream in) throws IOException {
-        return parse(LENIENT_MAPPER, new InputStreamReader(in));
+        if (in == null) {
+            return null;
+        }
+
+        return LENIENT_MAPPER.readValue(in, Object.class);
     }
 
     private static Object parse(ObjectMapper mapper, Reader reader) throws IOException {

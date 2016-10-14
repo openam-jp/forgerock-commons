@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.api;
@@ -61,14 +61,11 @@ public interface AsyncServerAuthModule {
      * @param responsePolicy The response policy this module must enforce, or {@code null}.
      * @param handler {@code CallbackHandler} used to request information.
      * @param options A {@code Map} of module-specific configuration properties.
-     * @return A {@code Promise} that will be completed, as some point in the future, with
-     * either a successful value or a failure value. A successfully completed {@code Promise} will
-     * contain no value and a failed completed {@code Promise} will contain an
-     * {@code AuthenticationException} if module initialization fails, including for the case
+     * @throws AuthenticationException when module initialization fails, including for the case
      * where the options argument contains elements that are not supported by the module.
      */
-    Promise<Void, AuthenticationException> initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy,
-            CallbackHandler handler, Map<String, Object> options);
+    void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy,
+                    CallbackHandler handler, Map<String, Object> options) throws AuthenticationException;
 
     /**
      * Gets the {@code Collection} of {@code Class} objects of the message types supported by the

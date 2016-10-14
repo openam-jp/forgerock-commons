@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2013-2015 ForgeRock AS.
+ * Copyright 2013-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -28,7 +28,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.message.AuthStatus;
@@ -96,7 +95,6 @@ public final class AuthenticationFramework {
     private final ResponseHandler responseHandler;
     private final AsyncServerAuthContext authContext;
     private final Subject serviceSubject;
-    private final Promise<List<Void>, AuthenticationException> initializationPromise;
 
     /**
      * Creates a new {@code JaspiRuntime} instance that will use the configured {@code authContext}
@@ -107,19 +105,15 @@ public final class AuthenticationFramework {
      * @param responseHandler The non-{@code null} {@link ResponseHandler} instance.
      * @param authContext The non-{@code null} {@link AsyncServerAuthContext} instance.
      * @param serviceSubject The non-{@code null} service {@link Subject}.
-     * @param initializationPromise A {@link Promise} which will be completed once the configured
-     *                              auth modules have been initialised.
      */
     AuthenticationFramework(Logger logger, AuditApi auditApi, ResponseHandler responseHandler,
-            AsyncServerAuthContext authContext, Subject serviceSubject,
-            Promise<List<Void>, AuthenticationException> initializationPromise) {
-        Reject.ifNull(logger, auditApi, responseHandler, authContext, serviceSubject, initializationPromise);
+            AsyncServerAuthContext authContext, Subject serviceSubject) {
+        Reject.ifNull(logger, auditApi, responseHandler, authContext, serviceSubject);
         this.logger = logger;
         this.auditApi = auditApi;
         this.responseHandler = responseHandler;
         this.authContext = withValidation(withAuditing(withLogging(logger, authContext)));
         this.serviceSubject = serviceSubject;
-        this.initializationPromise = initializationPromise;
     }
 
     /**
@@ -143,24 +137,11 @@ public final class AuthenticationFramework {
         messageContext.getRequestContextMap().put(AuthenticationFramework.ATTRIBUTE_AUTH_CONTEXT, contextMap);
         messageContext.getRequestContextMap().put(AUDIT_TRAIL_KEY, auditTrail);
 
-        return initializationPromise
-                .thenAsync(onInitializationSuccess(messageContext, clientSubject, next), onFailure(messageContext));
-    }
-
-    private AsyncFunction<List<Void>, Response, NeverThrowsException> onInitializationSuccess(
-            final MessageContext context, final Subject clientSubject, final Handler next) {
-        return new AsyncFunction<List<Void>, Response, NeverThrowsException>() {
-            @Override
-            public Promise<Response, NeverThrowsException> apply(List<Void> voids) {
-                return validateRequest(context, clientSubject, next)
-                        .thenAlways(new Runnable() {
-                            @Override
-                            public void run() {
-                                authContext.cleanSubject(context, clientSubject);
-                            }
-                        });
-            }
-        };
+        try {
+            return validateRequest(messageContext, clientSubject, next);
+        } finally {
+            authContext.cleanSubject(messageContext, clientSubject);
+        }
     }
 
     private Promise<Response, NeverThrowsException> validateRequest(final MessageContext context, Subject clientSubject,

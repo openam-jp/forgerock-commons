@@ -87,21 +87,21 @@ public class OpenIdConnectModuleTest {
 
     @Test(expectedExceptions = AuthException.class)
     public void shouldThrowAuthExceptionWithNoHeaderInConfig() throws Exception {
-        //given
+        // given
         MessagePolicy requestPolicy = mock(MessagePolicy.class);
         MessagePolicy responsePolicy =  mock(MessagePolicy.class);
         CallbackHandler callback =  mock(CallbackHandler.class);
         Map<String, Object> config = new HashMap<>();
 
-        //when
-        testModule.initialize(requestPolicy, responsePolicy, callback, config).getOrThrowUninterruptibly();
+        // when
+        testModule.initialize(requestPolicy, responsePolicy, callback, config);
 
-        //then - covered by caught exception
+        // then - covered by caught exception
     }
 
     @Test(expectedExceptions = AuthException.class)
     public void shouldThrowAuthExceptionWhenConfigureServiceFails() throws Exception {
-        //given
+        // given
         MessagePolicy requestPolicy = mock(MessagePolicy.class);
         MessagePolicy responsePolicy =  mock(MessagePolicy.class);
         CallbackHandler callback =  mock(CallbackHandler.class);
@@ -109,10 +109,9 @@ public class OpenIdConnectModuleTest {
 
         given(mockConfigurator.configureService(any(OpenIdResolverService.class), any(List.class))).willReturn(false);
 
-        //when
-        testModule.initialize(requestPolicy, responsePolicy, callback, config).getOrThrowUninterruptibly();
-
-        //then - covered by caught exception
+        // when
+        testModule.initialize(requestPolicy, responsePolicy, callback, config);
+        // then - covered by caught exception
     }
 
     @Test

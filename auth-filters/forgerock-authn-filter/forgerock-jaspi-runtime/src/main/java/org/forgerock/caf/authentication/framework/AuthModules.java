@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -430,29 +430,23 @@ final class AuthModules {
         }
 
         @Override
-        public Promise<Void, AuthenticationException> initialize(final MessagePolicy requestPolicy,
-                final MessagePolicy responsePolicy, CallbackHandler handler, final Map<String, Object> options) {
-            return super.initialize(requestPolicy, responsePolicy, handler, options)
-                    .thenOnResult(new ResultHandler<Void>() {
-                        @Override
-                        public void handleResult(Void result) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("{} was successfully initialized. \nrequest MessagePolicy: {}, "
-                                                + "\nresponse MessagePolicy: {}, \noptions: {}", getModuleId(),
-                                        requestPolicy, responsePolicy, options);
-                            }
-                        }
-                    })
-                    .thenOnException(new ExceptionHandler<AuthenticationException>() {
-                        @Override
-                        public void handleException(AuthenticationException error) {
-                            if (logger.isErrorEnabled()) {
-                                logger.error("{} failed to initialize. \nrequest MessagePolicy: {}, "
-                                                + "\nresponse MessagePolicy: {}, \noptions: {}", getModuleId(),
-                                        requestPolicy, responsePolicy, options, error);
-                            }
-                        }
-                    });
+        public void initialize(final MessagePolicy requestPolicy, final MessagePolicy responsePolicy,
+                CallbackHandler handler, final Map<String, Object> options) throws AuthenticationException {
+            try {
+                super.initialize(requestPolicy, responsePolicy, handler, options);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("{} was successfully initialized. \nrequest MessagePolicy: {}, "
+                                    + "\nresponse MessagePolicy: {}, \noptions: {}", getModuleId(),
+                            requestPolicy, responsePolicy, options);
+                }
+            } catch (AuthenticationException e) {
+                if (logger.isErrorEnabled()) {
+                    logger.error("{} failed to initialize. \nrequest MessagePolicy: {}, "
+                                    + "\nresponse MessagePolicy: {}, \noptions: {}", getModuleId(),
+                            requestPolicy, responsePolicy, options, e);
+                }
+                throw e;
+            }
         }
 
         @Override
@@ -557,9 +551,9 @@ final class AuthModules {
         }
 
         @Override
-        public Promise<Void, AuthenticationException> initialize(MessagePolicy requestPolicy,
-                MessagePolicy responsePolicy, CallbackHandler handler, Map<String, Object> options) {
-            return authModule.initialize(requestPolicy, responsePolicy, handler, options);
+        public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler,
+                Map<String, Object> options) throws AuthenticationException {
+            authModule.initialize(requestPolicy, responsePolicy, handler, options);
         }
 
         @Override

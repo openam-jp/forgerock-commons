@@ -24,9 +24,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import java.util.Collections;
-import java.util.List;
-
 import javax.security.auth.Subject;
 import javax.security.auth.message.AuthStatus;
 
@@ -40,7 +37,6 @@ import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
 import org.forgerock.http.session.Session;
 import org.forgerock.http.session.SessionContext;
-import org.forgerock.json.resource.ResourceException;
 import org.forgerock.services.context.AttributesContext;
 import org.forgerock.services.context.Context;
 import org.forgerock.services.context.RootContext;
@@ -72,16 +68,12 @@ public class AuthenticationFrameworkTest {
         responseHandler = mock(ResponseHandler.class);
         authContext = mock(AsyncServerAuthContext.class);
         serviceSubject = new Subject();
-        Promise<List<Void>, AuthenticationException> initializationPromise =
-                Promises.newResultPromise(Collections.<Void>emptyList());
-
-        runtime = createRuntime(initializationPromise);
+        runtime = createRuntime();
     }
 
-    private AuthenticationFramework createRuntime(Promise<List<Void>, AuthenticationException> initializationPromise) {
+    private AuthenticationFramework createRuntime() {
         Logger logger = mock(Logger.class);
-        return new AuthenticationFramework(logger, auditApi, responseHandler, authContext, serviceSubject,
-                initializationPromise);
+        return new AuthenticationFramework(logger, auditApi, responseHandler, authContext, serviceSubject);
     }
 
     private AttributesContext mockContext() {
@@ -115,51 +107,6 @@ public class AuthenticationFrameworkTest {
                 .willReturn(secureResponseResult);
         given(authContext.cleanSubject(any(MessageContext.class), any(Subject.class)))
                 .willReturn(cleanSubjectResult);
-    }
-
-    @Test
-    public void whenInitializationFailsExceptionShouldBeWrittenToResponse() {
-
-        //Given
-        Context context = mockContext();
-        Request request = new Request();
-        Handler next = mockHandler(request,
-                Promises.<Response, NeverThrowsException>newResultPromise(successfulResponse));
-
-        runtime = createRuntime(Promises.<List<Void>, AuthenticationException>newExceptionPromise(
-                new AuthenticationException("ERROR")));
-
-        //When
-        runtime.processMessage(context, request, next);
-
-        //Then
-        verify(responseHandler).handle(any(MessageContext.class), any(AuthenticationException.class));
-        verify(authContext, never()).validateRequest(any(MessageContext.class), any(Subject.class), eq(serviceSubject));
-        verify(authContext, never()).secureResponse(any(MessageContext.class), eq(serviceSubject));
-        verify(authContext, never()).cleanSubject(any(MessageContext.class), any(Subject.class));
-    }
-
-    @Test
-    public void whenInitializationFailsWithResourceExceptionItShouldBeWrittenToResponse() {
-
-        //Given
-        Context context = mockContext();
-        Request request = new Request();
-        Handler next = mockHandler(request,
-                Promises.<Response, NeverThrowsException>newResultPromise(successfulResponse));
-
-        ResourceException resourceException = mock(ResourceException.class);
-        runtime = createRuntime(Promises.<List<Void>, AuthenticationException>newExceptionPromise(
-                new AuthenticationException("ERROR", resourceException)));
-
-        //When
-        runtime.processMessage(context, request, next);
-
-        //Then
-        verify(responseHandler).handle(any(MessageContext.class), any(AuthenticationException.class));
-        verify(authContext, never()).validateRequest(any(MessageContext.class), any(Subject.class), eq(serviceSubject));
-        verify(authContext, never()).secureResponse(any(MessageContext.class), eq(serviceSubject));
-        verify(authContext, never()).cleanSubject(any(MessageContext.class), any(Subject.class));
     }
 
     @Test

@@ -11,14 +11,16 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
 
+import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 import static org.forgerock.caf.authentication.framework.AuthStatusUtils.asString;
 import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -573,9 +575,9 @@ public class AuthModulesTest {
     }
 
     @Test(dataProvider = "initializeResultLoggingModule")
-    public void loggingAuthModuleShouldLogInitializeResult(boolean logLevelEnabled) {
+    public void loggingAuthModuleShouldLogInitializeResult(boolean logLevelEnabled) throws AuthenticationException {
 
-        //Given
+        // Given
         Logger logger = mock(Logger.class);
         AsyncServerAuthModule authModule = mock(AsyncServerAuthModule.class);
         MessagePolicy requestPolicy = mock(MessagePolicy.class);
@@ -583,16 +585,15 @@ public class AuthModulesTest {
         CallbackHandler handler = mock(CallbackHandler.class);
         Map<String, Object> options = new HashMap<>();
 
-        given(authModule.initialize(requestPolicy, responsePolicy, handler, options))
-                .willReturn(Promises.<Void, AuthenticationException>newResultPromise(null));
+        doNothing().when(authModule).initialize(requestPolicy, responsePolicy, handler, options);
         given(logger.isDebugEnabled()).willReturn(logLevelEnabled);
 
-        //When
-        Promise<Void, AuthenticationException> promise = AuthModules.withLogging(logger, authModule)
+        // When
+        // Then
+        AuthModules.withLogging(logger, authModule)
                 .initialize(requestPolicy, responsePolicy, handler, options);
 
-        //Then
-        assertThat(promise).succeeded();
+
         if (logLevelEnabled) {
             verify(logger).debug(anyString(), anyObject(), anyObject(), anyObject(), anyObject());
         } else {
@@ -601,7 +602,8 @@ public class AuthModulesTest {
     }
 
     @Test(dataProvider = "initializeResultLoggingModule")
-    public void loggingAuthModuleShouldLogInitializeAuthenticationException(boolean logLevelEnabled) {
+    public void loggingAuthModuleShouldLogInitializeAuthenticationException(boolean logLevelEnabled)
+            throws AuthenticationException {
 
         //Given
         Logger logger = mock(Logger.class);
@@ -612,16 +614,18 @@ public class AuthModulesTest {
         Map<String, Object> options = new HashMap<>();
         AuthenticationException exception = new AuthenticationException("ERROR");
 
-        given(authModule.initialize(requestPolicy, responsePolicy, handler, options))
-                .willReturn(Promises.<Void, AuthenticationException>newExceptionPromise(exception));
+        willThrow(exception).given(authModule).initialize(requestPolicy, responsePolicy, handler, options);
         given(logger.isErrorEnabled()).willReturn(logLevelEnabled);
 
-        //When
-        Promise<Void, AuthenticationException> promise = AuthModules.withLogging(logger, authModule)
-                .initialize(requestPolicy, responsePolicy, handler, options);
+        // When
+        try {
+            AuthModules.withLogging(logger, authModule).initialize(requestPolicy, responsePolicy, handler, options);
+            failBecauseExceptionWasNotThrown(AuthenticationException.class);
+        } catch (AuthenticationException e) {
+            // Then
+            // exception was thrown as expected
+        }
 
-        //Then
-        assertThat(promise).failedWithException();
         if (logLevelEnabled) {
             verify(logger).error(anyString(), anyObject(), anyObject(), anyObject(), anyObject(), eq(exception));
         } else {

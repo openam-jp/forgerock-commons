@@ -91,7 +91,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMDeploymentUrlNotSet() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMDeploymentUrlNotSet()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -109,7 +110,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMDeploymentUrlIsEmpty() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMDeploymentUrlIsEmpty()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -129,7 +131,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMSSOTokenCookieNameNotSet() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMSSOTokenCookieNameNotSet()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -149,7 +152,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMSSOTokenCookieNameIsEmpty() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMSSOTokenCookieNameIsEmpty()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -170,7 +174,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMUserAttributeNotSet() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMUserAttributeNotSet()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -191,7 +196,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMUserAttributeIsEmpty() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenOpenAMUserAttributeIsEmpty()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -213,7 +219,7 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldReturnSuccessfullyWhenUseSSLSetToFalse() {
+    public void initialiseShouldReturnSuccessfullyWhenUseSSLSetToFalse() throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -233,7 +239,7 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePathNotSet() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePathNotSet() throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -256,7 +262,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePathIsEmpty() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePathIsEmpty()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -280,7 +287,7 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStoreTypeNotSet() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStoreTypeNotSet() throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -304,7 +311,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStoreTypeIsEmpty() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStoreTypeIsEmpty()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -329,7 +337,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePasswordNotSet() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePasswordNotSet()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -354,7 +363,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePasswordIsEmpty() {
+    public void initialiseShouldThrowIllegalArgumentExceptionWhenTrustStorePasswordIsEmpty()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -380,7 +390,7 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldReturnSuccessFullyWhenRequiredPropertiesSet() {
+    public void initialiseShouldReturnSuccessFullyWhenRequiredPropertiesSet() throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -408,7 +418,8 @@ public class OpenAMSessionModuleTest {
     }
 
     @Test
-    public void initialiseShouldReturnSuccessFullyWhenRequiredAndOptionalPropertiesSet() {
+    public void initialiseShouldReturnSuccessFullyWhenRequiredAndOptionalPropertiesSet()
+            throws AuthenticationException {
 
         //Given
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
@@ -449,11 +460,11 @@ public class OpenAMSessionModuleTest {
                 .containsExactly(Request.class, Response.class);
     }
 
-    private void initialise() {
+    private void initialise() throws AuthenticationException {
         initialise("https://OPENAM_DEPLOYMENT_URI/");
     }
 
-    private void initialise(final String openamDeploymentUrl) {
+    private void initialise(final String openamDeploymentUrl) throws AuthenticationException {
         final MessagePolicy requestMessagePolicy = mock(MessagePolicy.class);
         final MessagePolicy responseMessagePolicy = mock(MessagePolicy.class);
         final CallbackHandler callbackHandler = mock(CallbackHandler.class);

@@ -1203,8 +1203,7 @@ public class ServletJwtSessionModuleTest {
         options.put(JwtSessionModule.TOKEN_IDLE_TIME_IN_SECONDS_CLAIM_KEY, "1");
 
         //when
-        jwtSessionModule.initialize(requestMessagePolicy, responseMessagePolicy, callbackHandler, options)
-                .getOrThrowUninterruptibly();
+        jwtSessionModule.initialize(requestMessagePolicy, responseMessagePolicy, callbackHandler, options);
 
         //then
         //should never get here
@@ -1222,8 +1221,7 @@ public class ServletJwtSessionModuleTest {
         options.put(JwtSessionModule.MAX_TOKEN_LIFE_IN_SECONDS_KEY, "1");
 
         //when
-        jwtSessionModule.initialize(requestMessagePolicy, responseMessagePolicy, callbackHandler, options)
-                .getOrThrowUninterruptibly();
+        jwtSessionModule.initialize(requestMessagePolicy, responseMessagePolicy, callbackHandler, options);
 
         //then
         //should never get here

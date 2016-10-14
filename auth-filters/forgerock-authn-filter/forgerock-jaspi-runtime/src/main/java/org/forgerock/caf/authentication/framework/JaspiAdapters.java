@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2015 ForgeRock AS.
+ * Copyright 2015-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -153,13 +153,12 @@ public final class JaspiAdapters {
         }
 
         @Override
-        public Promise<Void, AuthenticationException> initialize(MessagePolicy requestPolicy,
-                MessagePolicy responsePolicy, CallbackHandler handler, Map<String, Object> options) {
+        public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler,
+                Map<String, Object> options) throws AuthenticationException {
             try {
                 authModule.initialize(requestPolicy, responsePolicy, handler, options);
-                return Promises.newResultPromise(null);
             } catch (AuthException e) {
-                return Promises.newExceptionPromise(adapt(e));
+                throw adapt(e);
             }
         }
 

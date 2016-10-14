@@ -145,8 +145,8 @@ public class OpenAMSessionModule implements AsyncServerAuthModule {
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public Promise<Void, AuthenticationException> initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy,
-            CallbackHandler callbackHandler, Map<String, Object> options) {
+    public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler callbackHandler,
+            Map<String, Object> options) throws AuthenticationException {
         this.handler = callbackHandler;
 
         openamDeploymentUrl = (String) options.get("openamDeploymentUrl");
@@ -166,8 +166,7 @@ public class OpenAMSessionModule implements AsyncServerAuthModule {
         try {
             useSSL = !"http".equals(URI.create(openamDeploymentUrl).toURL().getProtocol());
         } catch (MalformedURLException e) {
-            return newExceptionPromise(new AuthenticationException(
-                    new IllegalArgumentException("OpenAM Deployment URL malformed.")));
+            throw new AuthenticationException(new IllegalArgumentException("OpenAM Deployment URL malformed."));
         }
 
         LOG.debug("Using SSL? {}", useSSL);
@@ -177,11 +176,8 @@ public class OpenAMSessionModule implements AsyncServerAuthModule {
             }
             this.httpClient = createHttpClient(httpClientOptions);
         } catch (HttpApplicationException e) {
-            return newExceptionPromise(new AuthenticationException("Failed to get HTTP Client", e));
-        } catch (AuthenticationException e) {
-            return newExceptionPromise(e);
+            throw new AuthenticationException("Failed to get HTTP Client", e);
         }
-        return newResultPromise(null);
     }
 
     @VisibleForTesting

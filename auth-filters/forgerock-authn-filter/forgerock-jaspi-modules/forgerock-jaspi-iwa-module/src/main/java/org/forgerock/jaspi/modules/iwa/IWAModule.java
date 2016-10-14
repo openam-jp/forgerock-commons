@@ -62,11 +62,10 @@ public class IWAModule implements AsyncServerAuthModule {
      * {@inheritDoc}
      */
     @Override
-    public Promise<Void, AuthenticationException> initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy,
-            CallbackHandler handler, Map<String, Object> options) {
+    public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler,
+            Map<String, Object> options) throws AuthenticationException {
         this.handler = handler;
         this.options = options;
-        return newResultPromise(null);
     }
 
     /**

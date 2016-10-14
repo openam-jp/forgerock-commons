@@ -11,7 +11,7 @@
  * Header, with the fields enclosed by brackets [] replaced by your own identifying
  * information: "Portions copyright [year] [name of copyright owner]".
  *
- * Copyright 2014-2015 ForgeRock AS.
+ * Copyright 2014-2016 ForgeRock AS.
  */
 
 package org.forgerock.caf.authn.test.modules;
@@ -65,9 +65,9 @@ public class AuditingAuthModule implements AsyncServerAuthModule {
      */
     @SuppressWarnings("rawtypes")
     @Override
-    public Promise<Void, AuthenticationException> initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy,
-            CallbackHandler callbackHandler, Map config) {
-        return Promises.newResultPromise(null);
+    public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler callbackHandler,
+            Map config) throws AuthenticationException {
+        // do nothing
     }
 
     /**

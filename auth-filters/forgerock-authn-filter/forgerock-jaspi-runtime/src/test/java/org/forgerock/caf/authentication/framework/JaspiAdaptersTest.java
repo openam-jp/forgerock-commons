@@ -17,6 +17,7 @@
 package org.forgerock.caf.authentication.framework;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 import static org.forgerock.caf.authentication.framework.JaspiAdapters.MESSAGE_INFO_CONTEXT_KEY;
 import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -188,27 +189,24 @@ public class JaspiAdaptersTest {
     @Test
     public void adaptedAsyncServerAuthModuleShouldAdaptSuccessfulGetInitializeCall() throws AuthException {
 
-        //Given
+        // Given
         ServerAuthModule authModule = mock(ServerAuthModule.class);
         MessagePolicy requestPolicy = mock(MessagePolicy.class);
         MessagePolicy responsePolicy = mock(MessagePolicy.class);
         CallbackHandler handler = mock(CallbackHandler.class);
         Map<String, Object> options = Collections.emptyMap();
 
-        //When
+        // When
         AsyncServerAuthModule asyncAuthModule = JaspiAdapters.adapt(authModule);
-        Promise<Void, AuthenticationException> promise =
-                asyncAuthModule.initialize(requestPolicy, responsePolicy, handler, options);
-
-        //Then
-        assertThat(promise).succeeded().withObject().isNull();
+        asyncAuthModule.initialize(requestPolicy, responsePolicy, handler, options);
+        // Then
         verify(authModule).initialize(requestPolicy, responsePolicy, handler, options);
     }
 
     @Test
     public void adaptedAsyncServerAuthModuleShouldAdaptFailedGetInitializeCall() throws AuthException {
 
-        //Given
+        // Given
         ServerAuthModule authModule = mock(ServerAuthModule.class);
         MessagePolicy requestPolicy = mock(MessagePolicy.class);
         MessagePolicy responsePolicy = mock(MessagePolicy.class);
@@ -217,13 +215,15 @@ public class JaspiAdaptersTest {
 
         doThrow(AuthException.class).when(authModule).initialize(requestPolicy, responsePolicy, handler, options);
 
-        //When
-        AsyncServerAuthModule asyncAuthModule = JaspiAdapters.adapt(authModule);
-        Promise<Void, AuthenticationException> promise =
-                asyncAuthModule.initialize(requestPolicy, responsePolicy, handler, options);
-
-        //Then
-        assertThat(promise).failedWithException().isInstanceOf(AuthenticationException.class);
+        // When
+        try {
+            AsyncServerAuthModule asyncAuthModule = JaspiAdapters.adapt(authModule);
+            asyncAuthModule.initialize(requestPolicy, responsePolicy, handler, options);
+            failBecauseExceptionWasNotThrown(AuthenticationException.class);
+        } catch (AuthenticationException e) {
+            // Then
+            assertThat(e).isInstanceOf(AuthenticationException.class);
+        }
     }
 
     @Test

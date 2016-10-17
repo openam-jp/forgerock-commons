@@ -73,4 +73,10 @@
     <method>Response()</method>
     <comment>CHF-47 Make Response constructor require a Status</comment>
   </difference>
+  <difference>
+    <className>org/forgerock/services/routing/AbstractRouter</className>
+    <differenceType>7013</differenceType>
+    <method>org.forgerock.util.Pair getSelfApiHandler()</method>
+    <comment>RAPID-203 Router never returns own API when routing API request</comment>
+  </difference>
 </differences>

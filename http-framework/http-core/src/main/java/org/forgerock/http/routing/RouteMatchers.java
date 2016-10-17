@@ -20,10 +20,13 @@ import java.util.List;
 
 import org.forgerock.http.Filter;
 import org.forgerock.http.header.AcceptApiVersionHeader;
+import org.forgerock.http.header.MalformedHeaderException;
 import org.forgerock.http.protocol.Request;
+import org.forgerock.http.swagger.OpenApiRequestFilter;
 import org.forgerock.http.util.Paths;
 import org.forgerock.http.ApiProducer;
 import org.forgerock.services.context.Context;
+import org.forgerock.services.routing.IncomparableRouteMatchException;
 import org.forgerock.services.routing.RouteMatch;
 import org.forgerock.services.routing.RouteMatcher;
 
@@ -31,6 +34,8 @@ import org.forgerock.services.routing.RouteMatcher;
  * A utility class that contains methods for creating route matchers.
  */
 public final class RouteMatchers {
+
+    private static final RouteMatcher<Request> SELF_API_MATCHER = new SelfApiMatcher();
 
     private RouteMatchers() {
         // Private utility constructor.
@@ -108,6 +113,15 @@ public final class RouteMatchers {
      */
     public static RouteMatcher<Request> requestResourceApiVersionMatcher(Version version) {
         return new RequestApiVersionRouteMatcher(resourceApiVersionMatcher(version));
+    }
+
+    /**
+     * A matcher to check if the request is for all versions of the API descriptor of the current path.
+     *
+     * @return A {@code RouteMatcher} instance.
+     */
+    public static RouteMatcher<Request> selfApiMatcher() {
+        return SELF_API_MATCHER;
     }
 
     /**
@@ -258,4 +272,56 @@ public final class RouteMatchers {
             return delegate.hashCode();
         }
     }
+
+    private static class SelfApiMatcher extends RouteMatcher<Request> {
+
+        @Override
+        public RouteMatch evaluate(Context context, final Request request) {
+            return new RouteMatch() {
+                @Override
+                public boolean isBetterMatchThan(RouteMatch result) throws IncomparableRouteMatchException {
+                    AcceptApiVersionHeader acceptApiVersionHeader = null;
+                    try {
+                        acceptApiVersionHeader = request.getHeaders().get(AcceptApiVersionHeader.class);
+                    } catch (MalformedHeaderException e) {
+                        // ignore - version isn't requested if the header is invalid
+                    }
+                    return request.getForm().containsKey(OpenApiRequestFilter.API_PARAMETER)
+                            && (acceptApiVersionHeader == null || acceptApiVersionHeader.getResourceVersion() == null)
+                            && request.getUri().getPathElements().isEmpty();
+                }
+
+                @Override
+                public Context decorateContext(Context context) {
+                    return context;
+                }
+            };
+        }
+
+        @Override
+        public String toString() {
+            return "API Request";
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o;
+        }
+
+        @Override
+        public String idFragment() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <D> D transformApi(D descriptor, ApiProducer<D> producer) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
 }

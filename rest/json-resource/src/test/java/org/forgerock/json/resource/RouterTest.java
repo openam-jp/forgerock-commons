@@ -338,6 +338,7 @@ public class RouterTest {
         Context context = newRouterContext(mock(Context.class), remainingUri);
         Request request = mock(Request.class);
         given(request.getResourcePath()).willReturn("users/demo");
+        given(request.getRequestType()).willReturn(RequestType.API);
         given(request.getResourcePathObject()).willReturn(ResourcePath.valueOf("users/demo"));
 
         //When
@@ -516,6 +517,7 @@ public class RouterTest {
         Request request = mock(Request.class);
 
         given(request.getResourcePath()).willReturn("users/demo");
+        given(request.getRequestType()).willReturn(RequestType.API);
         given(request.getResourcePathObject()).willReturn(ResourcePath.resourcePath("users/demo"));
 
         //When

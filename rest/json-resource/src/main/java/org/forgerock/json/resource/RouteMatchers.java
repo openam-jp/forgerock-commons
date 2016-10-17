@@ -27,6 +27,7 @@ import org.forgerock.http.routing.RoutingMode;
 import org.forgerock.http.routing.Version;
 import org.forgerock.http.ApiProducer;
 import org.forgerock.services.context.Context;
+import org.forgerock.services.routing.IncomparableRouteMatchException;
 import org.forgerock.services.routing.RouteMatch;
 import org.forgerock.services.routing.RouteMatcher;
 
@@ -34,6 +35,8 @@ import org.forgerock.services.routing.RouteMatcher;
  * A utility class that contains methods for creating route matchers.
  */
 public final class RouteMatchers {
+
+    private static final SelfApiMatcher SELF_API_MATCHER = new SelfApiMatcher();
 
     private RouteMatchers() {
     }
@@ -85,6 +88,15 @@ public final class RouteMatchers {
      */
     public static RouteMatcher<Request> requestResourceApiVersionMatcher(Version version) {
         return new RequestApiVersionRouteMatcher(resourceApiVersionMatcher(version));
+    }
+
+    /**
+     * A matcher to check if the request is for all versions of the API descriptor of the current path.
+     *
+     * @return A {@code RouteMatcher} instance.
+     */
+    static RouteMatcher<Request> selfApiMatcher() {
+        return SELF_API_MATCHER;
     }
 
     /**
@@ -190,6 +202,51 @@ public final class RouteMatchers {
         @Override
         public int hashCode() {
             return delegate.hashCode();
+        }
+    }
+
+    private static class SelfApiMatcher extends RouteMatcher<Request> {
+
+        @Override
+        public RouteMatch evaluate(Context context, final Request request) {
+            return new RouteMatch() {
+                @Override
+                public boolean isBetterMatchThan(RouteMatch result) throws IncomparableRouteMatchException {
+                    return request.getRequestType().equals(RequestType.API)
+                            && request.getResourceVersion() == null
+                            && request.getResourcePathObject().equals(ResourcePath.empty());
+                }
+
+                @Override
+                public Context decorateContext(Context context) {
+                    return context;
+                }
+            };
+        }
+
+        @Override
+        public String toString() {
+            return "API Request";
+        }
+
+        @Override
+        public int hashCode() {
+            return 0;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return this == o;
+        }
+
+        @Override
+        public String idFragment() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <D> D transformApi(D descriptor, ApiProducer<D> producer) {
+            throw new UnsupportedOperationException();
         }
     }
 }

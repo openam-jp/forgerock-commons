@@ -16,14 +16,25 @@
 
 package org.forgerock.json.resource;
 
-import static org.forgerock.http.routing.RoutingMode.*;
-import static org.forgerock.json.resource.Requests.*;
-import static org.forgerock.json.resource.ResourceApiVersionRoutingFilter.*;
-import static org.forgerock.json.resource.Resources.*;
-import static org.forgerock.json.resource.RouteMatchers.*;
-import static org.forgerock.util.promise.Promises.*;
+import static org.forgerock.http.routing.RoutingMode.EQUALS;
+import static org.forgerock.http.routing.RoutingMode.STARTS_WITH;
+import static org.forgerock.json.resource.Requests.copyOfActionRequest;
+import static org.forgerock.json.resource.Requests.copyOfApiRequest;
+import static org.forgerock.json.resource.Requests.copyOfCreateRequest;
+import static org.forgerock.json.resource.Requests.copyOfDeleteRequest;
+import static org.forgerock.json.resource.Requests.copyOfPatchRequest;
+import static org.forgerock.json.resource.Requests.copyOfQueryRequest;
+import static org.forgerock.json.resource.Requests.copyOfReadRequest;
+import static org.forgerock.json.resource.Requests.copyOfUpdateRequest;
+import static org.forgerock.json.resource.ResourceApiVersionRoutingFilter.setApiVersionInfo;
+import static org.forgerock.json.resource.Resources.newHandler;
+import static org.forgerock.json.resource.RouteMatchers.requestResourceApiVersionMatcher;
+import static org.forgerock.json.resource.RouteMatchers.requestUriMatcher;
+import static org.forgerock.json.resource.RouteMatchers.selfApiMatcher;
+import static org.forgerock.util.promise.Promises.newExceptionPromise;
 
 import org.forgerock.api.models.ApiDescription;
+import org.forgerock.http.ApiProducer;
 import org.forgerock.http.routing.ApiVersionRouterContext;
 import org.forgerock.http.routing.RoutingMode;
 import org.forgerock.http.routing.UriRouterContext;
@@ -63,6 +74,8 @@ import org.forgerock.util.promise.Promise;
  */
 public class Router extends AbstractRouter<Router, Request, RequestHandler, ApiDescription>
         implements RequestHandler {
+
+    private RequestHandler selfApiHandler = new SelfApiHandler();
 
     /**
      * Creates a new router with no routes defined.
@@ -349,7 +362,7 @@ public class Router extends AbstractRouter<Router, Request, RequestHandler, ApiD
     @SuppressWarnings("unchecked")
     public ApiDescription handleApiRequest(Context context, Request request) {
         try {
-            Pair<Context, RequestHandler> bestRoute = getBestRoute(context, request);
+            Pair<Context, RequestHandler> bestRoute = getBestApiRoute(context, request);
             if (bestRoute != null) {
                 RequestHandler handler = bestRoute.getSecond();
                 if (handler instanceof Describable) {
@@ -407,6 +420,34 @@ public class Router extends AbstractRouter<Router, Request, RequestHandler, ApiD
         @Override
         public String toString() {
             return template;
+        }
+    }
+
+    @Override
+    protected Pair<RouteMatcher<Request>, RequestHandler> getSelfApiHandler() {
+        return Pair.of(selfApiMatcher(), selfApiHandler);
+    }
+
+    private class SelfApiHandler extends AbstractRequestHandler implements Describable<ApiDescription, Request> {
+
+        @Override
+        public ApiDescription api(ApiProducer<ApiDescription> producer) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ApiDescription handleApiRequest(Context context, Request request) {
+            return api;
+        }
+
+        @Override
+        public void addDescriptorListener(Listener listener) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void removeDescriptorListener(Listener listener) {
+            throw new UnsupportedOperationException();
         }
     }
 }

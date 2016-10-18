@@ -42,6 +42,7 @@ import javax.security.auth.message.callback.CallerPrincipalCallback;
 import org.forgerock.caf.authentication.api.AuthenticationException;
 import org.forgerock.caf.authentication.framework.AuthenticationFramework;
 import org.forgerock.json.jose.builders.JwtBuilderFactory;
+import org.forgerock.json.jose.exceptions.InvalidJwtException;
 import org.forgerock.json.jose.exceptions.JweDecryptionException;
 import org.forgerock.json.jose.jwe.EncryptionMethod;
 import org.forgerock.json.jose.jwe.JweAlgorithm;
@@ -269,6 +270,9 @@ abstract class AbstractJwtSessionModule<C extends JwtSessionCookie> {
             final Jwt jwt;
             try {
                 jwt = verifySessionJwt(jwtSessionCookie.getValue());
+            } catch (InvalidJwtException e) {
+                LOG.debug("Invalid Jwt content", e);
+                return null;
             } catch (JweDecryptionException e) {
                 LOG.debug("Failed to decrypt Jwt", e);
                 return null;

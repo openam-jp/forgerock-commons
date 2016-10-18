@@ -414,13 +414,7 @@ class JsonFileWriter {
                         Files.createDirectory(directoryPath);
                     }
                     filePath = directoryPath.resolve(fileName);
-                    if (Files.notExists(filePath)) {
-                        fileChannel = FileChannel.open(filePath, StandardOpenOption.CREATE_NEW,
-                                StandardOpenOption.WRITE);
-                    } else {
-                        fileChannel = FileChannel.open(filePath, StandardOpenOption.WRITE);
-                        positionInFile = fileChannel.size();
-                    }
+                    openFileChannel();
 
                     final File currentFile = filePath.toFile();
                     fileNamingPolicy = configuration.getFileRotation().buildTimeStampFileNamingPolicy(currentFile);
@@ -441,6 +435,9 @@ class JsonFileWriter {
                 if (outputStream.byteBuffer().position() >= FILE_BUFFER_THRESHOLD) {
                     outputStream.byteBuffer().flip();
                     try {
+                        if (Files.notExists(filePath)) {
+                            openFileChannel();
+                        }
                         // write buffer to file
                         positionInFile += fileChannel.write(outputStream.byteBuffer(), positionInFile);
                     } finally {
@@ -455,6 +452,10 @@ class JsonFileWriter {
                     // write buffer to file
                     outputStream.byteBuffer().flip();
                     try {
+                        if (Files.notExists(filePath)) {
+                            openFileChannel();
+                        }
+                        // write buffer to file
                         positionInFile += fileChannel.write(outputStream.byteBuffer(), positionInFile);
                     } catch (IOException e) {
                         logger.error("Failed to flush file buffer", e);
@@ -511,10 +512,13 @@ class JsonFileWriter {
                 final Path archivedFilePath = fileNamingPolicy.getNextName().toPath();
                 Files.move(filePath, archivedFilePath);
                 // create new file
-                fileChannel = FileChannel.open(filePath, StandardOpenOption.CREATE_NEW,
-                        StandardOpenOption.WRITE);
-                positionInFile = 0;
+                openFileChannel();
                 lastRotationTime = DateTime.now(DateTimeZone.UTC);
+            }
+
+            private void openFileChannel() throws IOException {
+                fileChannel = FileChannel.open(filePath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                positionInFile = fileChannel.size();
             }
 
             @Override

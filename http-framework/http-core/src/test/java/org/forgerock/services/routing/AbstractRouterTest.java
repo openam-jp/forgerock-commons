@@ -350,6 +350,7 @@ public class AbstractRouterTest {
     @Test
     public void shouldNotifyOnRouterDescribableAddition() {
         // Given
+        router.api(new StringApiProducer());
         Describable.Listener listener = mock(Describable.Listener.class);
         router.addDescriptorListener(listener);
 
@@ -361,14 +362,29 @@ public class AbstractRouterTest {
     }
 
     @Test
-    public void shouldNotifyOnRouterDescribableRemoval() {
+    public void shouldNotNotifyBeforeInitialisedWithProducer() {
         // Given
-        router.addRoute(routeOneMatcher, routeOneHandler);
         Describable.Listener listener = mock(Describable.Listener.class);
         router.addDescriptorListener(listener);
 
         // When
-        router.addRoute(routeOneMatcher, mock(Handler.class));
+        router.addRoute(routeOneMatcher, routeOneHandler);
+        router.removeRoute(routeOneMatcher);
+
+        // Then
+        verifyNoMoreInteractions(listener);
+    }
+
+    @Test
+    public void shouldNotifyOnRouterDescribableRemoval() {
+        // Given
+        router.addRoute(routeOneMatcher, routeOneHandler);
+        router.api(new StringApiProducer());
+        Describable.Listener listener = mock(Describable.Listener.class);
+        router.addDescriptorListener(listener);
+
+        // When
+        router.removeRoute(routeOneMatcher);
 
         // Then
         verify(listener).notifyDescriptorChange();

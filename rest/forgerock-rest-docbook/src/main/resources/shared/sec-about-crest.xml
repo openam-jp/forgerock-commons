@@ -24,11 +24,10 @@
  <title>About ForgeRock Common REST</title>
 
  <para>
-  For many REST APIs that are not defined by external standards,
-  ForgeRock products provide common ways
-  to access web resources and collections of resources.
-  This section covers what is common across products.
-  Adapt the examples to your types of resources and to your deployment.
+  ForgeRock® Common REST is a common REST API framework. It works across the
+  ForgeRock platform to provide common ways to access web resources and
+  collections of resources. Adapt the examples in this section to your resources
+  and deployment.
  </para>
 
  <section xml:id="about-crest-resources">

@@ -29,7 +29,7 @@ import io.swagger.models.Operation;
 /**
  * Localizable {@link Operation}.
  */
-class LocalizableOperation extends Operation implements LocalizableDescription<Operation> {
+public class LocalizableOperation extends Operation implements LocalizableDescription<Operation> {
     private LocalizableString description;
     private List<LocalizableString> tags;
 
@@ -62,6 +62,10 @@ class LocalizableOperation extends Operation implements LocalizableDescription<O
         addTag(new LocalizableString(tag));
     }
 
+    /**
+     * Adds a Tag, a String value that is metadata related to the Operation.
+     * @param tag a LocalizableString
+     */
     public void addTag(LocalizableString tag) {
         if (tags == null) {
             tags = new ArrayList<>();
@@ -78,6 +82,11 @@ class LocalizableOperation extends Operation implements LocalizableDescription<O
         }
     }
 
+    /**
+     * Returns the localizable tags for this operation.
+     *
+     * @return the localizable tags for this operation
+     */
     @JsonProperty("tags")
     public List<LocalizableString> getLocalizableTags() {
         return tags;

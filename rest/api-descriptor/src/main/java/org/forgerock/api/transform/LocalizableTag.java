@@ -26,7 +26,7 @@ import io.swagger.models.Tag;
 /**
  * Localizable {@link io.swagger.models.Tag}.
  */
-class LocalizableTag extends Tag implements LocalizableDescription<Tag> {
+public class LocalizableTag extends Tag implements LocalizableDescription<Tag> {
     private LocalizableString description;
     private LocalizableString name;
 
@@ -53,6 +53,12 @@ class LocalizableTag extends Tag implements LocalizableDescription<Tag> {
         return description;
     }
 
+    /**
+     * Sets the name of the Tag.
+     *
+     * @param name the tag name
+     * @return the localizable tag
+     */
     public LocalizableTag name(LocalizableString name) {
         super.setName(name.toString());
         this.name = name;
@@ -71,6 +77,11 @@ class LocalizableTag extends Tag implements LocalizableDescription<Tag> {
         this.name = new LocalizableString(name);
     }
 
+    /**
+     * Returns the name of a Tag, a LocalizableString.
+     *
+     * @return the name, a LocalizableString
+     */
     @JsonProperty("name")
     public LocalizableString getLocalizableName() {
         return name;

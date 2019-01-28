@@ -18,13 +18,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-     <groupId>jp.openam.commons</groupId>
-     <artifactId>commons-bom</artifactId>
-     <relativePath>commons-bom/pom.xml</relativePath>
-     <version>20.1.1-SNAPSHOT</version>
+    <groupId>jp.openam</groupId>
+    <artifactId>forgerock-parent</artifactId>
+    <version>2.0.7-SNAPSHOT</version>
   </parent>
 
+  <groupId>jp.openam.commons</groupId>
   <artifactId>commons-parent</artifactId>
+  <version>20.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ForgeRock Commons Parent</name>
@@ -63,7 +64,6 @@
   </prerequisites>
 
   <modules>
-    <module>commons-bom</module>
     <module>audit</module>
     <module>auth-filters</module>
     <module>http-framework</module>
@@ -76,4 +76,16 @@
     <module>self-service</module>
     <module>util</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>jp.openam.commons</groupId>
+        <artifactId>forgerock-bom</artifactId>
+        <version>4.1.2-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

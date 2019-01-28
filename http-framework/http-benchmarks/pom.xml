@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>forgerock-http-framework-parent</artifactId>
-    <groupId>org.forgerock.http</groupId>
+    <groupId>jp.openam.http</groupId>
     <version>20.1.1-SNAPSHOT</version>
   </parent>
 
@@ -40,7 +40,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.forgerock.http</groupId>
+      <groupId>jp.openam.http</groupId>
       <artifactId>chf-http-core</artifactId>
     </dependency>
   </dependencies>

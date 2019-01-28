@@ -33,11 +33,6 @@
         Common implementation of self service including such features as password reset and user self service.
     </description>
 
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/USS</url>
-    </issueManagement>
-
     <modules>
         <module>forgerock-selfservice-core</module>
         <module>forgerock-selfservice-custom-stage</module>

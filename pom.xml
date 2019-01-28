@@ -31,7 +31,7 @@
   <description>
     This group modules includes the Forgerock Commons components
   </description>
-  <url>http://www.forgerock.com</url>
+  <url>https://github.com/openam-jp/forgerock-commons</url>
 
   <licenses>
     <license>
@@ -43,20 +43,14 @@
   </licenses>
 
   <issueManagement>
-    <system>JIRA</system>
-    <url>https://bugster.forgerock.org/jira/browse/COMMONS</url>
+    <system>GitHub</system>
+    <url>https://github.com/openam-jp/forgerock-commons/issues</url>
   </issueManagement>
 
-  <ciManagement>
-    <system>jenkins</system>
-    <url>https://ci.forgerock.org/job/Commons%20-%20forgerock-commons%20-%20postcommit</url>
-  </ciManagement>
-
   <scm>
-    <connection>scm:git:ssh://git@stash.forgerock.org:7999/commons/forgerock-commons.git</connection>
-    <developerConnection>scm:git:ssh://git@stash.forgerock.org:7999/commons/forgerock-commons.git</developerConnection>
-    <url>https://stash.forgerock.org/projects/COMMONS/repos/forgerock-commons/browse</url>
-    <tag>20.1.0</tag>
+    <connection>scm:git:git@github.com:openam-jp/forgerock-commons.git</connection>
+    <developerConnection>scm:git:https://github.com/openam-jp/forgerock-commons.git</developerConnection>
+    <url>https://github.com/openam-jp/forgerock-commons</url>
   </scm>
 
   <properties>

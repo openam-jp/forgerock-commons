@@ -25,18 +25,6 @@
     <name>ForgeRock Utility Classes Parent</name>
     <description>Miscellaneous utility classes used within ForgeRock projects.</description>
     <packaging>pom</packaging>
-    <url>http://commons.forgerock.org/forgerock-util</url>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/COMMONS</url>
-    </issueManagement>
-    <distributionManagement>
-        <site>
-            <id>community.internal.forgerock.com</id>
-            <name>ForgeRock Community</name>
-            <url>scp://community.internal.forgerock.com/var/www/vhosts/commons.forgerock.org/httpdocs/forgerock-util</url>
-        </site>
-    </distributionManagement>
     <properties>
         <clirrComparisonVersion>3.0.0</clirrComparisonVersion>
     </properties>

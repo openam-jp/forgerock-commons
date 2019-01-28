@@ -535,7 +535,4 @@
         </dependencies>
     </dependencyManagement>
 
-  <scm>
-    <tag>20.1.0</tag>
-  </scm>
 </project>

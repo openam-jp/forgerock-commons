@@ -25,18 +25,6 @@
     <artifactId>json-schema</artifactId>
     <packaging>pom</packaging>
     <name>JSON Schema libraries</name>
-    <url>http://commons.forgerock.org/json-schema</url>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/CREST</url>
-    </issueManagement>
-    <distributionManagement>
-        <site>
-            <id>forgerock.org</id>
-            <name>ForgeRock Community</name>
-            <url>scp://forgerock.org/var/www/vhosts/commons.forgerock.org/httpdocs/json-schema</url>
-        </site>
-    </distributionManagement>
     <modules>
         <module>json-schema-core</module>
         <module>json-schema-cli</module>

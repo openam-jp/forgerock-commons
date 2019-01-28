@@ -26,10 +26,6 @@
     <packaging>bundle</packaging>
     <name>JSON Patch library</name>
     <description>ForgeRock JSON Patch project</description>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/CREST</url>
-    </issueManagement>
     <dependencies>
         <dependency>
             <groupId>org.forgerock.commons</groupId>

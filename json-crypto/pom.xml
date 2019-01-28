@@ -26,17 +26,6 @@
     <packaging>pom</packaging>
     <name>JSON Crypto libraries</name>
     <url>http://commons.forgerock.org/json-crypto</url>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/COMMONS</url>
-    </issueManagement>
-    <distributionManagement>
-        <site>
-            <id>forgerock.org</id>
-            <name>ForgeRock Community</name>
-            <url>scp://forgerock.org/var/www/vhosts/commons.forgerock.org/httpdocs/json-crypto</url>
-        </site>
-    </distributionManagement>
     <modules>
         <module>json-crypto-core</module>
         <module>json-crypto-cli</module>

@@ -30,11 +30,6 @@
     <name>Commons - ForgeRock Audit Framework</name>
     <description>Implements the commons audit framework.</description>
 
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/CAUD</url>
-    </issueManagement>
-
     <properties>
         <commons.forgerock-bom.version>7.0</commons.forgerock-bom.version>
 

@@ -26,18 +26,6 @@
     <packaging>pom</packaging>
     <name>ForgeRock REST libraries</name>
     <description>Common resource-oriented libraries used by ForgeRock projects</description>
-    <url>http://commons.forgerock.org/forgerock-rest</url>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/CREST</url>
-    </issueManagement>
-    <distributionManagement>
-        <site>
-            <id>forgerock.org</id>
-            <name>ForgeRock Community</name>
-            <url>scp://forgerock.org/var/www/vhosts/commons.forgerock.org/httpdocs/forgerock-rest</url>
-        </site>
-    </distributionManagement>
     <properties>
         <commons.forgerock-bom.version>6.0</commons.forgerock-bom.version>
         <i18nFrameworkVersion>1.4.1</i18nFrameworkVersion>

@@ -32,11 +32,6 @@
        script friendly, and includes adapters for various common HTTP libraries
        such as Servlet, Apache HTTP Clients, and Grizzly.
   </description>
-  <url>http://commons.forgerock.org/forgerock-http-framework</url>
-  <issueManagement>
-    <system>JIRA</system>
-    <url>https://bugster.forgerock.org/jira/browse/CHF</url>
-  </issueManagement>
   <modules>
     <module>http-core</module>
     <module>http-servlet</module>
@@ -77,13 +72,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  <distributionManagement>
-    <site>
-      <id>forgerock.org</id>
-      <name>ForgeRock Community</name>
-      <url>scp://forgerock.org/var/www/vhosts/commons.forgerock.org/httpdocs/forgerock-http-framework</url>
-    </site>
-  </distributionManagement>
   <profiles>
     <profile>
       <id>benchmarks</id>

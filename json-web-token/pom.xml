@@ -28,18 +28,6 @@
     <description>ForgeRock JSON Web Token library</description>
     <packaging>bundle</packaging>
 
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/CREST</url>
-    </issueManagement>
-
-    <distributionManagement>
-        <site>
-            <id>forgerock.org</id>
-            <name>ForgeRock Community</name>
-            <url>scp://forgerock.org/var/www/vhosts/commons.forgerock.org/httpdocs/json-web-token</url>
-        </site>
-    </distributionManagement>
     <properties>
         <clirrComparisonVersion>3.0.0</clirrComparisonVersion>
     </properties>

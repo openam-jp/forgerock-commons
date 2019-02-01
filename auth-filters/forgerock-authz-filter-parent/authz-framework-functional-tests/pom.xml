@@ -114,6 +114,7 @@
                         <properties>
                             <cargo.servlet.port>${servlet.port}</cargo.servlet.port>
                             <cargo.tomcat.ajp.port>${servlet.ajp.port}</cargo.tomcat.ajp.port>
+                            <cargo.jvmargs>-Djava.security.egd=file:/dev/urandom</cargo.jvmargs>
                         </properties>
                     </configuration>
                     <deployables>

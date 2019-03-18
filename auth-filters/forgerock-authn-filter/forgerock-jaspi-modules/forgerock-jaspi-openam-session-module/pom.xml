@@ -3,9 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.forgerock.commons</groupId>
+        <groupId>jp.openam.commons</groupId>
         <artifactId>forgerock-jaspi-modules</artifactId>
-        <version>20.1.0</version>
+        <version>20.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>forgerock-jaspi-openam-session-module</artifactId>
@@ -26,7 +26,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.forgerock.commons</groupId>
+            <groupId>jp.openam.commons</groupId>
             <artifactId>forgerock-jaspi-runtime</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -35,11 +35,11 @@
             <artifactId>javax.security.auth.message</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.forgerock.commons</groupId>
+            <groupId>jp.openam.commons</groupId>
             <artifactId>forgerock-util</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.forgerock.http</groupId>
+            <groupId>jp.openam.http</groupId>
             <artifactId>chf-http-core</artifactId>
         </dependency>
     </dependencies>

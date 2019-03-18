@@ -12,25 +12,27 @@
    Header, with the fields enclosed by brackets [] replaced by your own identifying
    information: "Portions copyright [year] [name of copyright owner]".
 
-    Copyright 2015-2016 ForgeRock AS.
+   Copyright 2015-2016 ForgeRock AS.
+   Portions Copyrighted 2019 Open Source Solution Technology Corporation
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-     <groupId>org.forgerock.commons</groupId>
-     <artifactId>commons-bom</artifactId>
-     <relativePath>commons-bom/pom.xml</relativePath>
-     <version>20.1.0</version>
+    <groupId>jp.openam</groupId>
+    <artifactId>forgerock-parent</artifactId>
+    <version>2.0.7-SNAPSHOT</version>
   </parent>
 
+  <groupId>jp.openam.commons</groupId>
   <artifactId>commons-parent</artifactId>
+  <version>20.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>ForgeRock Commons Parent</name>
   <description>
     This group modules includes the Forgerock Commons components
   </description>
-  <url>http://www.forgerock.com</url>
+  <url>https://github.com/openam-jp/forgerock-commons</url>
 
   <licenses>
     <license>
@@ -42,20 +44,14 @@
   </licenses>
 
   <issueManagement>
-    <system>JIRA</system>
-    <url>https://bugster.forgerock.org/jira/browse/COMMONS</url>
+    <system>GitHub</system>
+    <url>https://github.com/openam-jp/forgerock-commons/issues</url>
   </issueManagement>
 
-  <ciManagement>
-    <system>jenkins</system>
-    <url>https://ci.forgerock.org/job/Commons%20-%20forgerock-commons%20-%20postcommit</url>
-  </ciManagement>
-
   <scm>
-    <connection>scm:git:ssh://git@stash.forgerock.org:7999/commons/forgerock-commons.git</connection>
-    <developerConnection>scm:git:ssh://git@stash.forgerock.org:7999/commons/forgerock-commons.git</developerConnection>
-    <url>https://stash.forgerock.org/projects/COMMONS/repos/forgerock-commons/browse</url>
-    <tag>20.1.0</tag>
+    <connection>scm:git:git@github.com:openam-jp/forgerock-commons.git</connection>
+    <developerConnection>scm:git:https://github.com/openam-jp/forgerock-commons.git</developerConnection>
+    <url>https://github.com/openam-jp/forgerock-commons</url>
   </scm>
 
   <properties>
@@ -68,7 +64,6 @@
   </prerequisites>
 
   <modules>
-    <module>commons-bom</module>
     <module>audit</module>
     <module>auth-filters</module>
     <module>http-framework</module>
@@ -81,4 +76,16 @@
     <module>self-service</module>
     <module>util</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>jp.openam.commons</groupId>
+        <artifactId>forgerock-bom</artifactId>
+        <version>4.1.2-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>

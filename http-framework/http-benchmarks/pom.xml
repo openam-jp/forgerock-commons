@@ -13,13 +13,14 @@
   information: "Portions Copyright [year] [name of copyright owner]".
 
   Copyright 2016 ForgeRock AS.
+  Portions Copyrighted 2019 Open Source Solution Technology Corporation
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>forgerock-http-framework-parent</artifactId>
-    <groupId>org.forgerock.http</groupId>
-    <version>20.0.0-SNAPSHOT</version>
+    <groupId>jp.openam.http</groupId>
+    <version>20.1.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>chf-benchmarks</artifactId>
@@ -39,7 +40,7 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.forgerock.http</groupId>
+      <groupId>jp.openam.http</groupId>
       <artifactId>chf-http-core</artifactId>
     </dependency>
   </dependencies>

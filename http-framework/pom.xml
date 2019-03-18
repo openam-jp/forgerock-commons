@@ -14,15 +14,16 @@
 
   Copyright 2010–2011 ApexIdentity Inc.
   Portions Copyright 2011-2016 ForgeRock AS.
+  Portions Copyrighted 2019 Open Source Solution Technology Corporation
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.forgerock.commons</groupId>
+    <groupId>jp.openam.commons</groupId>
     <artifactId>commons-parent</artifactId>
-    <version>20.1.0</version>
+    <version>20.1.1-SNAPSHOT</version>
   </parent>
-  <groupId>org.forgerock.http</groupId>
+  <groupId>jp.openam.http</groupId>
   <artifactId>forgerock-http-framework-parent</artifactId>
   <packaging>pom</packaging>
   <name>Commons HTTP Framework</name>
@@ -31,11 +32,6 @@
        script friendly, and includes adapters for various common HTTP libraries
        such as Servlet, Apache HTTP Clients, and Grizzly.
   </description>
-  <url>http://commons.forgerock.org/forgerock-http-framework</url>
-  <issueManagement>
-    <system>JIRA</system>
-    <url>https://bugster.forgerock.org/jira/browse/CHF</url>
-  </issueManagement>
   <modules>
     <module>http-core</module>
     <module>http-servlet</module>
@@ -70,19 +66,12 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.forgerock.http</groupId>
+        <groupId>jp.openam.http</groupId>
         <artifactId>binding-test-utils</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
-  <distributionManagement>
-    <site>
-      <id>forgerock.org</id>
-      <name>ForgeRock Community</name>
-      <url>scp://forgerock.org/var/www/vhosts/commons.forgerock.org/httpdocs/forgerock-http-framework</url>
-    </site>
-  </distributionManagement>
   <profiles>
     <profile>
       <id>benchmarks</id>

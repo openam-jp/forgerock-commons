@@ -13,29 +13,19 @@
   information: "Portions Copyrighted [year] [name of copyright owner]".
 
   Copyright 2012-2016 ForgeRock AS.
+  Portions Copyrighted 2019 Open Source Solution Technology Corporation
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.forgerock.commons</groupId>
+        <groupId>jp.openam.commons</groupId>
         <artifactId>commons-parent</artifactId>
-        <version>20.1.0</version>
+        <version>20.1.1-SNAPSHOT</version>
     </parent>
     <artifactId>json-crypto</artifactId>
     <packaging>pom</packaging>
     <name>JSON Crypto libraries</name>
     <url>http://commons.forgerock.org/json-crypto</url>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/COMMONS</url>
-    </issueManagement>
-    <distributionManagement>
-        <site>
-            <id>forgerock.org</id>
-            <name>ForgeRock Community</name>
-            <url>scp://forgerock.org/var/www/vhosts/commons.forgerock.org/httpdocs/json-crypto</url>
-        </site>
-    </distributionManagement>
     <modules>
         <module>json-crypto-core</module>
         <module>json-crypto-cli</module>

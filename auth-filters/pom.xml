@@ -13,14 +13,15 @@
   * information: "Portions copyright [year] [name of copyright owner]".
   *
   * Copyright 2013-2016 ForgeRock AS.
+  * Portions Copyrighted 2019 Open Source Solution Technology Corporation
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-       <groupId>org.forgerock.commons</groupId>
+       <groupId>jp.openam.commons</groupId>
        <artifactId>commons-parent</artifactId>
-       <version>20.1.0</version>
+       <version>20.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>forgerock-auth-filters</artifactId>
@@ -28,21 +29,6 @@
 
     <name>ForgeRock Auth Filters</name>
     <description>ForgeRock Authentication and Authorization common filters</description>
-
-    <issueManagement>
-        <system>JIRA</system>
-        <url>https://bugster.forgerock.org/jira/browse/CAF</url>
-    </issueManagement>
-
-    <url>http://commons.forgerock.org/forgerock-auth-filters/</url>
-
-    <distributionManagement>
-        <site>
-            <id>community.internal.forgerock.com</id>
-            <name>ForgeRock Community</name>
-            <url>scp://community.internal.forgerock.com/var/www/vhosts/commons.forgerock.org/httpdocs/forgerock-auth-filters</url>
-        </site>
-    </distributionManagement>
 
     <modules>
         <module>forgerock-authn-filter</module>
@@ -52,35 +38,6 @@
     <properties>
         <restlet.version>2.1.2</restlet.version>
     </properties>
-
-    <ciManagement>
-        <system>jenkins</system>
-        <url>https://builds.forgerock.org/job/Commons%20-%20Auth%20Filters%20-%20trunk%20-%20postcommit/</url>
-        <notifiers>
-            <notifier>
-                <type>mail</type>
-                <sendOnError>true</sendOnError>
-                <sendOnFailure>true</sendOnFailure>
-                <sendOnSuccess>false</sendOnSuccess>
-                <sendOnWarning>false</sendOnWarning>
-                <address>commons@forgerock.org</address>
-            </notifier>
-        </notifiers>
-    </ciManagement>
-
-    <repositories>
-        <repository>
-            <id>restlet-cache</id>
-            <name>Restlet Cache Repository</name>
-            <url>http://maven.forgerock.org/repo/maven.restlet.org</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 
     <build>
         <pluginManagement>
@@ -130,18 +87,18 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.forgerock.commons</groupId>
+                <groupId>jp.openam.commons</groupId>
                 <artifactId>authz-framework-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.forgerock.commons</groupId>
+                <groupId>jp.openam.commons</groupId>
                 <artifactId>authz-framework</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>org.forgerock.commons</groupId>
+                <groupId>jp.openam.commons</groupId>
                 <artifactId>forgerock-jaspi-runtime</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -177,7 +134,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.forgerock.commons</groupId>
+            <groupId>jp.openam.commons</groupId>
             <artifactId>forgerock-test-utils</artifactId>
             <scope>test</scope>
         </dependency>

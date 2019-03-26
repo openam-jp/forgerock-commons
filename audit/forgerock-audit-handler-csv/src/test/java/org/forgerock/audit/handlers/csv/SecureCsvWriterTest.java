@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015-2016 ForgeRock AS.
+ * Portions Copyrighted 2019 Open Source Solution Technology Corporation
  */
 package org.forgerock.audit.handlers.csv;
 
@@ -149,8 +150,11 @@ public class SecureCsvWriterTest {
         final File actual = new File("target/test-classes/shouldGenerateHMACColumn-actual.txt");
         actual.delete();
         final String header = "FOO";
+        CsvAuditEventHandlerConfiguration config = createBasicSecureConfig();
+        // To expect only signatures when closing SecureCsvWriter, invalidate periodic signature addition.
+        config.getSecurity().setSignatureInterval("5 minutes");
         try (SecureCsvWriter secureCsvWriter = new SecureCsvWriter(
-                actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE, createBasicSecureConfig(),
+                actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE, config,
                 keyStoreHandler, random)) {
             Map<String, String> values;
 
@@ -230,6 +234,8 @@ public class SecureCsvWriterTest {
         config.getFileRotation().setRotationEnabled(true);
         config.getFileRotation().setRotationFileSuffix("-yyyy.MM.dd-HH.mm.ss.SSS");
         config.getFileRotation().setMaxFileSize(20);
+        // To expect only rotation when writing to SecureCsvWriter, invalidate periodic rotation.
+        config.setRotationRetentionCheckInterval("5 minutes");
 
         try (SecureCsvWriter secureCsvWriter = new SecureCsvWriter(
                 actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE, config, keyStoreHandler, random)) {

@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015-2016 ForgeRock AS.
+ * Portions Copyrighted 2019 Open Source Solution Technology Corporation
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 package org.forgerock.audit.handlers.csv;
 
@@ -63,7 +65,6 @@ public class SecureCsvWriterTest {
 
     private KeyStoreHandlerDecorator keyStoreHandler;
     private SecureStorage secureStorage;
-    private final Duration signatureInterval = duration("100 milliseconds");
     private Random random;
 
     @BeforeMethod
@@ -149,8 +150,11 @@ public class SecureCsvWriterTest {
         final File actual = new File("target/test-classes/shouldGenerateHMACColumn-actual.txt");
         actual.delete();
         final String header = "FOO";
+        // To expect only signatures when closing SecureCsvWriter, invalidate periodic signature addition.
+        final String signatureInterval = "5 minutes";
         try (SecureCsvWriter secureCsvWriter = new SecureCsvWriter(
-                actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE, createBasicSecureConfig(),
+                actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE,
+                createBasicSecureConfig(signatureInterval),
                 keyStoreHandler, random)) {
             Map<String, String> values;
 
@@ -181,14 +185,16 @@ public class SecureCsvWriterTest {
         final File actual = new File("target/test-classes/shouldGeneratePeriodicallySignature-actual.txt");
         actual.delete();
         final String header = "FOO";
+        final String signatureInterval = "100 milliseconds";
         try (SecureCsvWriter secureCsvWriter = new SecureCsvWriter(
-                actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE, createBasicSecureConfig(),
+                actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE,
+                createBasicSecureConfig(signatureInterval),
                 keyStoreHandler, random)) {
 
             secureCsvWriter.writeEvent(singletonMap(header, "bar"));
 
             // A signature has to be generated during this timelapse.
-            Thread.sleep(signatureInterval.to(TimeUnit.MILLISECONDS) + 200);
+            Thread.sleep(duration(signatureInterval).to(TimeUnit.MILLISECONDS) + 200);
 
             // We expect :
             // - header
@@ -211,10 +217,10 @@ public class SecureCsvWriterTest {
                 new File("target/test-classes/shouldGeneratePeriodicallySignature-expected.txt")));
     }
 
-    private CsvAuditEventHandlerConfiguration createBasicSecureConfig() {
+    private CsvAuditEventHandlerConfiguration createBasicSecureConfig(String signatureInterval) {
         CsvAuditEventHandlerConfiguration configuration = new CsvAuditEventHandlerConfiguration();
         configuration.getSecurity().setEnabled(true);
-        configuration.getSecurity().setSignatureInterval(signatureInterval.toString());
+        configuration.getSecurity().setSignatureInterval(signatureInterval);
         return configuration;
     }
 
@@ -230,6 +236,8 @@ public class SecureCsvWriterTest {
         config.getFileRotation().setRotationEnabled(true);
         config.getFileRotation().setRotationFileSuffix("-yyyy.MM.dd-HH.mm.ss.SSS");
         config.getFileRotation().setMaxFileSize(20);
+        // To expect only rotation when writing to SecureCsvWriter, invalidate periodic rotation.
+        config.setRotationRetentionCheckInterval("5 minutes");
 
         try (SecureCsvWriter secureCsvWriter = new SecureCsvWriter(
                 actual, new String[]{header}, CsvPreference.EXCEL_PREFERENCE, config, keyStoreHandler, random)) {

@@ -12,11 +12,11 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2016 ForgeRock AS.
+ * Portions Copyrighted 2019 Open Source Solution Technology Corporation
  */
 
 package org.forgerock.json.jose.jws.handlers;
 
-import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
@@ -24,7 +24,6 @@ import java.security.SignatureException;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
-import java.util.Arrays;
 
 import org.forgerock.json.jose.exceptions.JwsException;
 import org.forgerock.json.jose.exceptions.JwsSigningException;
@@ -78,7 +77,7 @@ public class ECDSASigningHandler implements SigningHandler {
             final Signature signature = Signature.getInstance(algorithm.getAlgorithm());
             signature.initSign(signingKey);
             signature.update(data);
-            return derDecode(signature.sign(), curve.getSignatureSize());
+            return DerUtils.decode(signature.sign(), curve.getSignatureSize());
         } catch (SignatureException | InvalidKeyException e) {
             throw new JwsSigningException(e);
         } catch (NoSuchAlgorithmException e) {
@@ -94,7 +93,8 @@ public class ECDSASigningHandler implements SigningHandler {
             final Signature validator = Signature.getInstance(algorithm.getAlgorithm());
             validator.initVerify(verificationKey);
             validator.update(data);
-            return validator.verify(derEncode(signature));
+            SupportedEllipticCurve curve = SupportedEllipticCurve.forSignature(signature);
+            return validator.verify(DerUtils.encode(signature, curve.getSignatureSize()));
         } catch (SignatureException | InvalidKeyException e) {
             throw new JwsSigningException(e);
         } catch (NoSuchAlgorithmException e) {
@@ -119,49 +119,4 @@ public class ECDSASigningHandler implements SigningHandler {
             throw new JwsException(ex);
         }
     }
-
-    /**
-     * Minimal DER decoder for the format returned by the SunEC signature provider.
-     */
-    private static byte[] derDecode(final byte[] signature, final int signatureSize) {
-        final ByteBuffer buffer = ByteBuffer.wrap(signature);
-        if (buffer.get() != DerUtils.SEQUENCE_TAG) {
-            throw new JwsSigningException("Unable to decode DER signature");
-        }
-        // Skip overall size
-        DerUtils.readLength(buffer);
-
-        final byte[] output = new byte[signatureSize];
-        final int componentSize = signatureSize >> 1;
-        DerUtils.readUnsignedInteger(buffer, output, 0, componentSize);
-        DerUtils.readUnsignedInteger(buffer, output, componentSize, componentSize);
-        return output;
-    }
-
-    /**
-     * Minimal DER encoder for the format expected by the SunEC signature provider.
-     */
-    private static byte[] derEncode(final byte[] signature) {
-        Reject.ifNull(signature);
-        SupportedEllipticCurve curve = SupportedEllipticCurve.forSignature(signature);
-
-        int midPoint = curve.getSignatureSize() >> 1;
-        final byte[] r = Arrays.copyOfRange(signature, 0, midPoint);
-        final byte[] s = Arrays.copyOfRange(signature, midPoint, signature.length);
-
-        // Each integer component needs at most 2 bytes for the length field and 1 byte for the tag, for a total of 6
-        // bytes for both integers.
-        final ByteBuffer params = ByteBuffer.allocate(signature.length + 6);
-        DerUtils.writeInteger(params, r);
-        DerUtils.writeInteger(params, s);
-
-        final int size = params.position();
-        // The overall sequence may need up to 4 bytes for the length field plus 1 byte for the sequence tag.
-        final ByteBuffer sequence = ByteBuffer.allocate(size + 5);
-        sequence.put(DerUtils.SEQUENCE_TAG);
-        DerUtils.writeLength(sequence, size);
-        sequence.put((ByteBuffer) params.flip());
-        return sequence.array();
-    }
-
 }

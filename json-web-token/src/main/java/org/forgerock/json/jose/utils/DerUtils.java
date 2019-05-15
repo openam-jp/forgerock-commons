@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2016 ForgeRock AS.
+ * Portions Copyrighted 2019 Open Source Solution Technology Corporation
  */
 
 package org.forgerock.json.jose.utils;
@@ -19,6 +20,8 @@ package org.forgerock.json.jose.utils;
 import java.math.BigInteger;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.security.SignatureException;
+import java.util.Arrays;
 
 import org.forgerock.util.Reject;
 
@@ -40,6 +43,64 @@ public final class DerUtils {
         // Utility class
     }
 
+    /**
+     * Minimal DER decoder for the format returned by the SunEC signature provider.
+     * 
+     * @param signature DER-encoded signature
+     * @param signatureSize the signature size
+     * @return DER-decoded signature
+     * @throws SignatureException 
+     */
+    public static byte[] decode(final byte[] signature, final int signatureSize) 
+            throws SignatureException {
+        final ByteBuffer buffer = ByteBuffer.wrap(signature);
+        if (buffer.get() != SEQUENCE_TAG) {
+            throw new SignatureException("Unable to decode DER signature");
+        }
+        // Skip overall size
+        readLength(buffer);
+
+        final byte[] output = new byte[signatureSize];
+        final int componentSize = signatureSize >> 1;
+        readUnsignedInteger(buffer, output, 0, componentSize);
+        readUnsignedInteger(buffer, output, componentSize, componentSize);
+        return output;
+    }
+
+    /**
+     * Minimal DER encoder for the format expected by the SunEC signature provider.
+     * 
+     * @param signature DER-decoded signature
+     * @param signatureSize the signature size
+     * @return DER-encoded signature
+     */
+    public static byte[] encode(final byte[] signature,  final int signatureSize) {
+        Reject.ifNull(signature);
+
+        final int midPoint = signatureSize >> 1;
+        final BigInteger r = new BigInteger(Arrays.copyOfRange(signature, 0, midPoint));
+        final BigInteger s = new BigInteger(Arrays.copyOfRange(signature, midPoint, signature.length));
+
+        // Each integer component needs at most 2 bytes for the length field and 1 byte for the tag, for a total of 6
+        // bytes for both integers.
+        final ByteBuffer params = ByteBuffer.allocate(signature.length + 6);
+        writeInteger(params, r.toByteArray());
+        writeInteger(params, s.toByteArray());
+
+        params.flip();
+        final int size = params.limit();
+        // The overall sequence may need up to 4 bytes for the length field plus 1 byte for the sequence tag.
+        final ByteBuffer sequence = ByteBuffer.allocate(size + 5);
+        sequence.put(SEQUENCE_TAG);
+        writeLength(sequence, size);
+        sequence.put(params);
+        
+        sequence.flip();
+        final byte[] result = new byte[sequence.limit()];
+        sequence.get(result);
+        return result;
+    }
+    
     /**
      * Reads an unsigned integer value into the given byte array. The output will be in big-endian format and aligned
      * to take up exactly {@code length} bytes (leaving untouched any unused leading bytes).
@@ -109,9 +170,18 @@ public final class DerUtils {
         if (length < 128) {
             output.put((byte) (length & 0x7F));
         } else {
-            final byte[] bytes = BigInteger.valueOf(length).toByteArray();
-            output.put((byte) (bytes.length | 0x80));
-            output.put(bytes);
+            int size = 1;
+            int val = length;
+            
+            while ((val >>>= 8) != 0) {
+                size++;
+            }
+            
+            output.put((byte)(size | 0x80));
+
+            for (int i = (size - 1); i >= 0; i--) {
+                output.put((byte)(length >> (i * 8)));
+            }
         }
     }
 }

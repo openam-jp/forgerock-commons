@@ -12,6 +12,7 @@
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
  * Copyright 2014-2015 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 
 package org.forgerock.http.handler;
@@ -128,11 +129,11 @@ public final class HttpClientHandler implements Handler, Closeable {
     }
 
     /**
-     * Specifies the SSL host name verification policy. The default is to allow
-     * all host names.
+     * Specifies the SSL host name verification policy. The default is strict
+     * host name verification.
      */
     public static final Option<HostnameVerifier> OPTION_HOSTNAME_VERIFIER = Option.of(
-            HostnameVerifier.class, HostnameVerifier.ALLOW_ALL);
+            HostnameVerifier.class, HostnameVerifier.STRICT);
 
     /**
      * SSLContext algorithm to be used when making SSL/TLS connections.

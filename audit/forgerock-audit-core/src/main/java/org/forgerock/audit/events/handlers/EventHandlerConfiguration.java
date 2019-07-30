@@ -36,6 +36,10 @@ public abstract class EventHandlerConfiguration {
     @JsonPropertyDescription("audit.handlers.all.topics")
     private Set<String> topics;
 
+    /** Whether to use the local time zone for log timestamps is enabled. */
+    @JsonPropertyDescription("audit.handlers.all.timestamp_ltz")
+    private boolean timestamp_ltz_enabled = true;
+
     /**
      * Checks if the audit event handler is enabled.
      * @return
@@ -92,6 +96,26 @@ public abstract class EventHandlerConfiguration {
      */
     public void setTopics(Set<String> topics) {
         this.topics = topics;
+    }
+
+    /**
+     * Checks if the local time zone for log timestamps is enabled.
+     * @return
+     *      True - If the local time zone for log timestamps is enabled.
+     *      False - If the local time zone for log timestamps is disabled.
+     */
+    public boolean isTimestampLtzEnabled() {
+        return timestamp_ltz_enabled;
+    }
+
+    /**
+     * Sets the enabled flag for the local time zone for log timestamps.
+     * @param enabled
+     *      True - Enable the local time zone for log timestamps.
+     *      False - Disable the local time zone for log timestamps.
+     */
+    public void setTimestampLtzEnabled(final boolean enabled) {
+        this.timestamp_ltz_enabled = enabled;
     }
 
     /**

@@ -160,8 +160,22 @@ public abstract class AuditEventBuilder<T extends AuditEventBuilder<T>> {
      * @return this builder
      */
     public final T timestamp(long timestamp) {
+        return timestamp(timestamp, true);
+    }
+
+    /**
+     * Sets the provided time stamp for the event.
+     *
+     * @param timestamp the time stamp.
+     * @return this builder
+     */
+    public final T timestamp(long timestamp, boolean ltz_enabled) {
         Reject.ifTrue(timestamp <= 0, "The timestamp has to be greater than 0.");
-        jsonValue.put(TIMESTAMP, DateUtil.getDateUtil("UTC").formatDateTime(timestamp));
+        if(ltz_enabled) {
+            jsonValue.put(TIMESTAMP, DateUtil.getDateUtil().formatDateTime(timestamp));
+        } else {
+            jsonValue.put(TIMESTAMP, DateUtil.getDateUtil("UTC").formatDateTime(timestamp));
+        }
         return self();
     }
 

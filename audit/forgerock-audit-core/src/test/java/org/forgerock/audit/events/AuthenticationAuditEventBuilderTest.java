@@ -57,7 +57,7 @@ public class AuthenticationAuditEventBuilderTest {
 
         AuditEvent event = productAuthenticationEvent()
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .userId("someone@forgerock.com")
                 .eventName("AM-AUTHENTICATION-SUCCESSFUL")
                 .trackingId("12345")
@@ -85,7 +85,7 @@ public class AuthenticationAuditEventBuilderTest {
                 .result(Status.SUCCESSFUL)
                 .openField("value")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .toEvent();
         assertEvent(event);
     }

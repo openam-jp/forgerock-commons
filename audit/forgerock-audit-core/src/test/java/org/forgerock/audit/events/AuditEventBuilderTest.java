@@ -69,7 +69,7 @@ public class AuditEventBuilderTest {
     public void ensureAuditEventContainsTransactionId() throws Exception {
         productEvent()
                 .eventName("AM-CREST-SUCCESSFUL")
-                .timestamp(System.currentTimeMillis())
+                .timestamp(System.currentTimeMillis(),false)
                 .toEvent();
     }
 
@@ -77,7 +77,7 @@ public class AuditEventBuilderTest {
     public void ensureAuditEventContainsEventName() throws Exception {
         productEvent()
                 .transactionId("transactionId")
-                .timestamp(System.currentTimeMillis())
+                .timestamp(System.currentTimeMillis(),false)
                 .toEvent();
     }
 
@@ -98,7 +98,7 @@ public class AuditEventBuilderTest {
         AuditEvent event = productEvent()
                 .eventName("AM-CREST-SUCCESSFUL")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .userId("someone@forgerock.com")
                 .trackingId("12345")
                 .openField("value")
@@ -114,7 +114,7 @@ public class AuditEventBuilderTest {
                 .openField("value")
                 .transactionId("transactionId")
                 .eventName("AM-CREST-SUCCESSFUL")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .trackingId("12345")
                 .toEvent();
         assertEvent(event);

@@ -59,7 +59,7 @@ public class ConfigAuditEventBuilderTest {
 
         AuditEvent event = productConfigEvent()
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .eventName("AM-REALM-CREATE")
                 .trackingId("12345")
                 .trackingId("67890")
@@ -93,7 +93,7 @@ public class ConfigAuditEventBuilderTest {
                 .revision("2")
                 .openField("value")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .toEvent();
 
         assertEvent(event);
@@ -105,7 +105,7 @@ public class ConfigAuditEventBuilderTest {
         String afterState = "<rev>2</rev>";
 
         AuditEvent event = productActivityEvent()
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .transactionId("transactionId")
                 .eventName("AM-REALM-CREATE")
                 .objectId("thing")
@@ -126,7 +126,7 @@ public class ConfigAuditEventBuilderTest {
         JsonValue afterState = json(object(field("rev", "2")));
 
         AuditEvent event = productActivityEvent()
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .transactionId("transactionId")
                 .eventName("AM-REALM-CREATE")
                 .objectId("thing")

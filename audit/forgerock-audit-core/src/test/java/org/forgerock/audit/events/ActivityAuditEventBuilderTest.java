@@ -60,7 +60,7 @@ public class ActivityAuditEventBuilderTest {
 
         AuditEvent event = productActivityEvent()
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .eventName("AM-REALM-CREATE")
                 .trackingId("12345")
                 .trackingId("67890")
@@ -88,7 +88,7 @@ public class ActivityAuditEventBuilderTest {
 
         AuditEvent event = productActivityEvent()
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .eventName("AM-REALM-CREATE")
                 .userId("someone@forgerock.com")
                 .objectIdFromCrestRequest(request)
@@ -115,7 +115,7 @@ public class ActivityAuditEventBuilderTest {
                 .revision("2")
                 .openField("value")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .toEvent();
         assertEvent(event);
     }
@@ -126,7 +126,7 @@ public class ActivityAuditEventBuilderTest {
         String afterState = "<rev>2</rev>";
 
         AuditEvent event = productActivityEvent()
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .transactionId("transactionId")
                 .eventName("AM-REALM-CREATE")
                 .objectId("thing")
@@ -147,7 +147,7 @@ public class ActivityAuditEventBuilderTest {
         JsonValue afterState = json(object(field("rev", "2")));
 
         AuditEvent event = productActivityEvent()
-                .timestamp(1427293286239L)
+                .timestamp(1427293286239L,false)
                 .transactionId("transactionId")
                 .eventName("AM-REALM-CREATE")
                 .objectId("thing")

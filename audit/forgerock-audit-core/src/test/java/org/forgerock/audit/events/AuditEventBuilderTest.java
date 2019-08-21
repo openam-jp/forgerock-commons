@@ -22,6 +22,7 @@ import static org.forgerock.audit.events.AuditEventBuilderTest.OpenProductAuditE
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTimeZone;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.services.TransactionId;
@@ -69,7 +70,7 @@ public class AuditEventBuilderTest {
     public void ensureAuditEventContainsTransactionId() throws Exception {
         productEvent()
                 .eventName("AM-CREST-SUCCESSFUL")
-                .timestamp(System.currentTimeMillis(),false)
+                .timestamp(System.currentTimeMillis())
                 .toEvent();
     }
 
@@ -77,7 +78,7 @@ public class AuditEventBuilderTest {
     public void ensureAuditEventContainsEventName() throws Exception {
         productEvent()
                 .transactionId("transactionId")
-                .timestamp(System.currentTimeMillis(),false)
+                .timestamp(System.currentTimeMillis())
                 .toEvent();
     }
 
@@ -98,7 +99,7 @@ public class AuditEventBuilderTest {
         AuditEvent event = productEvent()
                 .eventName("AM-CREST-SUCCESSFUL")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .userId("someone@forgerock.com")
                 .trackingId("12345")
                 .openField("value")
@@ -114,7 +115,7 @@ public class AuditEventBuilderTest {
                 .openField("value")
                 .transactionId("transactionId")
                 .eventName("AM-CREST-SUCCESSFUL")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .trackingId("12345")
                 .toEvent();
         assertEvent(event);
@@ -135,6 +136,31 @@ public class AuditEventBuilderTest {
         // Then
         JsonValue value = event.getValue();
         assertThat(value.get(TRANSACTION_ID).asString()).isEqualTo(transactionId.getValue());
+    }
+
+    @Test
+    public void ensureEventContainsTimestampUsingLocalTimeZone() {
+
+    	// Given
+    	DateTimeZone originalTimeZone = DateTimeZone.getDefault();
+        DateTimeZone.setDefault(DateTimeZone.forID("Asia/Tokyo"));
+
+        // When
+        AuditEvent event = productEvent()
+                .eventName("AM-CREST-SUCCESSFUL")
+                .transactionId("transactionId")
+                .timestamp(1427293286239L, true)
+                .userId("someone@forgerock.com")
+                .trackingId("12345")
+                .openField("value")
+                .toEvent();
+
+        // Then
+        JsonValue value = event.getValue();
+        assertThat(value.get(TIMESTAMP).asString()).isEqualTo("2015-03-25T23:21:26.239+09:00");
+
+        // End
+        DateTimeZone.setDefault(originalTimeZone);
     }
 
     private void assertEvent(AuditEvent event) {

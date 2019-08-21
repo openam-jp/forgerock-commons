@@ -87,7 +87,7 @@ public class AccessAuditEventBuilderTest {
 
         AuditEvent event = productAccessEvent()
                 .transactionId("transactionId")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .eventName("IDM-sync-10")
                 .trackingId("12345")
                 .trackingId("67890")
@@ -132,7 +132,7 @@ public class AccessAuditEventBuilderTest {
                 .openField("value")
                 .transactionId("transactionId")
                 .userId("someone@forgerock.com")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .toEvent();
         assertEvent(event1);
 
@@ -143,7 +143,7 @@ public class AccessAuditEventBuilderTest {
                 .server("ip", 80)
                 .eventName("IDM-sync-10")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .toEvent();
         assertEvent(event2);
 
@@ -154,7 +154,7 @@ public class AccessAuditEventBuilderTest {
                 .server("ip", 80)
                 .userId("someone@forgerock.com")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .eventName("IDM-sync-10")
                 .toEvent();
         assertEvent(event3);
@@ -167,7 +167,7 @@ public class AccessAuditEventBuilderTest {
                 .server("ip", 80)
                 .eventName("IDM-sync-10")
                 .transactionId("transactionId")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .toEvent();
 
         assertEvent(event4);
@@ -182,7 +182,7 @@ public class AccessAuditEventBuilderTest {
                 .eventName("IDM-sync-10")
                 .transactionId("transactionId")
                 .userId("someone@forgerock.com")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .httpRequest(false, "GET", "/some/path", Collections.<String, List<String>>emptyMap(), headers)
                 .toEvent();
 
@@ -201,7 +201,7 @@ public class AccessAuditEventBuilderTest {
                 .eventName("IDM-sync-10")
                 .transactionId("transactionId")
                 .userId("someone@forgerock.com")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .httpRequest(false, "GET", "/some/path", Collections.<String, List<String>>emptyMap(), headers)
                 .toEvent();
 
@@ -221,7 +221,7 @@ public class AccessAuditEventBuilderTest {
                 .eventName("IDM-sync-10")
                 .transactionId("transactionId")
                 .userId("someone@forgerock.com")
-                .timestamp(1427293286239L,false)
+                .timestamp(1427293286239L)
                 .httpRequest(false, "GET", "/some/path", Collections.<String, List<String>>emptyMap(), headers)
                 .toEvent();
 

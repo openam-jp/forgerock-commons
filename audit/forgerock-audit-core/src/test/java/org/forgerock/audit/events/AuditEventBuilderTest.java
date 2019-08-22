@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 package org.forgerock.audit.events;
 
@@ -141,8 +142,8 @@ public class AuditEventBuilderTest {
     @Test
     public void ensureEventContainsTimestampUsingLocalTimeZone() {
 
-    	// Given
-    	DateTimeZone originalTimeZone = DateTimeZone.getDefault();
+        // Given
+        DateTimeZone originalTimeZone = DateTimeZone.getDefault();
         DateTimeZone.setDefault(DateTimeZone.forID("Asia/Tokyo"));
 
         // When

@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015-2016 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 package org.forgerock.audit.events;
 
@@ -160,8 +161,23 @@ public abstract class AuditEventBuilder<T extends AuditEventBuilder<T>> {
      * @return this builder
      */
     public final T timestamp(long timestamp) {
+        return timestamp(timestamp, false);
+    }
+
+    /**
+     * Sets the provided time stamp for the event.
+     *
+     * @param timestamp the time stamp.
+     * @param ltzEnabled the local time zone enabled.
+     * @return this builder
+     */
+    public final T timestamp(long timestamp, boolean ltzEnabled) {
         Reject.ifTrue(timestamp <= 0, "The timestamp has to be greater than 0.");
-        jsonValue.put(TIMESTAMP, DateUtil.getDateUtil("UTC").formatDateTime(timestamp));
+        if(ltzEnabled) {
+            jsonValue.put(TIMESTAMP, DateUtil.getDateUtil().formatDateTime(timestamp));
+        } else {
+            jsonValue.put(TIMESTAMP, DateUtil.getDateUtil("UTC").formatDateTime(timestamp));
+        }
         return self();
     }
 

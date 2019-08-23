@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 package org.forgerock.audit.events;
 
@@ -22,6 +23,7 @@ import static org.forgerock.audit.events.AuditEventBuilderTest.OpenProductAuditE
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.joda.time.DateTimeZone;
 
 import org.forgerock.json.JsonValue;
 import org.forgerock.services.TransactionId;
@@ -135,6 +137,31 @@ public class AuditEventBuilderTest {
         // Then
         JsonValue value = event.getValue();
         assertThat(value.get(TRANSACTION_ID).asString()).isEqualTo(transactionId.getValue());
+    }
+
+    @Test
+    public void ensureEventContainsTimestampUsingLocalTimeZone() {
+
+        // Given
+        DateTimeZone originalTimeZone = DateTimeZone.getDefault();
+        DateTimeZone.setDefault(DateTimeZone.forID("Asia/Tokyo"));
+
+        // When
+        AuditEvent event = productEvent()
+                .eventName("AM-CREST-SUCCESSFUL")
+                .transactionId("transactionId")
+                .timestamp(1427293286239L, true)
+                .userId("someone@forgerock.com")
+                .trackingId("12345")
+                .openField("value")
+                .toEvent();
+
+        // Then
+        JsonValue value = event.getValue();
+        assertThat(value.get(TIMESTAMP).asString()).isEqualTo("2015-03-25T23:21:26.239+09:00");
+
+        // End
+        DateTimeZone.setDefault(originalTimeZone);
     }
 
     private void assertEvent(AuditEvent event) {

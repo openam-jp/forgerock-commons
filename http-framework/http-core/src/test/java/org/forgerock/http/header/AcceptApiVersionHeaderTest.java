@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * Portions Copyrighted 2019 Open Source Solution Technology Corporation.
  */
 
 package org.forgerock.http.header;
@@ -68,6 +69,11 @@ public class AcceptApiVersionHeaderTest {
 
     @Test(dataProvider = "invalidValues", expectedExceptions = IllegalArgumentException.class)
     public void shouldFailParsing(String versionString) {
-        AcceptApiVersionHeader.valueOf(versionString);
+        try {
+            AcceptApiVersionHeader.valueOf(versionString);
+        } catch (IllegalArgumentException e) {
+            assertThat(e.getMessage()).isEqualTo("Version string is in an invalid format.");
+            throw e;
+        }
     }
 }

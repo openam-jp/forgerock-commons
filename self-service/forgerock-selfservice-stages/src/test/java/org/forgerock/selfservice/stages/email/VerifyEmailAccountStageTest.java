@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 package org.forgerock.selfservice.stages.email;
 
@@ -23,6 +24,7 @@ import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
 import static org.forgerock.selfservice.core.ServiceUtils.INITIAL_TAG;
 import static org.forgerock.selfservice.stages.CommonStateFields.EMAIL_FIELD;
 import static org.forgerock.selfservice.stages.CommonStateFields.USER_FIELD;
+import static org.forgerock.selfservice.stages.CommonStateFields.USER_ID_FIELD;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -61,7 +63,8 @@ import java.util.Map;
 public final class VerifyEmailAccountStageTest {
 
     private static final String TEST_EMAIL_ID = "test@forgerock.com";
-    private static final  String INFO_MAIL_ID = "info@admin.org";
+    private static final String TEST_USER_ID = "test";
+    private static final String INFO_MAIL_ID = "info@admin.org";
 
     private VerifyEmailAccountStage verifyEmailStage;
     @Mock
@@ -96,6 +99,19 @@ public final class VerifyEmailAccountStageTest {
         // Given
         given(context.containsState(EMAIL_FIELD)).willReturn(true);
         given(context.getState(EMAIL_FIELD)).willReturn(newJsonValueWithEmail());
+
+        // When
+        JsonValue jsonValue = verifyEmailStage.gatherInitialRequirements(context, config);
+
+        // Then
+        assertThat(jsonValue).isEmpty();
+    }
+
+    @Test
+    public void testGatherInitialRequirementsWithUserIdInContext() throws Exception {
+        // Given
+        given(context.containsState(USER_ID_FIELD)).willReturn(true);
+        given(context.getState(USER_ID_FIELD)).willReturn(newJsonValueWithUserId());
 
         // When
         JsonValue jsonValue = verifyEmailStage.gatherInitialRequirements(context, config);
@@ -242,6 +258,10 @@ public final class VerifyEmailAccountStageTest {
 
     private JsonValue newJsonValueWithEmail() {
         return json(TEST_EMAIL_ID);
+    }
+
+    private JsonValue newJsonValueWithUserId() {
+        return json(TEST_USER_ID);
     }
 
     private JsonValue newJsonValueInputEmail() {

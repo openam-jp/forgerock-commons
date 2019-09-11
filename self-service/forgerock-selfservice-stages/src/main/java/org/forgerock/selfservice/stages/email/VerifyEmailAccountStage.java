@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 
 package org.forgerock.selfservice.stages.email;
@@ -23,6 +24,7 @@ import static org.forgerock.json.JsonValue.object;
 import static org.forgerock.selfservice.core.ServiceUtils.INITIAL_TAG;
 import static org.forgerock.selfservice.stages.CommonStateFields.EMAIL_FIELD;
 import static org.forgerock.selfservice.stages.CommonStateFields.USER_FIELD;
+import static org.forgerock.selfservice.stages.CommonStateFields.USER_ID_FIELD;
 import static org.forgerock.selfservice.stages.utils.LocaleUtils.getTranslationFromLocaleMap;
 
 import org.forgerock.json.JsonPointer;
@@ -80,7 +82,8 @@ public final class VerifyEmailAccountStage implements ProgressStage<VerifyEmailA
         Reject.ifNull(config.getVerificationLinkToken(), "Verification link token should be configured");
         Reject.ifNull(config.getIdentityEmailField(), "Identity email field should be configured");
 
-        if (context.containsState(EMAIL_FIELD)) {
+        // If user is already identified, do not ask for an email address.
+        if (context.containsState(EMAIL_FIELD) || context.containsState(USER_ID_FIELD)) {
             return RequirementsBuilder
                     .newEmptyRequirements();
         }

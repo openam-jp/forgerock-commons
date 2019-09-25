@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015-2016 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 
 package org.forgerock.http.apache.async;
@@ -23,13 +24,20 @@ import static com.xebialabs.restito.semantics.Condition.*;
 import static java.lang.String.*;
 import static org.assertj.core.api.Assertions.*;
 
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.CountDownLatch;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import org.forgerock.http.Client;
 import org.forgerock.http.handler.HttpClientHandler;
+import org.forgerock.http.handler.HttpClientHandler.HostnameVerifier;
 import org.forgerock.http.protocol.Request;
 import org.forgerock.http.protocol.Response;
 import org.forgerock.http.protocol.Status;
+import org.forgerock.util.Options;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
 import org.testng.annotations.AfterTest;
@@ -44,16 +52,20 @@ import com.xebialabs.restito.server.StubServer;
 public class AsyncClientTest {
 
     private StubServer server;
+    private StubServer httpsServer;
+    private TrustManager[] trustManagers = { new TrustAll() };
 
     @BeforeTest
     public void setUp() throws Exception {
         // Create mock HTTP server.
         server = new StubServer().run();
+        httpsServer = new StubServer().secured().run();
     }
 
     @AfterTest
     public void tearDown() throws Exception {
         server.stop();
+        httpsServer.stop();
     }
 
     @BeforeMethod
@@ -63,6 +75,10 @@ public class AsyncClientTest {
         if (server != null) {
             server.getCalls().clear();
             server.getStubs().clear();
+        }
+        if (httpsServer != null) {
+            httpsServer.getCalls().clear();
+            httpsServer.getStubs().clear();
         }
     }
 
@@ -118,7 +134,52 @@ public class AsyncClientTest {
         assertThat(response.getEntity().getString()).isEmpty();
         assertThat(response.getCause()).isNotNull();
     }
+    
+    @Test
+    public void shouldVerifyTlsHostNameDefault() throws Exception {
+        Options options = Options.defaultOptions()
+                .set(HttpClientHandler.OPTION_TRUST_MANAGERS, trustManagers);
+        Client client = new Client(new HttpClientHandler(options));
+        Request request = new Request();
+        request.setMethod("POST");
+        // Use IP address to fail host name verification.
+        request.setUri(format("https://127.0.0.1:%d/ping", httpsServer.getPort()));
+        Response response = client.send(request).get();
+        assertThat(response.getStatus()).isEqualTo(Status.BAD_GATEWAY);
+    }
 
+    @Test
+    public void shouldVerifyTlsHostName() throws Exception {
+        Options options = Options.defaultOptions()
+                .set(HttpClientHandler.OPTION_HOSTNAME_VERIFIER, HostnameVerifier.STRICT)
+                .set(HttpClientHandler.OPTION_TRUST_MANAGERS, trustManagers);
+        Client client = new Client(new HttpClientHandler(options));
+        Request request = new Request();
+        request.setMethod("POST");
+        // Use IP address to fail host name verification.
+        request.setUri(format("https://127.0.0.1:%d/ping", httpsServer.getPort()));
+        Response response = client.send(request).get();
+        assertThat(response.getStatus()).isEqualTo(Status.BAD_GATEWAY);
+    }
+
+    @Test
+    public void shouldIgnoreTlsHostName() throws Exception {
+        whenHttp(httpsServer).match(post("/ping"))
+                .then(composite(ok(), stringContent("Pong")));
+        
+        Options options = Options.defaultOptions()
+                .set(HttpClientHandler.OPTION_HOSTNAME_VERIFIER, HostnameVerifier.ALLOW_ALL)
+                .set(HttpClientHandler.OPTION_TRUST_MANAGERS, trustManagers);
+        Client client = new Client(new HttpClientHandler(options));
+        Request request = new Request();
+        request.setMethod("POST");
+        // Use IP address to fail host name verification.
+        request.setUri(format("https://127.0.0.1:%d/ping", httpsServer.getPort()));
+        Response response = client.send(request).get();
+        assertThat(response.getStatus()).isEqualTo(Status.OK);
+        assertThat(response.getEntity().getString()).isEqualTo("Pong");
+    }
+    
     private static class WaitForLatch implements Applicable {
         private final CountDownLatch one;
         public WaitForLatch(final CountDownLatch one) {
@@ -135,4 +196,21 @@ public class AsyncClientTest {
             return r;
         }
     }
+    
+    /**
+     * TrustManager to allow all certificates.
+     */
+    private class TrustAll implements X509TrustManager {
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) 
+                throws CertificateException {}
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1) 
+                throws CertificateException {}
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() { return null; }
+    }
+
 }

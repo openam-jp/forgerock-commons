@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 package org.forgerock.selfservice.core.config;
 
@@ -51,8 +53,12 @@ class ClassNameFallbackPropertyTypeResolver extends StdTypeResolverBuilder {
 
         // important to get the normal TypeIdResolver!
         final TypeIdResolver idRes = this.idResolver(config, baseType, subtypes, false, true);
+        JavaType defaultType = null;
+        if( _defaultImpl != null ){
+            defaultType = config.getTypeFactory().constructType(_defaultImpl);
+        }
         return new ClassNameFallbackPropertyTypeDeserializer(baseType, idRes, _typeProperty, _typeIdVisible,
-                _defaultImpl);
+                defaultType);
     }
 }
 

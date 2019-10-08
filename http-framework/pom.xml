@@ -15,6 +15,7 @@
   Copyright 2010–2011 ApexIdentity Inc.
   Portions Copyright 2011-2016 ForgeRock AS.
   Portions Copyrighted 2019 Open Source Solution Technology Corporation
+  Portions Copyrighted 2019 OGIS-RI Co., Ltd.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
@@ -59,12 +60,6 @@
   </build>
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>com.xebialabs.restito</groupId>
-        <artifactId>restito</artifactId>
-        <version>0.5.1</version>
-        <scope>test</scope>
-      </dependency>
       <dependency>
         <groupId>jp.openam.http</groupId>
         <artifactId>binding-test-utils</artifactId>

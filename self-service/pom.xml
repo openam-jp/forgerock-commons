@@ -14,6 +14,7 @@
   ~
   ~ Copyright 2016 ForgeRock AS.
   ~ Portions Copyrighted 2019 Open Source Solution Technology Corporation
+  ~ Portions Copyrighted 2019 OGIS-RI Co., Ltd.
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -44,25 +45,8 @@
     </modules>
 
     <properties>
-        <javax.inject.version>1_2</javax.inject.version>
-        <commons-lang3.version>3.4</commons-lang3.version>
         <jackson-mapper-asl.version>1.9.2</jackson-mapper-asl.version>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.servicemix.bundles</groupId>
-                <artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
-                <version>${javax.inject.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>${commons-lang3.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>

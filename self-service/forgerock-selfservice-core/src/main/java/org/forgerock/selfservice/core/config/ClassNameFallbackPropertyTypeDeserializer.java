@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 package org.forgerock.selfservice.core.config;
 
@@ -38,7 +39,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 class ClassNameFallbackPropertyTypeDeserializer extends AsPropertyTypeDeserializer {
     public ClassNameFallbackPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes, String typePropertyName,
-            boolean typeIdVisible, Class<?> defaultImpl) {
+            boolean typeIdVisible, JavaType defaultImpl) {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
     }
 
@@ -77,7 +78,7 @@ class ClassNameFallbackPropertyTypeDeserializer extends AsPropertyTypeDeserializ
                     // ensure the type we found is assignable to the base type requested by deserialization;
                     // typically this is the interface or base class
                     if (_baseType != null && _baseType.getClass() == type.getClass()) {
-                        type = _baseType.narrowBy(type.getRawClass());
+                        type = context.getTypeFactory().constructSpecializedType( _baseType, type.getRawClass());
                     }
                     // find an appropriate deserializer for this type and deserialize
                     JsonDeserializer<Object> deser = context.findContextualValueDeserializer(type, _property);

@@ -14,6 +14,7 @@
   ~
   ~ Copyright 2015-2016 ForgeRock AS.
   ~ Portions Copyrighted 2019 Open Source Solution Technology Corporation
+  ~ Portions Copyrighted 2019 OGIS-RI Co., Ltd.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -28,10 +29,6 @@
     <packaging>bundle</packaging>
     <name>Commons - ForgeRock Audit JDBC Event Handler</name>
     <description>Writes audit event to a configured JDBC database</description>
-
-    <properties>
-        <h2database.version>1.4.188</h2database.version>
-    </properties>
 
     <dependencies>
         <!-- Third party dependencies -->
@@ -92,7 +89,6 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>${h2database.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

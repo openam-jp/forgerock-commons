@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2013-2015 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.caf.authentication.framework;
@@ -21,7 +23,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.forgerock.caf.authentication.framework.AuthenticationFilter.AuthenticationFilterBuilder;
 import static org.forgerock.caf.authentication.framework.AuthenticationFilter.AuthenticationModuleBuilder.configureModule;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import javax.security.auth.Subject;
@@ -41,7 +43,7 @@ import org.forgerock.http.protocol.Response;
 import org.forgerock.util.promise.Promise;
 import org.forgerock.util.promise.Promises;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.slf4j.Logger;
 import org.testng.annotations.Test;
 
@@ -83,7 +85,7 @@ public class AuthenticationFilterTest {
 
         verify(builder).createFilter(loggerCaptor.capture(), eq(auditApi), responseHandlerCaptor.capture(),
                 serviceSubjectCaptor.capture(), eq(sessionAuthModule), authModulesCaptor.capture(),
-                Matchers.<Promise<List<Void>, AuthenticationException>>anyObject());
+                ArgumentMatchers.<Promise<List<Void>, AuthenticationException>>anyObject());
 
         assertThat(loggerCaptor.getValue()).isNotNull();
         assertThat(responseHandlerCaptor.getValue()).isNotNull();
@@ -110,7 +112,7 @@ public class AuthenticationFilterTest {
 
         verify(builder).createFilter(loggerCaptor.capture(), eq(auditApi), any(ResponseHandler.class),
                 any(Subject.class), eq(sessionAuthModule), anyListOf(AsyncServerAuthModule.class),
-                Matchers.<Promise<List<Void>, AuthenticationException>>anyObject());
+                ArgumentMatchers.<Promise<List<Void>, AuthenticationException>>anyObject());
 
         assertThat(loggerCaptor.getValue()).isNotNull();
     }
@@ -177,7 +179,7 @@ public class AuthenticationFilterTest {
 
         verify(builder).createFilter(loggerCaptor.capture(), eq(auditApi), responseHandlerCaptor.capture(),
                 eq(serviceSubject), eq(sessionAuthModule), authModulesCaptor.capture(),
-                Matchers.<Promise<List<Void>, AuthenticationException>>anyObject());
+                ArgumentMatchers.<Promise<List<Void>, AuthenticationException>>anyObject());
 
         assertThat(loggerCaptor.getValue()).isNotNull();
         assertThat(responseHandlerCaptor.getValue()).isNotNull();
@@ -218,9 +220,9 @@ public class AuthenticationFilterTest {
                 .build();
 
         //Then
-        verify(builder).createFilter(any(Logger.class), eq(auditApi), any(ResponseHandler.class), any(Subject.class),
-                any(AsyncServerAuthModule.class), anyListOf(AsyncServerAuthModule.class),
-                Matchers.<Promise<List<Void>, AuthenticationException>>anyObject());
+        verify(builder).createFilter(nullable(Logger.class), eq(auditApi), nullable(ResponseHandler.class), nullable(Subject.class),
+                nullable(AsyncServerAuthModule.class), anyListOf(AsyncServerAuthModule.class),
+                ArgumentMatchers.<Promise<List<Void>, AuthenticationException>>anyObject());
 
         verify(authModule).initialize(authModuleRequestPolicy, authModuleResponsePolicy,
                 authModuleHandler, authModuleSettings);

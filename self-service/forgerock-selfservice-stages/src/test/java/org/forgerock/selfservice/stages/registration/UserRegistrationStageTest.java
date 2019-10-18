@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 package org.forgerock.selfservice.stages.registration;
 
@@ -20,7 +22,7 @@ import static org.forgerock.json.JsonValue.*;
 import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
 import static org.forgerock.selfservice.stages.CommonStateFields.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.verify;
 
 import org.forgerock.json.JsonValue;
@@ -107,7 +109,7 @@ public final class UserRegistrationStageTest {
 
         // Then
         ArgumentCaptor<CreateRequest> createRequestArgumentCaptor =  ArgumentCaptor.forClass(CreateRequest.class);
-        verify(connection).create(any(Context.class), createRequestArgumentCaptor.capture());
+        verify(connection).create(nullable(Context.class), createRequestArgumentCaptor.capture());
         CreateRequest createRequest = createRequestArgumentCaptor.getValue();
 
         assertThat(createRequest.getContent()).stringAt("givenName").isEqualTo("testUser");

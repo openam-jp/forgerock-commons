@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2014-2016 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.caf.authn;
@@ -41,6 +43,7 @@ import org.forgerock.services.context.AttributesContext;
 import org.forgerock.services.context.RootContext;
 import org.forgerock.util.promise.NeverThrowsException;
 import org.forgerock.util.promise.Promise;
+import org.forgerock.util.test.assertj.AssertJPromiseAssert;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -84,7 +87,7 @@ class TestFramework {
         request.getHeaders().add("If-Match", "*");
         Promise<Response, NeverThrowsException> result = handler.handle(new AttributesContext(new RootContext()),
                 request);
-        assertThat(result).succeeded();
+        AssertJPromiseAssert.assertThat(result).succeeded();
         assertThat(result.get().getStatus()).isEqualTo(Status.OK);
     }
 
@@ -101,7 +104,7 @@ class TestFramework {
         request.getHeaders().add(ContentTypeHeader.valueOf("application/json; charset=UTF-8"));
         Promise<Response, NeverThrowsException> result = handler.handle(new AttributesContext(new RootContext()),
                 request);
-        assertThat(result).succeeded();
+        AssertJPromiseAssert.assertThat(result).succeeded();
         assertThat(result.get().getStatus()).isEqualTo(Status.OK);
         return json(result.get().getEntity().getJson());
     }
@@ -176,7 +179,7 @@ class TestFramework {
 
         Promise<Response, NeverThrowsException> result = handler.handle(new AttributesContext(new RootContext()),
                 request);
-        assertThat(result).succeeded();
+        AssertJPromiseAssert.assertThat(result).succeeded();
 
         Response response = result.get();
 

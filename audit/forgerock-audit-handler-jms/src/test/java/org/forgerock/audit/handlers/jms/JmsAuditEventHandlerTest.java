@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2016 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.audit.handlers.jms;
@@ -21,9 +23,8 @@ import static org.forgerock.audit.AuditServiceBuilder.newAuditService;
 import static org.forgerock.audit.json.AuditJsonConfig.parseAuditEventHandlerConfiguration;
 import static org.forgerock.json.JsonValue.*;
 import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
-import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.*;
@@ -58,6 +59,7 @@ import org.forgerock.json.resource.Requests;
 import org.forgerock.json.resource.ResourceException;
 import org.forgerock.json.resource.ResourceResponse;
 import org.forgerock.util.promise.Promise;
+import org.forgerock.util.test.assertj.AssertJPromiseAssert;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -161,7 +163,7 @@ public class JmsAuditEventHandlerTest {
                 Thread.sleep(100L); // small delay to simulate time to send message.
                 logger.info("message sent by session {}: {}",
                         sessionCount,
-                        invocation.getArgumentAt(0, TextMessage.class).getText());
+                        ((TextMessage)invocation.getArgument(0)).getText());
                 return null;
             }
         }).when(producer).send(textMessage);
@@ -298,7 +300,7 @@ public class JmsAuditEventHandlerTest {
                 jmsAuditEventHandler.publishEvent(null, "TEST_AUDIT", json(object(field("name", "TestEvent"))));
 
         // then
-        assertThat(promise).failedWithException().isInstanceOf(InternalServerErrorException.class);
+        AssertJPromiseAssert.assertThat(promise).failedWithException().isInstanceOf(InternalServerErrorException.class);
 
     }
 
@@ -322,7 +324,7 @@ public class JmsAuditEventHandlerTest {
         Promise<QueryResponse, ResourceException> response =
                 jmsAuditEventHandler.queryEvents(null, "TEST_AUDIT", Requests.newQueryRequest(""), null);
 
-        assertThat(response).failedWithException().isInstanceOf(NotSupportedException.class);
+        AssertJPromiseAssert.assertThat(response).failedWithException().isInstanceOf(NotSupportedException.class);
     }
 
     @Test
@@ -347,7 +349,7 @@ public class JmsAuditEventHandlerTest {
 
 
         // then
-        assertThat(response).failedWithException().isInstanceOf(NotSupportedException.class);
+        AssertJPromiseAssert.assertThat(response).failedWithException().isInstanceOf(NotSupportedException.class);
     }
 
     private JmsAuditEventHandlerConfiguration getDefaultConfiguration() throws Exception {

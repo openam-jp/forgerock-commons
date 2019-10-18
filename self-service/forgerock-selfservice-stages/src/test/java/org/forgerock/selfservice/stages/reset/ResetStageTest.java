@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 package org.forgerock.selfservice.stages.reset;
 
@@ -20,7 +22,7 @@ import static org.forgerock.json.JsonValue.*;
 import static org.forgerock.json.test.assertj.AssertJJsonValueAssert.assertThat;
 import static org.forgerock.selfservice.stages.CommonStateFields.USER_ID_FIELD;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.verify;
 
 import org.forgerock.json.JsonValue;
@@ -103,7 +105,7 @@ public final class ResetStageTest {
 
         // Then
         ArgumentCaptor<PatchRequest> patchRequestArgumentCaptor =  ArgumentCaptor.forClass(PatchRequest.class);
-        verify(connection).patch(any(Context.class), patchRequestArgumentCaptor.capture());
+        verify(connection).patch(nullable(Context.class), patchRequestArgumentCaptor.capture());
         PatchRequest createRequest = patchRequestArgumentCaptor.getValue();
 
         PatchOperation patchOperation = createRequest.getPatchOperations().get(0);

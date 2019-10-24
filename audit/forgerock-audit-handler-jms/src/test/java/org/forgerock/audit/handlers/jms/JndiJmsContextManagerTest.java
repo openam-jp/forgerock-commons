@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2016 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.audit.handlers.jms;
@@ -75,21 +77,21 @@ public class JndiJmsContextManagerTest {
      */
     @Test
     public void testContextLoading() throws Exception {
+        // Mock initialize
+        Context context = mock(Context.class);
+        InitialContextFactory initialContextFactory = mock(InitialContextFactory.class);
+        ConnectionFactory connectionFactory = mock(ConnectionFactory.class);
+        Topic topic = mock(Topic.class);
         // Given
-
         // Setup known mocked classloader and context builder to be used for validation.
         InitialContextFactoryBuilder builder = mock(InitialContextFactoryBuilder.class);
         setInitialContextFactoryBuilder(builder);
         ClassLoader contextClassLoader = mock(ClassLoader.class);
         Thread.currentThread().setContextClassLoader(contextClassLoader);
-        Context context = mock(Context.class);
-        InitialContextFactory initialContextFactory = mock(InitialContextFactory.class);
         when(initialContextFactory.getInitialContext(any(Hashtable.class))).thenReturn(context);
         when(builder.createInitialContextFactory(any(Hashtable.class))).thenReturn(initialContextFactory);
 
         // Setup JMS specific components for this test.
-        ConnectionFactory connectionFactory = mock(ConnectionFactory.class);
-        Topic topic = mock(Topic.class);
         JndiConfiguration configuration = new JndiConfiguration();
         configuration.setJmsConnectionFactoryName("ConnectionFactory");
         configuration.setJmsTopicName("audit");

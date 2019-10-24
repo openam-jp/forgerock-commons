@@ -73,12 +73,12 @@ public class AsyncClientTest {
         // Clear mocked invocations between tests
         // So we can reuse the server instance (less traces) still having isolation
         if (server != null) {
-            server.getCalls().clear();
-            server.getStubs().clear();
+            server.clearCalls();
+            server.clearStubs();
         }
         if (httpsServer != null) {
-            httpsServer.getCalls().clear();
-            httpsServer.getStubs().clear();
+            httpsServer.clearCalls();
+            httpsServer.clearStubs();
         }
     }
 

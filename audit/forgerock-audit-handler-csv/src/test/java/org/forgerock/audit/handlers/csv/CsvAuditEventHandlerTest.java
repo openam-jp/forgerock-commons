@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015-2016 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.audit.handlers.csv;
@@ -22,7 +24,6 @@ import static org.forgerock.audit.AuditServiceBuilder.*;
 import static org.forgerock.audit.AuditServiceProxy.*;
 import static org.forgerock.audit.handlers.csv.CsvAuditEventHandler.*;
 import static org.forgerock.json.JsonValue.*;
-import static org.forgerock.util.test.assertj.AssertJPromiseAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.io.File;
@@ -61,6 +62,7 @@ import org.forgerock.services.context.Context;
 import org.forgerock.services.context.RootContext;
 import org.forgerock.util.promise.Promise;
 import org.forgerock.util.promise.ResultHandler;
+import org.forgerock.util.test.assertj.AssertJPromiseAssert;
 import org.mockito.ArgumentCaptor;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -154,7 +156,7 @@ public class CsvAuditEventHandlerTest {
                 csvHandler.publishEvent(context, "access", createRequest.getContent());
 
         //then
-        assertThat(promise)
+        AssertJPromiseAssert.assertThat(promise)
                 .succeeded()
                 .withObject()
                 .isInstanceOf(ResourceResponse.class);
@@ -182,7 +184,7 @@ public class CsvAuditEventHandlerTest {
                 csvHandler.readEvent(context, "access", readRequest.getResourcePathObject().tail(1).toString());
 
         //then
-        assertThat(promise)
+        AssertJPromiseAssert.assertThat(promise)
                 .succeeded()
                 .withObject()
                 .isInstanceOf(ResourceResponse.class);
@@ -230,7 +232,7 @@ public class CsvAuditEventHandlerTest {
                 csvHandler.queryEvents(context, "access", queryRequest, queryResourceHandler);
 
         //then
-        assertThat(promise).succeeded();
+        AssertJPromiseAssert.assertThat(promise).succeeded();
         verify(queryResourceHandler).handleResource(resourceCaptor.capture());
 
         final ResourceResponse resource = resourceCaptor.getValue();
@@ -268,7 +270,7 @@ public class CsvAuditEventHandlerTest {
         final Promise<ResourceResponse, ResourceException> promise =
                 auditEventHandler.publishEvent(context, "access", createRequest.getContent());
 
-        assertThat(promise)
+        AssertJPromiseAssert.assertThat(promise)
                 .succeeded()
                 .isInstanceOf(ResourceResponse.class);
 

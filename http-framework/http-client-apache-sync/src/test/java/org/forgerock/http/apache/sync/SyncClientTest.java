@@ -31,7 +31,7 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import com.xebialabs.restito.semantics.Predicate;
+import java.util.function.Predicate;
 import com.xebialabs.restito.semantics.Predicates;
 import org.forgerock.http.Client;
 import org.forgerock.http.handler.HttpClientHandler;
@@ -76,12 +76,12 @@ public class SyncClientTest {
         // Clear mocked invocations between tests
         // So we can reuse the server instance (less traces) still having isolation
         if (server != null) {
-            server.getCalls().clear();
-            server.getStubs().clear();
+            server.clearCalls();
+            server.clearStubs();
         }
         if (httpsServer != null) {
-            httpsServer.getCalls().clear();
-            httpsServer.getStubs().clear();
+            httpsServer.clearCalls();
+            httpsServer.clearStubs();
         }
     }
 

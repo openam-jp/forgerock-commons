@@ -12,6 +12,8 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2013-2015 ForgeRock AS.
+ * 
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.json.resource;
@@ -73,7 +75,7 @@ public final class RequestsTest {
         Request r = Requests.newReadRequest("test/users/forward%2fslash");
         assertThat(r.getResourcePath()).isEqualTo("test/users/forward%2fslash");
         assertThat(r.getResourcePathObject().leaf()).isEqualTo("forward/slash");
-        assertThat(r.getResourcePathObject().iterator()).hasSize(3);
+        assertThat(r.getResourcePathObject().iterator()).toIterable().hasSize(3);
     }
 
     @Test
@@ -81,7 +83,7 @@ public final class RequestsTest {
         Request r = Requests.newReadRequest("test/users", "forward/slash");
         assertThat(r.getResourcePath()).isEqualTo("test/users/forward%2Fslash");
         assertThat(r.getResourcePathObject().leaf()).isEqualTo("forward/slash");
-        assertThat(r.getResourcePathObject().iterator()).hasSize(3);
+        assertThat(r.getResourcePathObject().iterator()).toIterable().hasSize(3);
     }
 
     @Test
@@ -90,7 +92,7 @@ public final class RequestsTest {
                 Requests.newCreateRequest("test/users", "forward/slash", new JsonValue(null));
         assertThat(r.getResourcePath()).isEqualTo("test/users");
         assertThat(r.getResourcePathObject().leaf()).isEqualTo("users");
-        assertThat(r.getResourcePathObject().iterator()).hasSize(2);
+        assertThat(r.getResourcePathObject().iterator()).toIterable().hasSize(2);
         assertThat(r.getNewResourceId()).isEqualTo("forward/slash");
     }
 

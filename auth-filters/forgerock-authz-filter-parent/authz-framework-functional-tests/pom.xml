@@ -191,6 +191,10 @@
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+         </dependency>
 
         <!-- Module Dependencies -->
         <dependency>

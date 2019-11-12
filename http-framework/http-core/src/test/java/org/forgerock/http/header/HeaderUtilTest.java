@@ -12,6 +12,8 @@
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
  * Copyright 2014-2016 ForgeRock AS.
+ *
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.http.header;
@@ -150,6 +152,33 @@ public class HeaderUtilTest {
         final Date result = HeaderUtil.parseDate("Sunday, 06-Nov-94 08:49:37 GMT");
         final String formattedDate = HeaderUtil.formatDate(result);
         assertThat(formattedDate).isEqualTo("Sun, 06 Nov 1994 08:49:37 GMT");
+
+        final Date monday = HeaderUtil.parseDate("Monday, 07-Nov-94 08:49:37 GMT");
+        final String mondayStr = HeaderUtil.formatDate(monday);
+        assertThat(mondayStr).isEqualTo("Mon, 07 Nov 1994 08:49:37 GMT");
+
+        final Date tuesday = HeaderUtil.parseDate("Tuesday, 08-Nov-94 08:49:37 GMT");
+        final String tuesdayStr = HeaderUtil.formatDate(tuesday);
+        assertThat(tuesdayStr).isEqualTo("Tue, 08 Nov 1994 08:49:37 GMT");
+
+        final Date wednesday = HeaderUtil.parseDate("Wednesday, 09-Nov-94 08:49:37 GMT");
+        final String wednesdayStr = HeaderUtil.formatDate(wednesday);
+        assertThat(wednesdayStr).isEqualTo("Wed, 09 Nov 1994 08:49:37 GMT");
+
+        final Date thursday = HeaderUtil.parseDate("Thursday, 10-Nov-94 08:49:37 GMT");
+        final String thursdayStr = HeaderUtil.formatDate(thursday);
+        assertThat(thursdayStr).isEqualTo("Thu, 10 Nov 1994 08:49:37 GMT");
+
+        final Date friday = HeaderUtil.parseDate("Friday, 11-Nov-94 08:49:37 GMT");
+        final String fridayStr = HeaderUtil.formatDate(friday);
+        assertThat(fridayStr).isEqualTo("Fri, 11 Nov 1994 08:49:37 GMT");
+
+        final Date saturday = HeaderUtil.parseDate("Saturday, 12-Nov-94 08:49:37 GMT");
+        final String saturdayStr = HeaderUtil.formatDate(saturday);
+        assertThat(saturdayStr).isEqualTo("Sat, 12 Nov 1994 08:49:37 GMT");
+
+        final Date missspel = HeaderUtil.parseDate("Sanday, 11-Nov-94 08:49:37 GMT");
+        assertThat(missspel).isNull();
     }
 
     @Test

@@ -13,6 +13,7 @@
  *
  * Copyright 2010–2011 ApexIdentity Inc.
  * Portions Copyright 2011-2016 ForgeRock AS.
+ * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
  */
 
 package org.forgerock.http.header;
@@ -29,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import org.forgerock.http.protocol.Message;
 import org.forgerock.http.util.CaseInsensitiveMap;
@@ -62,6 +64,12 @@ public final class HeaderUtil {
      * contains the escape character (which we will discard) and group 2 contains the character we want to retain.
      */
     private static final Pattern UNQUOTE_PATTERN = Pattern.compile("(\\\\)(\\\\|[\"])");
+    
+    /**
+     * Long days of the week on jdk11 can no longer be parsed by EEE.
+     * Replace long days with regular days with short days.
+     */
+    private static final Pattern LONG_DAY_PATTERN = Pattern.compile("^(Sun|Mon|Tues|Wednes|Thurs|Fri|Satur)day");
 
     /** Static methods only. */
     private HeaderUtil() {
@@ -390,7 +398,15 @@ public final class HeaderUtil {
         if (date != null) {
             return date;
         }
-        return parseDate(s, LEGACY_ANSI_C_DATE_FORMAT);
+        date = parseDate(s, LEGACY_ANSI_C_DATE_FORMAT);
+        if (date != null) {
+            return date;
+        }
+        Matcher matcher = LONG_DAY_PATTERN.matcher(s);
+        if( matcher.find() ) {
+        	return parseDate(s.replace(matcher.group(0),matcher.group(1).substring(0,3)));
+        }
+        return null;
     }
 
     /**

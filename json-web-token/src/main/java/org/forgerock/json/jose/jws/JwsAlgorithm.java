@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2013-2016 ForgeRock AS.
+ * Portions copyright 2019 Open Source Solution Technology Corporation
  */
 
 package org.forgerock.json.jose.jws;
@@ -37,6 +38,10 @@ public enum JwsAlgorithm implements Algorithm {
     HS512("HmacSHA512", "SHA-512", JwsAlgorithmType.HMAC),
     /** RSA using SHA-256 hash algorithm. **/
     RS256("SHA256withRSA", "SHA-256", JwsAlgorithmType.RSA),
+    /** RSA using SHA-384 hash algorithm. **/
+    RS384("SHA384withRSA", "SHA-384", JwsAlgorithmType.RSA),
+    /** RSA using SHA-512 hash algorithm. **/
+    RS512("SHA512withRSA", "SHA-512", JwsAlgorithmType.RSA),
     /** ECDSA using SHA-256 hash algorithm. */
     ES256("SHA256WithECDSA", "SHA-256", JwsAlgorithmType.ECDSA),
     /** ECDSA using SHA-384 hash algorithm. */

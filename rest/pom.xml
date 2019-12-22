@@ -28,7 +28,7 @@
     <name>ForgeRock REST libraries</name>
     <description>Common resource-oriented libraries used by ForgeRock projects</description>
     <properties>
-        <i18nFrameworkVersion>1.4.3-SNAPSHOT</i18nFrameworkVersion>
+        <i18nFrameworkVersion>1.4.3</i18nFrameworkVersion>
     </properties>
     <modules>
         <module>forgerock-rest-docbook</module>

@@ -38,7 +38,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <forgerock-ui.version>13.0.5-SNAPSHOT</forgerock-ui.version>
+        <forgerock-ui.version>13.0.5</forgerock-ui.version>
     </properties>
 
     <build>

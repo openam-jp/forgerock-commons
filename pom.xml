@@ -25,7 +25,7 @@
 
   <groupId>jp.openam.commons</groupId>
   <artifactId>commons-parent</artifactId>
-  <version>20.1.1-SNAPSHOT</version>
+  <version>20.1.1</version>
   <packaging>pom</packaging>
 
   <name>ForgeRock Commons Parent</name>
@@ -52,6 +52,7 @@
     <connection>scm:git:git@github.com:openam-jp/forgerock-commons.git</connection>
     <developerConnection>scm:git:https://github.com/openam-jp/forgerock-commons.git</developerConnection>
     <url>https://github.com/openam-jp/forgerock-commons</url>
+    <tag>20.1.1</tag>
   </scm>
 
   <properties>

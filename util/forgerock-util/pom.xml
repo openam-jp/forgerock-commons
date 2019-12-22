@@ -20,7 +20,7 @@
     <parent>
         <groupId>jp.openam.commons</groupId>
         <artifactId>forgerock-utilities</artifactId>
-        <version>20.1.1-SNAPSHOT</version>
+        <version>20.1.1</version>
     </parent>
     <artifactId>forgerock-util</artifactId>
     <name>ForgeRock Utility Classes</name>

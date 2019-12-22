@@ -21,7 +21,7 @@
     <parent>
         <groupId>jp.openam.commons</groupId>
         <artifactId>commons-parent</artifactId>
-        <version>20.1.1-SNAPSHOT</version>
+        <version>20.1.1</version>
     </parent>
     <artifactId>forgerock-rest</artifactId>
     <packaging>pom</packaging>

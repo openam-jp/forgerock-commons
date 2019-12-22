@@ -20,7 +20,7 @@
     <parent>
         <groupId>jp.openam.commons</groupId>
         <artifactId>json-ref</artifactId>
-        <version>20.1.1-SNAPSHOT</version>
+        <version>20.1.1</version>
     </parent>
     <artifactId>json-ref-core</artifactId>
     <name>JSON Reference core library</name>

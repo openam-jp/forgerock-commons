@@ -22,7 +22,7 @@
     <parent>
         <groupId>jp.openam.commons</groupId>
         <artifactId>commons-parent</artifactId>
-        <version>20.1.1-SNAPSHOT</version>
+        <version>20.1.1</version>
     </parent>
 
     <artifactId>forgerock-audit</artifactId>
@@ -47,7 +47,7 @@
             <dependency>
                 <groupId>jp.openam.commons</groupId>
                 <artifactId>forgerock-bom</artifactId>
-                <version>4.1.2-SNAPSHOT</version>
+                <version>4.1.2</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>

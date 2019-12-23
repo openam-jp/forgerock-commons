@@ -30,7 +30,7 @@
     <parent>
         <artifactId>forgerock-selfservice</artifactId>
         <groupId>jp.openam.commons</groupId>
-        <version>20.1.1-SNAPSHOT</version>
+        <version>20.1.1</version>
     </parent>
 
     <artifactId>forgerock-selfservice-example-ui</artifactId>
@@ -38,7 +38,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <forgerock-ui.version>13.0.5-SNAPSHOT</forgerock-ui.version>
+        <forgerock-ui.version>13.0.5</forgerock-ui.version>
     </properties>
 
     <build>

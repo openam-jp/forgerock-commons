@@ -22,7 +22,7 @@
     <parent>
         <artifactId>forgerock-audit</artifactId>
         <groupId>jp.openam.commons</groupId>
-        <version>20.1.1-SNAPSHOT</version>
+        <version>20.1.1</version>
     </parent>
 
     <artifactId>forgerock-audit-handler-jdbc</artifactId>

@@ -21,7 +21,7 @@
   <parent>
     <groupId>jp.openam.http</groupId>
     <artifactId>forgerock-http-framework-parent</artifactId>
-    <version>20.1.1-SNAPSHOT</version>
+    <version>20.1.1</version>
   </parent>
   <artifactId>chf-http-servlet</artifactId>
   <packaging>bundle</packaging>
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>jp.openam.commons</groupId>
       <artifactId>forgerock-guice-core</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
+      <version>1.1.1</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>

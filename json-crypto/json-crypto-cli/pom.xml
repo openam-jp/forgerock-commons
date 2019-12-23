@@ -20,7 +20,7 @@
     <parent>
         <groupId>jp.openam.commons</groupId>
         <artifactId>json-crypto</artifactId>
-        <version>20.1.1-SNAPSHOT</version>
+        <version>20.1.1</version>
     </parent>
     <artifactId>json-crypto-cli</artifactId>
     <name>JSON Crypto command line tool</name>

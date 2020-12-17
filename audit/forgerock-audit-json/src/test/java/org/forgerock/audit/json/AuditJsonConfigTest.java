@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2015-2016 ForgeRock AS.
+ * Portions copyright 2020 Open Source Solution Technology Corporation
  */
 package org.forgerock.audit.json;
 
@@ -63,7 +64,7 @@ public class AuditJsonConfigTest {
         return new Object[][] {
                 { "/audit-passthrough-handler-missing-name.json" },
                 { "/audit-passthrough-handler-missing-class.json" },
-                { "/audit-passthrough-handler-missing-events.json" }
+                { "/audit-passthrough-handler-no-events.json" }
         };
     }
 

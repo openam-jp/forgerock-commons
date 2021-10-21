@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2012-2015 ForgeRock AS.
+ * Portions copyright 2021 OSSTech Corporation
  */
 
 package org.forgerock.json.resource.http;
@@ -290,9 +291,8 @@ final class HttpAdapter implements Handler {
                             request.addSortKey(s.split(SORT_KEYS_DELIMITER));
                         } catch (final IllegalArgumentException e) {
                             // FIXME: i18n.
-                            throw new BadRequestException("The value '" + s
-                                    + "' for parameter '" + name
-                                    + "' could not be parsed as a comma "
+                            throw new BadRequestException("The value for parameter '"
+                                    + name + "' could not be parsed as a comma "
                                     + "separated list of sort keys");
                         }
                     }
@@ -312,7 +312,7 @@ final class HttpAdapter implements Handler {
                         request.setQueryFilter(QueryFilters.parse(s));
                     } catch (final IllegalArgumentException e) {
                         // FIXME: i18n.
-                        throw new BadRequestException("The value '" + s + "' for parameter '"
+                        throw new BadRequestException("The value for parameter '"
                                 + name + "' could not be parsed as a valid query filter");
                     }
                 } else if (name.equalsIgnoreCase(PARAM_TOTAL_PAGED_RESULTS_POLICY)) {
@@ -322,7 +322,7 @@ final class HttpAdapter implements Handler {
                         request.setTotalPagedResultsPolicy(CountPolicy.valueOf(policy.toUpperCase()));
                     } catch (IllegalArgumentException e) {
                         // FIXME: i18n.
-                        throw new BadRequestException("The value '" + policy + "' for parameter '"
+                        throw new BadRequestException("The value for parameter '"
                                 + name + "' could not be parsed as a valid count policy");
                     }
                 } else {
@@ -620,7 +620,7 @@ final class HttpAdapter implements Handler {
                     request.addField(s.split(","));
                 } catch (final IllegalArgumentException e) {
                     // FIXME: i18n.
-                    throw new BadRequestException("The value '" + s + "' for parameter '" + name
+                    throw new BadRequestException("The value for parameter '" + name
                             + "' could not be parsed as a comma separated list of JSON pointers");
                 }
             }

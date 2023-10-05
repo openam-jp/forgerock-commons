@@ -13,6 +13,7 @@
  *
  * Copyright 2013-2015 ForgeRock AS.
  * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
+ * Portions Copyrighted 2023 OSSTech Corporation
  */
 
 package org.forgerock.json.common.util;
@@ -65,7 +66,16 @@ public class DerUtilsTest {
     @DataProvider(name = "derEncodeContext")
     private Object[][] getDerEncodeContextData() {
 		return new Object[][] {
-			{"Certificate: Data: Version: 3 (0x2) Serial Number:", "3036021943657274696669636174653A20446174613A2056657273696F02196E3A20332028307832292053657269616C204E756D6265723A"},
+			{"0000", "3006020100020100"},
+			{"00FF", "3007020100020200FF"},
+			{"FF00", "3007020200FF020100"},
+			{"FFFF", "3008020200FF020200FF"},
+			{"00000000", "3006020100020100"},
+			{"0000FFFF", "3008020100020300FFFF"},
+			{"FFFF0000", "3008020300FFFF020100"},
+			{"FFFFFFFF", "300A020300FFFF020300FFFF"},
+			// "43657274..." is the hexadecimal representation of "Certificate: Data: Version: 3 (0x2) Serial Number:".
+			{"43657274696669636174653A20446174613A2056657273696F6E3A20332028307832292053657269616C204E756D6265723A", "3036021943657274696669636174653A20446174613A2056657273696F02196E3A20332028307832292053657269616C204E756D6265723A"}
 		};
 	}
 
@@ -75,8 +85,8 @@ public class DerUtilsTest {
 	}
 
 	@Test(dataProvider = "derEncodeContext")
-	public void encodeTest(String signature, String expectedHex) {
-		byte[] result = DerUtils.encode(signature.getBytes(), signature.length());
+	public void encodeTest(String targetHex, String expectedHex) {
+		byte[] result = DerUtils.encode(DatatypeConverter.parseHexBinary(targetHex), targetHex.length() / 2);
 		assertThat(DatatypeConverter.printHexBinary(result)).isEqualTo(expectedHex);
 	}
 
@@ -87,9 +97,9 @@ public class DerUtilsTest {
 	}
 
 	@Test(dataProvider = "derEncodeContext")
-	public void decodeTest(String expectedSignature, String encodedHex)
+	public void decodeTest(String expectedHex, String targetHex)
 			throws SignatureException, UnsupportedEncodingException {
-		byte[] result = DerUtils.decode(DatatypeConverter.parseHexBinary(encodedHex), expectedSignature.length());
-		assertThat(new String(result, "UTF-8")).isEqualTo(expectedSignature);
+		byte[] result = DerUtils.decode(DatatypeConverter.parseHexBinary(targetHex), expectedHex.length() / 2);
+		assertThat(DatatypeConverter.printHexBinary(result)).isEqualTo(expectedHex);
 	}
 }

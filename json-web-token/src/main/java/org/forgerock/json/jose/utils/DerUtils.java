@@ -12,7 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2016 ForgeRock AS.
- * Portions Copyrighted 2019 Open Source Solution Technology Corporation
+ * Portions Copyrighted 2019-2023 OSSTech Corporation
  */
 
 package org.forgerock.json.jose.utils;
@@ -78,8 +78,8 @@ public final class DerUtils {
         Reject.ifNull(signature);
 
         final int midPoint = signatureSize >> 1;
-        final BigInteger r = new BigInteger(Arrays.copyOfRange(signature, 0, midPoint));
-        final BigInteger s = new BigInteger(Arrays.copyOfRange(signature, midPoint, signature.length));
+        final BigInteger r = new BigInteger(1, Arrays.copyOfRange(signature, 0, midPoint));
+        final BigInteger s = new BigInteger(1, Arrays.copyOfRange(signature, midPoint, signature.length));
 
         // Each integer component needs at most 2 bytes for the length field and 1 byte for the tag, for a total of 6
         // bytes for both integers.

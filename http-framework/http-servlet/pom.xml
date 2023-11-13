@@ -13,7 +13,7 @@
   information: "Portions Copyright [year] [name of copyright owner]".
 
   Copyright 2014-2016 ForgeRock AS.
-  Portions Copyrighted 2019 Open Source Solution Technology Corporation
+  Portions Copyrighted 2019-2023 OSSTech Corporation
   Portions Copyrighted 2019 OGIS-RI Co., Ltd.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -21,7 +21,7 @@
   <parent>
     <groupId>jp.openam.http</groupId>
     <artifactId>forgerock-http-framework-parent</artifactId>
-    <version>20.1.1</version>
+    <version>20.1.1.1</version>
   </parent>
   <artifactId>chf-http-servlet</artifactId>
   <packaging>bundle</packaging>
@@ -39,7 +39,7 @@
     <dependency>
       <groupId>jp.openam.commons</groupId>
       <artifactId>forgerock-guice-core</artifactId>
-      <version>1.1.1</version>
+      <version>1.1.1.1</version>
       <scope>provided</scope>
       <optional>true</optional>
     </dependency>

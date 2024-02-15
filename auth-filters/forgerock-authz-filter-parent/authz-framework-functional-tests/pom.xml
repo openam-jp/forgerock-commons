@@ -13,7 +13,7 @@
 * information: "Portions copyright [year] [name of copyright owner]".
 *
 * Copyright 2014-2016 ForgeRock AS.
-* Portions Copyrighted 2019-2023 OSSTech Corporation
+* Portions Copyrighted 2019-2024 OSSTech Corporation
 * Portions Copyrighted 2019 OGIS-RI Co., Ltd.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -104,7 +104,7 @@
                     <container>
                         <containerId>tomcat7x</containerId>
                         <zipUrlInstaller>
-                            <url>http://archive.apache.org/dist/tomcat/tomcat-7/v7.0.47/bin/apache-tomcat-7.0.47.zip</url>
+                            <url>https://archive.apache.org/dist/tomcat/tomcat-7/v7.0.47/bin/apache-tomcat-7.0.47.zip</url>
                             <downloadDir>${project.build.directory}/downloads</downloadDir>
                             <extractDir>${project.build.directory}/extracts</extractDir>
                         </zipUrlInstaller>

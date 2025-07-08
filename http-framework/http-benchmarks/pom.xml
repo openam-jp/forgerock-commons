@@ -21,7 +21,7 @@
   <parent>
     <artifactId>forgerock-http-framework-parent</artifactId>
     <groupId>jp.openam.http</groupId>
-    <version>20.1.1.1</version>
+    <version>20.1.1.2</version>
   </parent>
 
   <artifactId>chf-benchmarks</artifactId>

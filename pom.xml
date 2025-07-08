@@ -13,19 +13,19 @@
    information: "Portions copyright [year] [name of copyright owner]".
 
    Copyright 2015-2016 ForgeRock AS.
-   Portions Copyrighted 2019-2023 OSSTech Corporation
+   Portions Copyrighted 2019-2025 OSSTech Corporation
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>jp.openam</groupId>
     <artifactId>forgerock-parent</artifactId>
-    <version>2.0.7.1</version>
+    <version>2.0.7.2</version>
   </parent>
 
   <groupId>jp.openam.commons</groupId>
   <artifactId>commons-parent</artifactId>
-  <version>20.1.1.1</version>
+  <version>20.1.1.2</version>
   <packaging>pom</packaging>
 
   <name>ForgeRock Commons Parent</name>
@@ -52,7 +52,7 @@
     <connection>scm:git:git@github.com:openam-jp/forgerock-commons.git</connection>
     <developerConnection>scm:git:https://github.com/openam-jp/forgerock-commons.git</developerConnection>
     <url>https://github.com/openam-jp/forgerock-commons</url>
-    <tag>20.1.1.1</tag>
+    <tag>20.1.1.2</tag>
   </scm>
 
   <properties>
@@ -83,7 +83,7 @@
       <dependency>
         <groupId>jp.openam.commons</groupId>
         <artifactId>forgerock-bom</artifactId>
-        <version>4.1.2.1</version>
+        <version>4.1.2.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

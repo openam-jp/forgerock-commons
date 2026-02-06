@@ -130,16 +130,6 @@ the resource to be read.
         <td><p><i>See common parameters</i></p></td>
     </tr>
     <tr>
-        <td>
-            <tt>_mimeType=<i>mimeType</i></tt>
-        </td>
-        <td>
-            <p>A string that identifies the media type for the response content.
-            When this parameter is used only 1 field value may be returned using the <tt>_fields</tt>
-            parameter.</p>
-        </td>
-    </tr>
-    <tr>
         <th>Content</th>
         <td>
             <p>N/A</p>
@@ -148,9 +138,7 @@ the resource to be read.
     <tr>
         <th>Returns</th>
         <td>
-            <p>The JSON representation of the resource that was read if the <tt>_mimeType</tt> parameter
-            is not used. Otherwise the requested resource field is returned with the content type specified in the
-                <tt>_mimeType</tt> parameter</p>
+            <p>The JSON representation of the resource that was read.</p>
         </td>
     </tr>
 </table>

@@ -12,6 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2012-2016 ForgeRock AS.
+ * Portions copyright 2026 OSSTech Corporation
  */
 
 package org.forgerock.json.resource.http;
@@ -122,8 +123,6 @@ public final class HttpUtils {
     public static final String PARAM_ACTION = param(ActionRequest.FIELD_ACTION);
     /** the HTTP request parameter to specify which fields to return. */
     public static final String PARAM_FIELDS = param(Request.FIELD_FIELDS);
-    /** the HTTP request parameter to request a certain mimetype for a filed. */
-    public static final String PARAM_MIME_TYPE = param("mimeType");
     /** the HTTP request parameter to request a certain page size. */
     public static final String PARAM_PAGE_SIZE = param(QueryRequest.FIELD_PAGE_SIZE);
     /** the HTTP request parameter to specify a paged results cookie. */
@@ -669,22 +668,10 @@ public final class HttpUtils {
     static Response prepareResponse(org.forgerock.http.protocol.Request req, org.forgerock.http.protocol.Response resp)
             throws ResourceException {
         //get content type from req path
-        try {
-            resp.setStatus(Status.OK);
-            String mimeType = req.getForm().getFirst(PARAM_MIME_TYPE);
-            if (METHOD_GET.equalsIgnoreCase(getMethod(req)) && mimeType != null && !mimeType.isEmpty()) {
-                ContentType contentType = new ContentType(mimeType);
-                resp.getHeaders().put(new ContentTypeHeader(contentType.toString(), CHARACTER_ENCODING, null));
-            } else {
-                resp.getHeaders().put(new ContentTypeHeader(MIME_TYPE_APPLICATION_JSON, CHARACTER_ENCODING, null));
-            }
-
-            resp.getHeaders().put(HEADER_CACHE_CONTROL, CACHE_CONTROL);
-            return resp;
-        } catch (ParseException e) {
-            throw new BadRequestException("The mime type parameter '" + req.getForm().getFirst(PARAM_MIME_TYPE)
-                    + "' can't be parsed", e);
-        }
+        resp.setStatus(Status.OK);
+        resp.getHeaders().put(new ContentTypeHeader(MIME_TYPE_APPLICATION_JSON, CHARACTER_ENCODING, null));
+        resp.getHeaders().put(HEADER_CACHE_CONTROL, CACHE_CONTROL);
+        return resp;
     }
 
     static void rejectIfMatch(org.forgerock.http.protocol.Request req) throws ResourceException {

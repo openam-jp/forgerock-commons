@@ -12,12 +12,12 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2014-2016 ForgeRock AS.
+ * Portions copyright 2026 OSSTech Corporation
  */
 
 package org.forgerock.json.resource.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
 import static org.forgerock.http.routing.Version.version;
 import static org.forgerock.json.resource.http.HttpUtils.*;
 
@@ -25,14 +25,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 import org.forgerock.http.header.AcceptApiVersionHeader;
 import org.forgerock.http.header.ContentTypeHeader;
-import org.forgerock.http.header.GenericHeader;
 import org.forgerock.http.protocol.Request;
-import org.forgerock.http.protocol.Response;
 import org.forgerock.json.JsonValue;
 import org.forgerock.json.resource.ActionRequest;
 import org.forgerock.json.resource.BadRequestException;
@@ -288,86 +285,6 @@ public class HttpUtilsTest {
 
         //then
         testNonMultiPartResult(result);
-    }
-
-    @DataProvider
-    public Object[][] validGetMethodContentTypeCombination() {
-        return new Object[][]{
-            { HttpUtils.METHOD_GET, HttpUtils.MIME_TYPE_APPLICATION_JSON, HttpUtils.MIME_TYPE_APPLICATION_JSON },
-            { HttpUtils.METHOD_GET, HttpUtils.MIME_TYPE_TEXT_PLAIN, HttpUtils.MIME_TYPE_TEXT_PLAIN }
-        };
-    }
-
-    private void setupPrepareResponseMocks(org.forgerock.http.protocol.Request httpRequest,
-                                           final String method,
-                                           final String contentType) throws URISyntaxException {
-        httpRequest.setMethod(method);
-        httpRequest.getHeaders().put(HttpUtils.HEADER_X_HTTP_METHOD_OVERRIDE, method);
-        httpRequest.getUri().setQuery(HttpUtils.PARAM_MIME_TYPE + "=" + contentType);
-    }
-
-    @Test(dataProvider = "validGetMethodContentTypeCombination")
-    public void testShouldSetResponseContentType(final String method, final String contentType, final String result)
-            throws Exception {
-        //given
-        org.forgerock.http.protocol.Request httpRequest = newRequest();
-
-        setupPrepareResponseMocks(httpRequest, method, contentType);
-
-        //when
-        Response httpResponse = HttpUtils.prepareResponse(httpRequest);
-
-        //then
-        assertThat(httpResponse.getHeaders())
-                .contains(
-                        entry(ContentTypeHeader.NAME,
-                                new ContentTypeHeader(result, CHARACTER_ENCODING, null)),
-                        entry(HEADER_CACHE_CONTROL, new GenericHeader(HEADER_CACHE_CONTROL, CACHE_CONTROL)));
-    }
-
-    @Test(expectedExceptions = BadRequestException.class)
-    public void testShouldThrowBadRequestExceptionOnInvalidContentTypeForGet()
-            throws Exception {
-        //given
-        org.forgerock.http.protocol.Request httpRequest = newRequest();
-
-        setupPrepareResponseMocks(httpRequest, HttpUtils.METHOD_GET, "unknown content type");
-
-        //when
-        try {
-            HttpUtils.prepareResponse(httpRequest);
-        } catch (BadRequestException e) {
-            assertThat(e.getClass()).isEqualTo(BadRequestException.class);
-            throw e;
-        }
-    }
-
-    @DataProvider
-    public Object[][] validPostMethodContentTypeCombination() {
-        return new Object[][]{
-            { HttpUtils.METHOD_POST, HttpUtils.MIME_TYPE_APPLICATION_JSON, HttpUtils.MIME_TYPE_APPLICATION_JSON },
-            { HttpUtils.METHOD_POST, HttpUtils.MIME_TYPE_TEXT_PLAIN, HttpUtils.MIME_TYPE_APPLICATION_JSON },
-            { HttpUtils.METHOD_POST, "Unknown content Type", HttpUtils.MIME_TYPE_APPLICATION_JSON }
-        };
-    }
-
-    @Test(dataProvider = "validPostMethodContentTypeCombination")
-    public void testShouldSetResponseContentTypeForPostMethod(final String method, final String contentType,
-            final String result) throws Exception {
-        //given
-        org.forgerock.http.protocol.Request httpRequest = newRequest();
-
-        setupPrepareResponseMocks(httpRequest, method, contentType);
-
-        //when
-        Response httpResponse = HttpUtils.prepareResponse(httpRequest);
-
-        //then
-        assertThat(httpResponse.getHeaders())
-                .contains(
-                        entry(ContentTypeHeader.NAME,
-                                new ContentTypeHeader(result, CHARACTER_ENCODING, null)),
-                        entry(HEADER_CACHE_CONTROL, new GenericHeader(HEADER_CACHE_CONTROL, CACHE_CONTROL)));
     }
 
     @DataProvider

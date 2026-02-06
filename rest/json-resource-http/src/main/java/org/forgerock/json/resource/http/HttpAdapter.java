@@ -12,7 +12,7 @@
  * information: "Portions copyright [year] [name of copyright owner]".
  *
  * Copyright 2012-2015 ForgeRock AS.
- * Portions copyright 2021 OSSTech Corporation
+ * Portions copyright 2026 OSSTech Corporation
  */
 
 package org.forgerock.json.resource.http;
@@ -240,16 +240,6 @@ final class HttpAdapter implements Handler {
                 final List<String> values = p.getValue();
                 if (parseCommonParameter(name, values, request)) {
                     continue;
-                } else if (PARAM_MIME_TYPE.equalsIgnoreCase(name)) {
-                    if (values.size() != 1 || values.get(0).split(FIELDS_DELIMITER).length > 1) {
-                        // FIXME: i18n.
-                        throw new BadRequestException("Only one mime type value allowed");
-                    }
-                    if (parameters.get(PARAM_FIELDS).size() != 1) {
-                        // FIXME: i18n.
-                        throw new BadRequestException("The mime type parameter requires only "
-                                + "1 field to be specified");
-                    }
                 } else {
                     request.setAdditionalParameter(name, asSingleValue(name, values));
                 }

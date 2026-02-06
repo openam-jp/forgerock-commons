@@ -12,6 +12,7 @@
  * information: "Portions Copyright [year] [name of copyright owner]".
  *
  * Copyright 2012-2015 ForgeRock AS.
+ * Portions copyright 2026 OSSTech Corporation
  */
 
 package org.forgerock.json.resource;
@@ -232,9 +233,8 @@ public final class Requests {
 
         @Override
         boolean isReservedParameter(String name) {
-            // no reserved parameters for ActionRequests in order to support current patch-by-query usage *except*
-            // mimeType which only applies to true read requests.
-            return name.equals("_mimeType");
+            // no reserved parameters for ActionRequests in order to support current patch-by-query usage
+            return false;
         }
     }
 

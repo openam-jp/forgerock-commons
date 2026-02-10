@@ -865,8 +865,7 @@ public final class HttpUtils {
         } catch (final JsonParseException e) {
             throw new BadRequestException(
                     "The request could not be processed because the provided "
-                            + "content is not valid JSON", e)
-                .setDetail(new JsonValue(e.getMessage()));
+                            + "content is not valid JSON", e);
         } catch (final JsonMappingException e) {
             if (allowEmpty) {
                 return null;

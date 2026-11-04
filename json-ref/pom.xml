@@ -21,7 +21,7 @@
     <parent>
         <groupId>jp.openam.commons</groupId>
         <artifactId>commons-parent</artifactId>
-        <version>20.1.1.3</version>
+        <version>20.1.1.4</version>
     </parent>
     <artifactId>json-ref</artifactId>
     <packaging>pom</packaging>

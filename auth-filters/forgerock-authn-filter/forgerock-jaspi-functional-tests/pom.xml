@@ -21,7 +21,7 @@
     <parent>
         <groupId>jp.openam.commons</groupId>
         <artifactId>forgerock-authn-filter</artifactId>
-        <version>20.1.1.3</version>
+        <version>20.1.1.4</version>
     </parent>
 
     <artifactId>forgerock-jaspi-functional-tests</artifactId>
@@ -33,7 +33,7 @@
         <hostname>localhost</hostname>
         <context.uri>jaspi</context.uri>
 
-        <forgerock.guice.version>1.1.1.3</forgerock.guice.version>
+        <forgerock.guice.version>1.1.1.4</forgerock.guice.version>
     </properties>
 
     <build>
